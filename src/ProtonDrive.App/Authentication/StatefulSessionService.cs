@@ -20,7 +20,7 @@ namespace ProtonDrive.App.Authentication;
 public class StatefulSessionService
     : IStatefulSessionService, IAuthenticationService, IStartableService, IStoppableService, IAccountStateAware, IVolumeStateAware
 {
-    private readonly ISessionService _sessionService;
+    private readonly Client.Authentication.IAuthenticationService _clientAuthenticationService;
     private readonly IOfflineService _offlineService;
     private readonly Lazy<IEnumerable<ISessionStateAware>> _sessionStateAware;
     private readonly ILogger<StatefulSessionService> _logger;
@@ -30,23 +30,22 @@ public class StatefulSessionService
     private readonly AsyncManualResetEvent _accountSetupCompleted = new(initialState: false);
 
     private volatile bool _stopping;
-    private volatile bool _signingIn;
     private bool _isFirstSessionStart = true;
     private SessionState _state = SessionState.None;
     private string? _accountSetupErrorMessage;
 
     public StatefulSessionService(
-        ISessionService sessionService,
+        Client.Authentication.IAuthenticationService clientAuthenticationService,
         IOfflineService offlineService,
         Lazy<IEnumerable<ISessionStateAware>> sessionStateAware,
         ILogger<StatefulSessionService> logger)
     {
-        _sessionService = sessionService;
+        _clientAuthenticationService = clientAuthenticationService;
         _offlineService = offlineService;
         _sessionStateAware = sessionStateAware;
         _logger = logger;
 
-        _sessionService.SessionEnded += OnSessionServiceSessionEnded;
+        _clientAuthenticationService.SessionEnded += OnClientAuthenticationServiceSessionEnded;
     }
 
     private SessionState State
@@ -168,7 +167,10 @@ public class StatefulSessionService
 
     public void RestartAuthentication()
     {
-        if (State is { Status: SessionStatus.SigningIn, SigningInStatus: SigningInStatus.WaitingForSecondFactorCode or SigningInStatus.WaitingForDataPassword })
+        if (State.SigningInStatus is (
+            SigningInStatus.WaitingForSecondFactorCode
+            or SigningInStatus.WaitingForDataPassword
+            or SigningInStatus.WaitingForAuthenticationPassword))
         {
             SetSigningIn(SigningInStatus.WaitingForAuthenticationPassword);
         }
@@ -184,17 +186,16 @@ public class StatefulSessionService
         cancellationToken.ThrowIfCancellationRequested();
         SetState(SessionStatus.Starting);
 
-        var result = await _sessionService.StartSessionAsync(cancellationToken).ConfigureAwait(false);
+        var result = await _clientAuthenticationService.StartSessionAsync(cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
+
         SetState(result);
     }
 
     private async Task InternalAuthenticateAsync(NetworkCredential credential, CancellationToken cancellationToken)
     {
-        if (_stopping
-            || State.Status is not SessionStatus.SigningIn
-            || State.SigningInStatus is not SigningInStatus.WaitingForAuthenticationPassword)
+        if (_stopping)
         {
             return;
         }
@@ -202,7 +203,7 @@ public class StatefulSessionService
         cancellationToken.ThrowIfCancellationRequested();
         SetSigningIn(SigningInStatus.Authenticating);
 
-        var result = await _sessionService.StartSessionAsync(credential, cancellationToken).ConfigureAwait(false);
+        var result = await _clientAuthenticationService.StartSessionAsync(credential, cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -227,7 +228,7 @@ public class StatefulSessionService
         cancellationToken.ThrowIfCancellationRequested();
         SetSigningIn(SigningInStatus.Authenticating);
 
-        var result = await _sessionService.FinishTwoFactorAuthenticationAsync(secondFactor, cancellationToken).ConfigureAwait(false);
+        var result = await _clientAuthenticationService.FinishTwoFactorAuthenticationAsync(secondFactor, cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -252,7 +253,7 @@ public class StatefulSessionService
         cancellationToken.ThrowIfCancellationRequested();
         SetSigningIn(SigningInStatus.Authenticating);
 
-        var result = await _sessionService.UnlockDataAsync(secondPassword, cancellationToken).ConfigureAwait(false);
+        var result = await _clientAuthenticationService.UnlockDataAsync(secondPassword, cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -311,10 +312,10 @@ public class StatefulSessionService
             SetState(StartSessionResult.Failure(StartSessionResultCode.Failure, reason));
         }
 
-        await _sessionService.EndSessionAsync().ConfigureAwait(false);
+        await _clientAuthenticationService.EndSessionAsync().ConfigureAwait(false);
     }
 
-    private void OnSessionServiceSessionEnded(object? sender, ApiResponse reason)
+    private void OnClientAuthenticationServiceSessionEnded(object? sender, ApiResponse reason)
     {
         _logger.LogWarning("Session terminated by the backend");
 
@@ -346,9 +347,9 @@ public class StatefulSessionService
 
         switch (result.Code)
         {
-            case StartSessionResultCode.Failure:
             case StartSessionResultCode.SignInRequired:
-                SetSigningIn(SigningInStatus.WaitingForAuthenticationPassword, result);
+            case StartSessionResultCode.Failure:
+                SetState(SessionStatus.NotStarted, result, SigningInStatus.WaitingForAuthenticationPassword);
                 break;
 
             case StartSessionResultCode.SecondFactorCodeRequired:
@@ -399,14 +400,6 @@ public class StatefulSessionService
         {
             listener.OnSessionStateChanged(state);
         }
-
-        // To show the sign-in window as soon as the user signs out
-        if (state.Status == SessionStatus.Ending && !_stopping && !_signingIn)
-        {
-            Schedule(InternalStartSessionAsync);
-        }
-
-        _signingIn = state.Status == SessionStatus.SigningIn;
     }
 
     private void LogStateChange(SessionState state)
@@ -416,21 +409,21 @@ public class StatefulSessionService
             _logger.LogWarning("Session service responded with {ErrorCode}: {ErrorMessage}", state.Response.Code, state.Response.Error);
         }
 
-        if (state.Status is SessionStatus.SigningIn)
+        if (state.Status is SessionStatus.SigningIn || state.SigningInStatus is not SigningInStatus.None)
         {
-            _logger.LogInformation("Session status changed to {SessionStatus}/{AuthenticationStatus}", state.Status, state.SigningInStatus);
+            _logger.LogInformation("Session state changed to {SessionStatus}/{AuthenticationStatus}", state.Status, state.SigningInStatus);
         }
         else if (state.Status is SessionStatus.Started && state.SigningInStatus is not SigningInStatus.None)
         {
-            _logger.LogInformation("Session status changed to {SessionStatus}/{AuthenticationStatus}, user ID={UserId}", state.Status, state.SigningInStatus, state.UserId);
+            _logger.LogInformation("Session state changed to {SessionStatus}/{AuthenticationStatus}, user ID={UserId}", state.Status, state.SigningInStatus, state.UserId);
         }
         else if (!string.IsNullOrEmpty(state.UserId))
         {
-            _logger.LogInformation("Session status changed to {SessionStatus}, user ID={UserId}", state.Status, state.UserId);
+            _logger.LogInformation("Session state changed to {SessionStatus}, user ID={UserId}", state.Status, state.UserId);
         }
         else
         {
-            _logger.LogInformation("Session status changed to {SessionStatus}", state.Status);
+            _logger.LogInformation("Session state changed to {SessionStatus}", state.Status);
         }
     }
 

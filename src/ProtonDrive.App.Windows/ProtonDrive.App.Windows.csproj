@@ -2,15 +2,17 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>$(DefaultTargetFramework)-windows10.0.17763.0</TargetFramework>
+    <WindowsSdkPackageVersion>10.0.17763.41</WindowsSdkPackageVersion>
     <UseWPF>true</UseWPF>
     <StartupObject>ProtonDrive.App.Windows.Program</StartupObject>
     <ApplicationIcon>../../assets/ProtonDrive.ico</ApplicationIcon>
     <AssemblyName>ProtonDrive</AssemblyName>
     <AssemblyTitle>Proton Drive</AssemblyTitle>
     <Platforms>AnyCPU;x64;ARM64;x86</Platforms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishReadyToRun>false</PublishReadyToRun>
@@ -28,9 +30,9 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.122" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="morelinq" Version="4.3.0" />
   </ItemGroup>
 
@@ -55,6 +57,7 @@
     <Resource Include="Views\Main\Activity\InitializingSyncPlaceholder.png" />
     <Resource Include="Views\Main\Computers\SyncedFoldersPlaceholder.png" />
     <Resource Include="Views\Main\SharedWithMe\SharedWithMeListPlaceholder.png" />
+    <Resource Include="Views\Main\SharedWithMe\SharedWithMeOnboarding.png" />
     <Resource Include="Views\Onboarding\FileExplorer.png" />
   </ItemGroup>
 
@@ -72,9 +75,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ContentWithTargetPath Include="Resources\Icons\Logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="Resources\Icons\Logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>Logo.png</TargetPath>
-    </ContentWithTargetPath>
+    </None>
   </ItemGroup>
+
 </Project>

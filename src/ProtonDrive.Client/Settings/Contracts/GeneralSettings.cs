@@ -11,4 +11,6 @@ public sealed record GeneralSettings
     [JsonPropertyName("CrashReports")]
     [JsonConverter(typeof(BooleanToIntegerJsonConverter))]
     public bool IsSendingCrashReportsEnabled { get; init; }
+
+    public NewsSettings News { get; init; }
 }

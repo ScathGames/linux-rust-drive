@@ -52,7 +52,9 @@ internal sealed class SharedWithMeItemMappingSetupStep
             throw new ArgumentException("Mapping type has unexpected value", nameof(mapping));
         }
 
-        var result = SetUpLocalFolder(mapping, cancellationToken);
+        var result = mapping.Remote.RootItemType is LinkType.Folder
+            ? SetUpLocalFolder(mapping, cancellationToken)
+            : SetUpLocalFile(mapping);
 
         return Task.FromResult(result ?? MappingErrorCode.None);
     }
@@ -60,6 +62,7 @@ internal sealed class SharedWithMeItemMappingSetupStep
     private MappingErrorCode? SetUpLocalFolder(RemoteToLocalMapping mapping, CancellationToken cancellationToken)
     {
         var localReplica = mapping.Local;
+        var localFolderPath = localReplica.Path;
 
         if (localReplica.RootFolderId != default)
         {
@@ -69,33 +72,33 @@ internal sealed class SharedWithMeItemMappingSetupStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (mapping.Remote.RootLinkType is LinkType.Folder && !TryCreateLocalFolder(localReplica.RootFolderPath))
+        if (!TryCreateLocalFolder(localReplica.Path))
         {
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_localFolderService.TryGetFolderInfo(localReplica.RootFolderPath, FileShare.ReadWrite, out var rootFolder))
+        if (!_localFolderService.TryGetFolderInfo(localFolderPath, FileShare.ReadWrite, out var rootFolder))
         {
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
 
         if (rootFolder == null)
         {
-            _logger.LogWarning("The local sync folder does not exist");
+            _logger.LogWarning("The local shared with me folder does not exist");
             return MappingErrorCode.LocalFolderDoesNotExist;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (mapping.Remote.RootLinkType is LinkType.Folder && !_localFolderService.EmptyFolderExists(localReplica.RootFolderPath, _specialFolders))
+        if (!_localFolderService.EmptyFolderExists(localReplica.Path, _specialFolders))
         {
-            _logger.LogWarning("The local sync folder is not empty");
+            _logger.LogWarning("The local shared with me folder is not empty");
             return MappingErrorCode.LocalFolderNotEmpty;
         }
 
-        var result = _localFolderIdentityValidator.ValidateFolderIdentity(rootFolder, localReplica, mapping.Remote.RootLinkType);
+        var result = _localFolderIdentityValidator.ValidateFolderIdentity(rootFolder, localReplica, mapping.Remote.RootItemType);
         if (result is not null)
         {
             return result;
@@ -103,15 +106,30 @@ internal sealed class SharedWithMeItemMappingSetupStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (mapping.Remote.RootLinkType is LinkType.Folder && !_localFolderService.TryConvertToPlaceholder(localReplica.RootFolderPath))
+        if (!_localFolderService.TryConvertToPlaceholder(localReplica.Path))
         {
-            _logger.LogWarning("The local sync folder conversion to placeholder failed");
+            _logger.LogWarning("The local shared with me folder conversion to placeholder failed");
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
 
         localReplica.RootFolderId = rootFolder.Id;
         localReplica.VolumeSerialNumber = rootFolder.VolumeInfo.VolumeSerialNumber;
         localReplica.InternalVolumeId = _volumeIdentityProvider.GetLocalVolumeId(localReplica.VolumeSerialNumber);
+
+        return null;
+    }
+
+    private MappingErrorCode? SetUpLocalFile(RemoteToLocalMapping mapping)
+    {
+        var localReplica = mapping.Local;
+
+        if (localReplica.InternalVolumeId != default)
+        {
+            // Already set up
+            return default;
+        }
+
+        localReplica.InternalVolumeId = _volumeIdentityProvider.GetUniqueLocalVolumeId();
 
         return null;
     }
@@ -127,7 +145,7 @@ internal sealed class SharedWithMeItemMappingSetupStep
 
             var sharedWithMeRootFolderPath = GetSharedWithMeRootFolderPath(path);
 
-            _syncFolderStructureProtector.Unprotect(sharedWithMeRootFolderPath, FolderProtectionType.AncestorWithFiles);
+            _syncFolderStructureProtector.UnprotectFolder(sharedWithMeRootFolderPath, FolderProtectionType.AncestorWithFiles);
 
             Directory.CreateDirectory(path);
 

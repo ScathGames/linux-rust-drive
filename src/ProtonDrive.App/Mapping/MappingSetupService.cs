@@ -18,7 +18,8 @@ using ProtonDrive.Sync.Shared.SyncActivity;
 
 namespace ProtonDrive.App.Mapping;
 
-internal sealed class MappingSetupService : IMappingSetupService, IStoppableService, IMappingsAware, IVolumeStateAware, ISyncStateAware, IOnboardingStateAware, IRootDeletionHandler
+internal sealed class MappingSetupService
+    : IMappingSetupService, IStoppableService, IMappingsAware, IVolumeStateAware, ISyncStateAware, IOnboardingStateAware, IRootDeletionHandler
 {
     private readonly IMappingRegistry _mappingRegistry;
     private readonly IMappingSetupPipeline _mappingSetupPipeline;
@@ -33,7 +34,7 @@ internal sealed class MappingSetupService : IMappingSetupService, IStoppableServ
     private volatile bool _stopping;
     private VolumeState _volumeState = VolumeState.Idle;
     private SyncState _syncState = SyncState.Terminated;
-    private OnboardingState _onboardingState = OnboardingState.NotStarted;
+    private OnboardingState _onboardingState = OnboardingState.Initial;
 
     private Mappings _mappings = new([], []);
     private Mappings _newMappings = new([], []);
@@ -72,8 +73,7 @@ internal sealed class MappingSetupService : IMappingSetupService, IStoppableServ
         _stopping = true;
         _mappingsSetup.Cancel();
 
-        // Wait for scheduled task to complete
-        await _mappingsSetup.CurrentTask.ConfigureAwait(false);
+        await _mappingsSetup.WaitForCompletionAsync().ConfigureAwait(false);
 
         _logger.LogInformation($"{nameof(MappingSetupService)} stopped");
     }
@@ -267,7 +267,7 @@ internal sealed class MappingSetupService : IMappingSetupService, IStoppableServ
     private bool ValidatePreconditions()
     {
         return _volumeState.Status is VolumeServiceStatus.Succeeded
-            && _onboardingState is OnboardingState.Completed;
+            && _onboardingState.Status is not OnboardingStatus.Onboarding;
     }
 
     /// <summary>
@@ -295,32 +295,22 @@ internal sealed class MappingSetupService : IMappingSetupService, IStoppableServ
 
         MappingState? combinedResult = null;
 
-        // Mappings are teared down in a specific order based on mapping type
-        var mappingTypesToTearDown = new[]
-        {
-            MappingType.HostDeviceFolder,
-            MappingType.CloudFiles,
-            MappingType.ForeignDevice,
-            MappingType.SharedWithMeItem,
-            MappingType.SharedWithMeRootFolder,
-        };
+        // Mappings are teared down in a hierarchical order
+        var mappingsToTearDown = deletedMappings
+            .Where(x => x.Status is not MappingStatus.TornDown)
+            .OrderDescending(HierarchicalMappingComparer.Instance);
 
-        foreach (var type in mappingTypesToTearDown)
+        foreach (var mapping in mappingsToTearDown)
         {
-            var mappingsToTearDown = deletedMappings.Where(mapping => mapping.Type == type);
+            var result = await TearDownMappingAsync(mapping, cancellationToken).ConfigureAwait(false);
 
-            foreach (var mapping in mappingsToTearDown.Where(x => x.Status is not MappingStatus.TornDown))
+            if (result.Status is MappingSetupStatus.Succeeded)
             {
-                var result = await TearDownMappingAsync(mapping, cancellationToken).ConfigureAwait(false);
-
-                if (result.Status is MappingSetupStatus.Succeeded)
-                {
-                    await _mappingRegistry.SaveAsync(cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    combinedResult ??= result;
-                }
+                await _mappingRegistry.SaveAsync(cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                combinedResult ??= result;
             }
         }
 
@@ -451,15 +441,15 @@ internal sealed class MappingSetupService : IMappingSetupService, IStoppableServ
         SetMappingState(mapping, MappingSetupStatus.SettingUp);
 
         var alreadySetUpFolders = _alreadySetUpMappings
-            .Select(x => x.Local.RootFolderPath)
+            .Select(x => x.Local.Path)
             .ToHashSet();
 
-        var sharedWithMeItemsFolderMapping = _alreadySetUpMappings.FirstOrDefault(x => x.Type is MappingType.SharedWithMeRootFolder);
+        var sharedWithMeRootFolderMapping = _alreadySetUpMappings.FirstOrDefault(x => x.Type is MappingType.SharedWithMeRootFolder);
 
-        // Shared with me items folder is excluded to not interfere with child sync roots
-        if (sharedWithMeItemsFolderMapping is not null)
+        // Shared with me root folder is excluded to not interfere with child sync roots
+        if (sharedWithMeRootFolderMapping is not null)
         {
-            alreadySetUpFolders.Remove(sharedWithMeItemsFolderMapping.Local.RootFolderPath);
+            alreadySetUpFolders.Remove(sharedWithMeRootFolderMapping.Local.Path);
         }
 
         var result = await _mappingSetupPipeline

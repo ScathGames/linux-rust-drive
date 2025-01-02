@@ -26,20 +26,23 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
     private SyncActivityItem<long> _dataItem;
     private SyncActivityItemStatus _status;
     private DateTime? _synchronizedAt;
-    private FileSystemErrorCode _errorCode;
+    private FileSystemErrorCode? _errorCode;
     private string? _errorMessage;
     private Progress _progress;
 
     public SyncActivityItemViewModel(
         SyncActivityItem<long> dataItem,
         IFileSystemDisplayNameAndIconProvider fileSystemDisplayNameAndIconProvider,
-        ILocalFolderService localFolderService)
+        ILocalFolderService localFolderService,
+        int syncPassNumber)
     {
         _dataItem = dataItem;
         _fileSystemDisplayNameAndIconProvider = fileSystemDisplayNameAndIconProvider;
         _localFolderService = localFolderService;
 
         OpenFolderCommand = new AsyncRelayCommand(OpenFolderAsync, CanOpenFolder);
+
+        LastSyncPassNumber = syncPassNumber;
 
         OnDataItemUpdated(dataItem);
     }
@@ -62,9 +65,17 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
 
     public bool ProgressIsIndeterminate => _dataItem.ActivityType is not (SyncActivityType.Upload or SyncActivityType.Download);
 
-    public ImageSource? Icon => _dataItem.NodeType is NodeType.Directory
-        ? _fileSystemDisplayNameAndIconProvider.GetFolderIconWithoutAccess(Name, ShellIconSize.Small)
-        : _fileSystemDisplayNameAndIconProvider.GetFileIconWithoutAccess(Name, ShellIconSize.Small);
+    public ImageSource? Icon
+    {
+        get
+        {
+            var name = string.IsNullOrEmpty(Name) ? "folder" : Name;
+
+            return _dataItem.NodeType is NodeType.Directory
+                ? _fileSystemDisplayNameAndIconProvider.GetFolderIconWithoutAccess(name, ShellIconSize.Small)
+                : _fileSystemDisplayNameAndIconProvider.GetFileIconWithoutAccess(name, ShellIconSize.Small);
+        }
+    }
 
     public string Name => DataItem.Name;
 
@@ -73,6 +84,8 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
         get => _progress;
         private set => SetProperty(ref _progress, value);
     }
+
+    public int? RootId => DataItem.RootId;
 
     public NodeType NodeType => DataItem.NodeType;
 
@@ -84,13 +97,15 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
 
     public string ActivityTypeDisplayText => GetActivityTypeDisplayText();
 
+    public int LastSyncPassNumber { get; set; }
+
     public DateTime? SynchronizedAt
     {
         get => _synchronizedAt;
         set => SetProperty(ref _synchronizedAt, value);
     }
 
-    public FileSystemErrorCode ErrorCode
+    public FileSystemErrorCode? ErrorCode
     {
         get => _errorCode;
         private set
@@ -142,13 +157,19 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
     private void OnDataItemUpdated(SyncActivityItem<long> value)
     {
         // Only some properties of data item can change
-        Status = value.Status;
+        if (value.Status is not SyncActivityItemStatus.Skipped)
+        {
+            Status = value.Status;
+        }
+
         ErrorCode = value.ErrorCode;
         ErrorMessage = value.ErrorMessage;
         Progress = value.Progress;
         OnPropertyChanged(nameof(Size));
+        OnPropertyChanged(nameof(RootId));
         OnPropertyChanged(nameof(Name));
-        OnPropertyChanged(nameof(Replica));
+        OnPropertyChanged(nameof(FolderName));
+        OnPropertyChanged(nameof(FolderPath));
     }
 
     private string GetActivityTypeDisplayText()

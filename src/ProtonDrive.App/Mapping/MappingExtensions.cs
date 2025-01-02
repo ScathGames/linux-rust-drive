@@ -45,7 +45,7 @@ internal static class MappingExtensions
             return false;
         }
 
-        path = Path.GetDirectoryName(mapping.Local.RootFolderPath);
+        path = Path.GetDirectoryName(mapping.Local.Path);
 
         return !string.IsNullOrEmpty(path);
     }

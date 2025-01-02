@@ -12,7 +12,7 @@
       <RegistrySearch Root="HKCU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Name="[ProductName]" Type="raw" />
     </Property>
 
-    <Component Id="RunOnStartupRegistryEntry" Condition="((NOT Installed) AND (NOT WIX_UPGRADE_DETECTED)) OR RUNONSTARTUPENTRYEXISTS">
+    <Component Id="RunOnStartupRegistryEntry" Condition="(NOT WIX_UPGRADE_DETECTED) OR RUNONSTARTUPENTRYEXISTS">
       <RegistryValue Type="string" Root="HKCU" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run" Name="[ProductName]" Value='"[INSTALLFOLDER]ProtonDrive.exe" -quiet'/>
     </Component>
 

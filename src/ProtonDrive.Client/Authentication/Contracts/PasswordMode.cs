@@ -1,7 +1,7 @@
 ﻿namespace ProtonDrive.Client.Authentication.Contracts;
 
-public enum PasswordMode
+internal enum PasswordMode
 {
     Single = 1,
-    Dual = 2
+    Dual = 2,
 }

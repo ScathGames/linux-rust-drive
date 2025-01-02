@@ -115,9 +115,8 @@ internal sealed class FileSyncStateHandler<TId, TAltId> : IDisposable
 
     internal async Task WaitForCompletionAsync()
     {
-        // Wait for all scheduled tasks to complete
-        await _quickFileSyncStateHandling.CurrentTask.ConfigureAwait(false);
-        await _repetitiveFileSyncStateHandling.CurrentTask.ConfigureAwait(false);
+        await _quickFileSyncStateHandling.WaitForCompletionAsync().ConfigureAwait(false);
+        await _repetitiveFileSyncStateHandling.WaitForCompletionAsync().ConfigureAwait(false);
     }
 
     private async Task QuicklyHandleFileSyncStateAsync(CancellationToken cancellationToken)

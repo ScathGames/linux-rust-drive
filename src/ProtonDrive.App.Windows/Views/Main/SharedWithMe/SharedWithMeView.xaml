@@ -12,15 +12,16 @@
     xmlns:shared="clr-namespace:ProtonDrive.App.Drive.Services.Shared;assembly=ProtonDrive.App"
     xmlns:sharedViews="clr-namespace:ProtonDrive.App.Windows.Views.Shared"
     xmlns:sharedWithMe="clr-namespace:ProtonDrive.App.Windows.Views.Main.SharedWithMe"
+    xmlns:sorting="clr-namespace:ProtonDrive.App.Windows.Views.Shared.Sorting"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance sharedWithMe:SharedWithMeViewModel}">
     <UserControl.Resources>
         <ResourceDictionary>
-            <system:Double x:Key="PermissionsColumnDefaultWidth">90</system:Double>
-            <system:Double x:Key="InviterColumnDefaultWidth">180</system:Double>
+            <system:Double x:Key="PermissionsColumnDefaultWidth">100</system:Double>
+            <system:Double x:Key="InviterColumnDefaultWidth">170</system:Double>
             <system:Double x:Key="CreationDateColumnDefaultWidth">100</system:Double>
-            <system:Double x:Key="ActionsColumnDefaultWidth">100</system:Double>
+            <system:Double x:Key="ActionsColumnDefaultWidth">120</system:Double>
             <system:Double x:Key="MoreActionsColumnDefaultWidth">50</system:Double>
 
             <Style x:Key="SwitchButtonFocusVisualStyle">
@@ -110,13 +111,10 @@
                 DataType="sharedWithMe:SharedWithMeItemViewModel">
                 <TextBlock
                     AutomationProperties.AutomationId="InviterEmailAddressText"
-                    Text="{Binding InviterEmailAddress}"
+                    Text="{Binding InviterDisplayName}"
                     Foreground="{StaticResource GrayBrush}"
-                    TextTrimming="CharacterEllipsis">
-                    <b:Interaction.Behaviors>
-                        <behaviors:TextBlockAutoToolTipBehavior />
-                    </b:Interaction.Behaviors>
-                </TextBlock>
+                    TextTrimming="CharacterEllipsis"
+                    ToolTip="{Binding InviterEmailAddress}" />
             </DataTemplate>
 
             <DataTemplate
@@ -212,333 +210,358 @@
                     </MenuItem>
                 </Menu>
             </DataTemplate>
+
+            <DataTemplate
+                x:Key="EnableSyncColumnHeaderTemplate"
+                DataType="{x:Type sorting:GridColumnViewModel}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="{Binding DisplayName}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTip="{Binding Tooltip}"
+                        VerticalAlignment="Center" />
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Style="{StaticResource ColumnSortIndicatorStyle}" />
+
+                    <Image
+                        Grid.Column="2"
+                        Source="{StaticResource Icon.Information}"
+                        ToolTip="Enable to make the shared file or folder accessible from your computer.&#x0a;Contents of files will be downloaded on demand only."
+                        Width="14"
+                        Height="14"
+                        VerticalAlignment="Center"
+                        Margin="10,3,0,0" />
+                </Grid>
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid
-        DataContext="{Binding SharedWithMeList}"
-        Margin="24,24,10,10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid>
+        <Border Background="Transparent">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger
+                            Binding="{Binding OnboardingIsCompleted}"
+                            Value="False">
+                            <DataTrigger.Setters>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <BlurEffect Radius="20" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger.Setters>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
 
-        <Grid Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition />
-            </Grid.RowDefinitions>
+            <Grid
+                DataContext="{Binding SharedWithMeList}"
+                Margin="24,24,10,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
 
-            <TextBlock
-                Grid.Column="0"
-                Grid.Row="0"
-                Text="Shared with me"
-                Style="{StaticResource Heading1Style}" />
-
-            <StackPanel
-                Grid.Column="0"
-                Grid.Row="1"
-                Orientation="Horizontal"
-                Margin="0,5,0,0">
-                <TextBlock
-                    Foreground="{StaticResource GrayBrush}"
-                    Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
-                    Margin="0,0,7,0">
-                    <Run Text="{Binding Items.Count, Mode=OneWay}" />
-                    <Run>
-                        <Run.Style>
-                            <Style TargetType="Run">
-                                <Setter Property="Text" Value="items" />
-                                <Style.Triggers>
-                                    <DataTrigger
-                                        Binding="{Binding Items.Count}"
-                                        Value="1">
-                                        <Setter Property="Text" Value="item" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Run.Style>
-                    </Run>
-                </TextBlock>
-
-                <TextBlock
-                    Foreground="{StaticResource GrayBrush}"
-                    Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
-                    Margin="0,0,7,0">
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="{}({0} synced)">
-                            <Binding Path="NumberOfSyncedItems" />
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-
-                <Image
-                    Source="{StaticResource Icon.Syncing.Gray}"
-                    Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, Mode=OneWay, ConverterParameter={x:Static shared:DataServiceStatus.LoadingData}}"
-                    VerticalAlignment="Center" />
-
-                <TextBlock
-                    AutomationProperties.AutomationId="LoadingDataText"
-                    Text="Loading data, please wait..."
-                    Foreground="{StaticResource GrayBrush}"
-                    Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={x:Static shared:DataServiceStatus.LoadingData}}"
-                    VerticalAlignment="Center"
-                    Margin="7,0,0,0" />
-
-                <Image
-                    Source="{StaticResource Icon.Error}"
-                    Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, Mode=OneWay, ConverterParameter={x:Static shared:DataServiceStatus.Failed}}"
-                    VerticalAlignment="Center" />
-
-                <TextBlock
-                    Text="Failed to load data"
-                    Foreground="{StaticResource NegativeBrush}"
-                    Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={x:Static shared:DataServiceStatus.Failed}}"
-                    VerticalAlignment="Center"
-                    Margin="7,0,0,0" />
-
-                <Image
-                    Source="{StaticResource Icon.Warning}"
-                    Visibility="{Binding NumberOfFailedItems, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
-                    VerticalAlignment="Center" />
-
-                <TextBlock
-                    Foreground="{StaticResource PendingBrush}"
-                    Visibility="{Binding NumberOfFailedItems, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
-                    VerticalAlignment="Center"
-                    Margin="7,0,0,0">
-                    <Run Text="{Binding NumberOfFailedItems, Mode=OneWay}" />
-                    <Run>
-                        <Run.Style>
-                            <Style TargetType="Run">
-                                <Setter Property="Text" Value="items" />
-                                <Style.Triggers>
-                                    <DataTrigger
-                                        Binding="{Binding NumberOfFailedItems, Mode=OneWay}"
-                                        Value="1">
-                                        <Setter Property="Text" Value="item" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Run.Style>
-                    </Run>
-                    <Run Text="failed to be loaded" />
-                </TextBlock>
-            </StackPanel>
-
-            <Button
-                Grid.Column="1"
-                Grid.Row="0"
-                Grid.RowSpan="2"
-                Content="Open _folder"
-                Command="{Binding OpenSharedWithMeRootFolderCommand}"
-                Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}"
-                VerticalAlignment="Center"
-                Margin="0,0,8,0" />
-        </Grid>
-
-        <StackPanel
-            Grid.Row="1"
-            Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
-            VerticalAlignment="Center">
-            <Image
-                Source="SharedWithMeListPlaceholder.png"
-                Width="170" />
-
-            <TextBlock
-                AutomationProperties.HelpText="Nothing shared yet"
-                Text="Nothing shared yet"
-                Style="{StaticResource Subtitle.DarkTheme.Style}"
-                HorizontalAlignment="Center" />
-
-            <TextBlock
-                Text="Files and folders that are shared"
-                Foreground="{StaticResource GrayBrush}"
-                HorizontalAlignment="Center"
-                Margin="0,10,0,0" />
-
-            <TextBlock
-                Text="with you will appear here"
-                Foreground="{StaticResource GrayBrush}"
-                HorizontalAlignment="Center" />
-        </StackPanel>
-
-        <Grid
-            Grid.Row="1"
-            Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
-            Margin="0,10,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <Border
-                Grid.Row="0"
-                Style="{StaticResource RoundedSection.DarkTheme.Warning}"
-                Visibility="{Binding MaximumNumberOfSyncedFoldersReached, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}">
-                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <Image
+                    <TextBlock
                         Grid.Column="0"
-                        Source="{StaticResource Icon.Warning}"
-                        Width="16"
-                        Height="16"
-                        VerticalAlignment="Center" />
+                        Grid.Row="0"
+                        Text="Shared with me"
+                        Style="{StaticResource Heading1Style}" />
 
                     <StackPanel
-                        Grid.Column="1"
-                        Margin="15,0,0,0">
+                        Grid.Column="0"
+                        Grid.Row="1"
+                        Orientation="Horizontal"
+                        Margin="0,5,0,0">
                         <TextBlock
-                            AutomationProperties.AutomationId="MaximumNumberOfSyncedItemsSupportedText"
-                            TextTrimming="CharacterEllipsis">
-                            <TextBlock.Text>
-                                <MultiBinding StringFormat="{}You can only sync {0} items at once.">
-                                    <Binding Path="MaximumNumberOfSyncedItemsSupported" />
-                                </MultiBinding>
-                            </TextBlock.Text>
+                            Foreground="{StaticResource GrayBrush}"
+                            Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
+                            Margin="0,0,7,0">
+                            <Run Text="{Binding NumberOfSyncedItems, Mode=OneWay}" />
+                            <Run Text="of" />
+                            <Run Text="{Binding Items.Count, Mode=OneWay}" />
+                            <Run>
+                                <Run.Style>
+                                    <Style TargetType="Run">
+                                        <Setter Property="Text" Value="items" />
+                                        <Style.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding Items.Count}"
+                                                Value="1">
+                                                <Setter Property="Text" Value="item" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Run.Style>
+                            </Run>
+                            <Run Text="synced" />
                         </TextBlock>
+
+                        <Image
+                            AutomationProperties.AutomationId="LoadingImage"
+                            Source="{StaticResource Icon.Syncing.Gray}"
+                            Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, Mode=OneWay, ConverterParameter={x:Static shared:DataServiceStatus.LoadingData}}"
+                            VerticalAlignment="Center" />
+
+                        <Image
+                            Source="{StaticResource Icon.Error}"
+                            Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, Mode=OneWay, ConverterParameter={x:Static shared:DataServiceStatus.Failed}}"
+                            VerticalAlignment="Center" />
+
                         <TextBlock
-                            Text="To add new items, please stop syncing some of the old ones."
-                            TextTrimming="CharacterEllipsis" />
+                            Text="Failed to load data"
+                            Foreground="{StaticResource NegativeBrush}"
+                            Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={x:Static shared:DataServiceStatus.Failed}}"
+                            VerticalAlignment="Center"
+                            Margin="7,0,0,0" />
+
+                        <Image
+                            Source="{StaticResource Icon.Warning}"
+                            Visibility="{Binding NumberOfFailedItems, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
+                            VerticalAlignment="Center" />
+
+                        <TextBlock
+                            Foreground="{StaticResource PendingBrush}"
+                            Visibility="{Binding NumberOfFailedItems, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
+                            VerticalAlignment="Center"
+                            Margin="7,0,0,0">
+                            <Run Text="{Binding NumberOfFailedItems, Mode=OneWay}" />
+                            <Run>
+                                <Run.Style>
+                                    <Style TargetType="Run">
+                                        <Setter Property="Text" Value="items" />
+                                        <Style.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding NumberOfFailedItems, Mode=OneWay}"
+                                                Value="1">
+                                                <Setter Property="Text" Value="item" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Run.Style>
+                            </Run>
+                            <Run Text="failed to be loaded" />
+                        </TextBlock>
                     </StackPanel>
-                </Grid>
-            </Border>
 
-            <Border
-                Grid.Row="1"
-                Visibility="{Binding IsFeatureDisabled, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}">
-                <Border.Style>
-                    <Style
-                        TargetType="Border"
-                        BasedOn="{StaticResource RoundedSection.DarkTheme.Warning}">
-                        <Style.Triggers>
-                            <DataTrigger
-                                Binding="{Binding MaximumNumberOfSyncedFoldersReached}"
-                                Value="true">
-                                <Setter Property="Margin" Value="0,10,0,0" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Image
-                        Grid.Column="0"
-                        Source="{StaticResource Icon.Warning}"
-                        Width="16"
-                        Height="16"
-                        VerticalAlignment="Center" />
-
-                    <StackPanel
+                    <Button
                         Grid.Column="1"
-                        Margin="15,0,0,0">
-                        <TextBlock
-                            Text="Sharing is temporarily unavailable"
-                            TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
+                        Grid.Row="0"
+                        Grid.RowSpan="2"
+                        Content="Open _folder"
+                        Command="{Binding OpenSharedWithMeRootFolderCommand}"
+                        Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}"
+                        VerticalAlignment="Center"
+                        Margin="0,0,8,0" />
                 </Grid>
-            </Border>
 
-            <ListView
-                Grid.Row="2"
-                FocusVisualStyle="{x:Null}"
-                ItemsSource="{Binding Items}"
-                Margin="0,15,0,0">
-                <ListView.ItemContainerStyle>
-                    <Style
-                        TargetType="ListViewItem"
-                        BasedOn="{StaticResource {x:Type ListViewItem}}">
-                        <Setter Property="AutomationProperties.AutomationId" Value="SharedWithMeItem" />
-                        <Setter Property="FocusVisualStyle" Value="{StaticResource ListItemFocusVisualStyle}" />
-                    </Style>
-                </ListView.ItemContainerStyle>
+                <StackPanel
+                    Grid.Row="1"
+                    Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
+                    VerticalAlignment="Center">
+                    <Image
+                        Source="SharedWithMeListPlaceholder.png"
+                        Width="170" />
 
-                <ListView.View>
-                    <GridView AllowsColumnReorder="False">
-                        <GridViewColumn
-                            CellTemplate="{StaticResource SharedWithMeItemPermissionsCellTemplate}"
-                            Width="{StaticResource PermissionsColumnDefaultWidth}">
-                            <GridViewColumn.Header>
+                    <TextBlock
+                        AutomationProperties.HelpText="Nothing shared yet"
+                        Text="Nothing shared yet"
+                        Style="{StaticResource Subtitle.DarkTheme.Style}"
+                        HorizontalAlignment="Center" />
+
+                    <TextBlock
+                        Text="Files and folders that are shared"
+                        Foreground="{StaticResource GrayBrush}"
+                        HorizontalAlignment="Center"
+                        Margin="0,10,0,0" />
+
+                    <TextBlock
+                        Text="with you will appear here"
+                        Foreground="{StaticResource GrayBrush}"
+                        HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <Grid
+                    Grid.Row="1"
+                    Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
+                    Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border
+                        Grid.Row="0"
+                        Style="{StaticResource RoundedSection.DarkTheme.Warning}"
+                        Visibility="{Binding MaximumNumberOfSyncedFoldersReached, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Image
+                                Grid.Column="0"
+                                Source="{StaticResource Icon.Warning}"
+                                Width="16"
+                                Height="16"
+                                VerticalAlignment="Center" />
+
+                            <StackPanel
+                                Grid.Column="1"
+                                Margin="15,0,0,0">
                                 <TextBlock
-                                    Text="Permissions"
-                                    TextTrimming="CharacterEllipsis"
-                                    ToolTip="Permissions the user has granted on a specific share by the owner" />
-                            </GridViewColumn.Header>
-                        </GridViewColumn>
+                                    AutomationProperties.AutomationId="MaximumNumberOfSyncedItemsSupportedText"
+                                    TextTrimming="CharacterEllipsis">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}You can only sync {0} items at once.">
+                                            <Binding Path="MaximumNumberOfSyncedItemsSupported" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                <TextBlock
+                                    Text="To add new items, please stop syncing some of the old ones."
+                                    TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-                        <GridViewColumn
-                            x:Name="Column1"
-                            CellTemplate="{StaticResource SharedWithMeItemNameCellTemplate}"
-                            Header="Name">
-                            <GridViewColumn.Width>
-                                <MultiBinding Converter="{x:Static converters:LastColumnSizeCalculatingConverter.Instance}">
-                                    <Binding
-                                        Path="ActualWidth"
-                                        RelativeSource="{RelativeSource AncestorType=Grid}" />
-                                    <Binding Source="{StaticResource PermissionsColumnDefaultWidth}" />
-                                    <Binding Source="{StaticResource InviterColumnDefaultWidth}" />
-                                    <Binding Source="{StaticResource CreationDateColumnDefaultWidth}" />
-                                    <Binding Source="{StaticResource ActionsColumnDefaultWidth}" />
-                                    <Binding Source="{StaticResource MoreActionsColumnDefaultWidth}" />
-                                    <Binding>
-                                        <Binding.Source>
-                                            <system:Double>20</system:Double>
-                                        </Binding.Source>
-                                    </Binding>
-                                </MultiBinding>
-                            </GridViewColumn.Width>
-                        </GridViewColumn>
+                    <Border
+                        Grid.Row="1"
+                        Visibility="{Binding IsFeatureDisabled, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}">
+                        <Border.Style>
+                            <Style
+                                TargetType="Border"
+                                BasedOn="{StaticResource RoundedSection.DarkTheme.Warning}">
+                                <Style.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding MaximumNumberOfSyncedFoldersReached}"
+                                        Value="true">
+                                        <Setter Property="Margin" Value="0,10,0,0" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
 
-                        <GridViewColumn
-                            CellTemplate="{StaticResource SharedWithMeItemInviterCellTemplate}"
-                            Header="Shared by"
-                            Width="{StaticResource InviterColumnDefaultWidth}" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                        <GridViewColumn
-                            CellTemplate="{StaticResource SharedWithMeItemCreationDateCellTemplate}"
-                            Header="Shared on"
-                            Width="{StaticResource CreationDateColumnDefaultWidth}" />
+                            <Image
+                                Grid.Column="0"
+                                Source="{StaticResource Icon.Warning}"
+                                Width="16"
+                                Height="16"
+                                VerticalAlignment="Center" />
 
-                        <GridViewColumn
-                            CellTemplate="{StaticResource SharedWithMeItemActionsCellTemplate}"
-                            Width="{StaticResource ActionsColumnDefaultWidth}">
-                            <GridViewColumn.Header>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock
-                                        Text="Sync"
-                                        VerticalAlignment="Center" />
+                            <StackPanel
+                                Grid.Column="1"
+                                Margin="15,0,0,0">
+                                <TextBlock
+                                    Text="Sharing is temporarily unavailable"
+                                    TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-                                    <Image
-                                        Source="{StaticResource Icon.Information}"
-                                        ToolTip="Enable to make the shared file or folder accessible from your computer.&#x0a;Contents of files will be downloaded on demand only."
-                                        Width="16"
-                                        Height="16"
-                                        VerticalAlignment="Center"
-                                        Margin="10,2,0,0" />
-                                </StackPanel>
-                            </GridViewColumn.Header>
-                        </GridViewColumn>
+                    <ListView
+                        Grid.Row="2"
+                        FocusVisualStyle="{x:Null}"
+                        ItemsSource="{Binding Items}"
+                        Margin="0,15,0,0">
+                        <ListView.ItemContainerStyle>
+                            <Style
+                                TargetType="ListViewItem"
+                                BasedOn="{StaticResource {x:Type ListViewItem}}">
+                                <Setter Property="AutomationProperties.AutomationId" Value="SharedWithMeItem" />
+                                <Setter Property="FocusVisualStyle" Value="{StaticResource ListItemFocusVisualStyle}" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
-                        <GridViewColumn
-                            CellTemplate="{StaticResource SharedWithMeItemMoreActionsCellTemplate}"
-                            Width="{StaticResource MoreActionsColumnDefaultWidth}" />
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </Grid>
+                        <ListView.View>
+                            <GridView
+                                AllowsColumnReorder="False"
+                                ColumnHeaderContainerStyle="{StaticResource SortableHeaderContainerStyle}"
+                                ColumnHeaderTemplate="{StaticResource SortableColumnHeaderTemplate}">
+                                <GridViewColumn
+                                    CellTemplate="{StaticResource SharedWithMeItemPermissionsCellTemplate}"
+                                    Header="{Binding GridColumns.PermissionsColumn}"
+                                    Width="{StaticResource PermissionsColumnDefaultWidth}" />
+
+                                <GridViewColumn
+                                    CellTemplate="{StaticResource SharedWithMeItemNameCellTemplate}"
+                                    Header="{Binding GridColumns.NameColumn}">
+                                    <GridViewColumn.Width>
+                                        <MultiBinding Converter="{x:Static converters:LastColumnSizeCalculatingConverter.Instance}">
+                                            <Binding
+                                                Path="ActualWidth"
+                                                RelativeSource="{RelativeSource AncestorType=Border}" />
+                                            <Binding Source="{StaticResource PermissionsColumnDefaultWidth}" />
+                                            <Binding Source="{StaticResource InviterColumnDefaultWidth}" />
+                                            <Binding Source="{StaticResource CreationDateColumnDefaultWidth}" />
+                                            <Binding Source="{StaticResource ActionsColumnDefaultWidth}" />
+                                            <Binding Source="{StaticResource MoreActionsColumnDefaultWidth}" />
+                                            <Binding>
+                                                <Binding.Source>
+                                                    <system:Double>50</system:Double>
+                                                </Binding.Source>
+                                            </Binding>
+                                        </MultiBinding>
+                                    </GridViewColumn.Width>
+                                </GridViewColumn>
+
+                                <GridViewColumn
+                                    CellTemplate="{StaticResource SharedWithMeItemInviterCellTemplate}"
+                                    Header="{Binding GridColumns.SharedByColumn}"
+                                    Width="{StaticResource InviterColumnDefaultWidth}" />
+
+                                <GridViewColumn
+                                    CellTemplate="{StaticResource SharedWithMeItemCreationDateCellTemplate}"
+                                    Header="{Binding GridColumns.SharedOnColumn}"
+                                    Width="{StaticResource CreationDateColumnDefaultWidth}" />
+
+                                <GridViewColumn
+                                    CellTemplate="{StaticResource SharedWithMeItemActionsCellTemplate}"
+                                    Header="{Binding GridColumns.EnableSyncColumn}"
+                                    HeaderTemplate="{StaticResource EnableSyncColumnHeaderTemplate}"
+                                    Width="{StaticResource ActionsColumnDefaultWidth}" />
+
+                                <GridViewColumn
+                                    CellTemplate="{StaticResource SharedWithMeItemMoreActionsCellTemplate}"
+                                    Width="{StaticResource MoreActionsColumnDefaultWidth}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <sharedWithMe:SharedWithMeOnboardingView Visibility="{Binding OnboardingIsCompleted, Converter={x:Static converters:BooleanToVisibilityConverter.TrueIsCollapsed}}" />
     </Grid>
 </UserControl>

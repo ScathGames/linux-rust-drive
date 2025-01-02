@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.FileSystem.Local.SpecialFolders;
@@ -24,19 +25,22 @@ internal sealed class LocalDecoratedFileSystemClientFactory
     private readonly Func<IFileSystemClient<long>> _undecoratedClassicClientFactory;
     private readonly Func<IFileSystemClient<long>> _undecoratedOnDemandHydrationClientFactory;
     private readonly IFileTransferAbortionStrategy<long> _fileTransferAbortionStrategy;
+    private readonly ISyncFolderStructureProtector _folderStructureProtector;
 
     public LocalDecoratedFileSystemClientFactory(
         ILocalVolumeInfoProvider volumeInfoProvider,
         ILoggerFactory loggerFactory,
         Func<IFileSystemClient<long>> undecoratedClassicClientFactory,
         Func<IFileSystemClient<long>> undecoratedOnDemandHydrationClientFactory,
-        IFileTransferAbortionStrategy<long> fileTransferAbortionStrategy)
+        IFileTransferAbortionStrategy<long> fileTransferAbortionStrategy,
+        ISyncFolderStructureProtector folderStructureProtector)
     {
         _volumeInfoProvider = volumeInfoProvider;
         _loggerFactory = loggerFactory;
         _undecoratedClassicClientFactory = undecoratedClassicClientFactory;
         _undecoratedOnDemandHydrationClientFactory = undecoratedOnDemandHydrationClientFactory;
         _fileTransferAbortionStrategy = fileTransferAbortionStrategy;
+        _folderStructureProtector = folderStructureProtector;
     }
 
     public IFileSystemClient<long> GetClient(IReadOnlyCollection<RemoteToLocalMapping> mappings, LocalAdapterSettings settings)
@@ -58,7 +62,7 @@ internal sealed class LocalDecoratedFileSystemClientFactory
         // A single local file system client is created for all "shared with me" items.
         // An aggregating decorator aggregates requests from multiple sync roots
         // and dispatches file hydration demand to sync roots.
-        var parentClient = sharedWithMeRootFolderMapping is not null
+        var aggregatingClient = sharedWithMeRootFolderMapping is not null
             ? new AggregatingFileSystemClientDecorator<long>(
                 new LocalRootDirectory(sharedWithMeRootFolderMapping.Local),
                 CreateUndecoratedClient(sharedWithMeRootFolderMapping.SyncMethod))
@@ -67,8 +71,8 @@ internal sealed class LocalDecoratedFileSystemClientFactory
         var sharedWithMeRootToClientMap = mappings
             .Where(m => m.Type is MappingType.SharedWithMeItem)
             .Select(m => (
-                Root: CreateRoot(m),
-                Client: CreateClientForSharedWithMeItemMapping(m, parentClient)));
+                Root: CreateRoot(m, sharedWithMeRootFolderMapping),
+                Client: CreateClientForSharedWithMeItemMapping(m, parentMapping: sharedWithMeRootFolderMapping, settings, aggregatingClient)));
 
         var rootToClientMap = rootClientPairs.Concat(sharedWithMeRootToClientMap).ToDictionary(x => x.Root, x => x.Client);
 
@@ -77,21 +81,23 @@ internal sealed class LocalDecoratedFileSystemClientFactory
                 _loggerFactory.CreateLogger<LoggingFileSystemClientDecorator<long>>(),
                 new DispatchingFileSystemClient<long>(rootToClientMap));
 
-        RootInfo<long> CreateRoot(RemoteToLocalMapping mapping)
+        RootInfo<long> CreateRoot(RemoteToLocalMapping mapping, RemoteToLocalMapping? parentMapping = default)
         {
-            var volumeId = mapping.Remote.RootLinkType is LinkType.Folder
-                ? mapping.Local.InternalVolumeId
-                : VirtualInternalVolumeIdProvider.GetId(mapping.Local.InternalVolumeId, mapping.Id);
+            var volumeId = mapping.Local.InternalVolumeId;
+
+            var rootFolderId = mapping.Type is MappingType.SharedWithMeItem && mapping.Remote.RootItemType is LinkType.File
+                ? parentMapping?.Local.RootFolderId ?? default
+                : mapping.Local.RootFolderId;
 
             return new RootInfo<long>(
                 Id: mapping.Id,
                 volumeId,
-                NodeId: mapping.Local.RootFolderId)
+                NodeId: rootFolderId)
             {
                 EventScope = GetEventScope(mapping),
                 MoveScope = GetMoveScope(mapping.Remote.ShareId),
                 IsOnDemand = mapping.SyncMethod is SyncMethod.OnDemand,
-                LocalPath = mapping.Local.RootFolderPath,
+                LocalPath = GetLocalPath(mapping),
                 IsEnabled = mapping.HasSetupSucceeded,
             };
         }
@@ -104,7 +110,7 @@ internal sealed class LocalDecoratedFileSystemClientFactory
                 return mapping.Id.ToString();
             }
 
-            // Local events are monitored on the account root folder using cloud files mapping ID as an event scope.
+            // The rest of events are monitored on the account root folder using cloud files mapping ID as an event scope.
             return (cloudFilesMapping?.Id ?? 0).ToString();
         }
 
@@ -123,6 +129,19 @@ internal sealed class LocalDecoratedFileSystemClientFactory
 
             return moveScope;
         }
+
+        string GetLocalPath(RemoteToLocalMapping mapping)
+        {
+            return mapping.Remote.RootItemType is LinkType.File
+                ? GetVirtualRootPath(mapping)
+                : mapping.Local.Path;
+        }
+
+        string GetVirtualRootPath(RemoteToLocalMapping mapping)
+        {
+            // Every shared with me file is placed in a virtual root folder
+            return Path.GetDirectoryName(mapping.Local.Path.AsSpan()).ToString();
+        }
     }
 
     private IFileSystemClient<long> CreateClientForMapping(RemoteToLocalMapping mapping, LocalAdapterSettings settings)
@@ -133,23 +152,119 @@ internal sealed class LocalDecoratedFileSystemClientFactory
             : new OfflineFileSystemClient<long>();
     }
 
-    private IFileSystemClient<long> CreateClientForSharedWithMeItemMapping(RemoteToLocalMapping mapping, IFileSystemClient<long>? parentClient)
+    private IFileSystemClient<long> CreateClientForSharedWithMeItemMapping(
+        RemoteToLocalMapping mapping,
+        RemoteToLocalMapping? parentMapping,
+        LocalAdapterSettings settings,
+        IFileSystemClient<long>? aggregatingClient)
     {
-        if (mapping is not { HasSetupSucceeded: true, Remote.RootFolderName: not null } || parentClient == null)
+        if (!mapping.HasSetupSucceeded || parentMapping == null || aggregatingClient == null)
         {
             // A dummy (offline) client is created for non-successfully set up mappings
-            // and when the shared with me items folder (parent) mapping is non successfully setup
+            // and when the shared with me root folder (parent) mapping is non successfully setup
             return new OfflineFileSystemClient<long>();
         }
 
-        var innerClient = mapping.Remote.RootLinkType is LinkType.File
-            ? new FilteringSingleFileFileSystemClientDecorator(parentClient, mapping.Remote.RootFolderName)
-            : parentClient;
+        return mapping.Remote.RootItemType switch
+        {
+            LinkType.Folder when !mapping.Remote.IsReadOnly => CreateClientForSharedWithMeWritableFolderMapping(mapping, settings, aggregatingClient),
+            LinkType.Folder when mapping.Remote.IsReadOnly => CreateClientForSharedWithMeReadOnlyFolderMapping(mapping, settings, aggregatingClient),
+            LinkType.File when !mapping.Remote.IsReadOnly => CreateClientForSharedWithMeWritableFileMapping(mapping, parentMapping, settings, aggregatingClient),
+            LinkType.File when mapping.Remote.IsReadOnly => CreateClientForSharedWithMeReadOnlyFileMapping(mapping, parentMapping, aggregatingClient),
+            _ => throw new InvalidEnumArgumentException(nameof(mapping.Remote.RootItemType), (int)mapping.Remote.RootItemType, typeof(LinkType)),
+        };
+    }
 
-        return new RootedFileSystemClientDecorator<long>(
+    private IFileSystemClient<long> CreateClientForSharedWithMeWritableFolderMapping(
+        RemoteToLocalMapping mapping,
+        LocalAdapterSettings settings,
+        IFileSystemClient<long> aggregatingClient)
+    {
+        var rootedClient = new RootedFileSystemClientDecorator(
             new LocalRootDirectory(mapping.Local),
-            mapping.Remote.RootLinkType is LinkType.Folder ? null : mapping.Remote.RootFolderName,
-            innerClient);
+            aggregatingClient);
+
+        return AddCommonDecorators(mapping, settings, rootedClient);
+    }
+
+    private IFileSystemClient<long> CreateClientForSharedWithMeReadOnlyFolderMapping(
+        RemoteToLocalMapping mapping,
+        LocalAdapterSettings settings,
+        IFileSystemClient<long> aggregatingClient)
+    {
+        var protectingClient = new ProtectingFolderFileSystemClientDecorator(_folderStructureProtector, aggregatingClient);
+
+        var rootedClient = new RootedFileSystemClientDecorator(
+            new LocalRootDirectory(mapping.Local),
+            protectingClient);
+
+        var readOnlyClient = new ReadOnlyFileSystemClientDecorator(rootedClient);
+
+        return AddCommonDecorators(mapping, settings, readOnlyClient);
+    }
+
+    private IFileSystemClient<long> CreateClientForSharedWithMeWritableFileMapping(
+        RemoteToLocalMapping mapping,
+        RemoteToLocalMapping parentMapping,
+        LocalAdapterSettings settings,
+        IFileSystemClient<long> aggregatingClient)
+    {
+        var localFileName = Path.GetFileName(mapping.Local.Path);
+        var parentFolderId = parentMapping.Local.RootFolderId;
+        var parentFolderPath = parentMapping.Local.Path;
+
+        Ensure.NotNullOrEmpty(localFileName, nameof(localFileName));
+
+        var rootedClient = new RootedFileSystemClientDecorator(
+            new LocalRootDirectory(parentFolderPath, parentFolderId),
+            aggregatingClient);
+
+        var virtualRootClient = new VirtualFileRootFileSystemClientDecorator(
+            parentFolderId,
+            localFileName,
+            rootedClient);
+
+        var backingUpClient = new BackingUpFileSystemClientDecorator<long>(
+            _loggerFactory.CreateLogger<BackingUpFileSystemClientDecorator<long>>(),
+            new FileNameFactory<long>(settings.EditConflictNamePattern),
+            virtualRootClient);
+
+        var transferAbortionClient = new TransferAbortionCapableFileSystemClientDecorator<long>(
+            _fileTransferAbortionStrategy,
+            backingUpClient);
+
+        return transferAbortionClient;
+    }
+
+    private IFileSystemClient<long> CreateClientForSharedWithMeReadOnlyFileMapping(
+        RemoteToLocalMapping mapping,
+        RemoteToLocalMapping parentMapping,
+        IFileSystemClient<long> aggregatingClient)
+    {
+        var localFileName = Path.GetFileName(mapping.Local.Path);
+        var parentFolderId = parentMapping.Local.RootFolderId;
+        var parentFolderPath = parentMapping.Local.Path;
+
+        Ensure.NotNullOrEmpty(localFileName, nameof(localFileName));
+
+        var protectingClient = new ProtectingFileFileSystemClientDecorator(_folderStructureProtector, aggregatingClient);
+
+        var rootedClient = new RootedFileSystemClientDecorator(
+            new LocalRootDirectory(parentFolderPath, parentFolderId),
+            protectingClient);
+
+        var readOnlyClient = new ReadOnlyFileSystemClientDecorator(rootedClient);
+
+        var virtualRootClient = new VirtualFileRootFileSystemClientDecorator(
+            parentFolderId,
+            localFileName,
+            readOnlyClient);
+
+        var transferAbortionClient = new TransferAbortionCapableFileSystemClientDecorator<long>(
+            _fileTransferAbortionStrategy,
+            virtualRootClient);
+
+        return transferAbortionClient;
     }
 
     private IFileSystemClient<long> CreateClientForMapping(SyncMethod syncMethod, RemoteToLocalMapping mapping, LocalAdapterSettings settings)
@@ -163,9 +278,8 @@ internal sealed class LocalDecoratedFileSystemClientFactory
 
         var client = syncMethod switch
         {
-            SyncMethod.Classic => new RootedFileSystemClientDecorator<long>(
+            SyncMethod.Classic => new RootedFileSystemClientDecorator(
                 localRootDirectory,
-                null,
                 new LocalSpaceCheckingFileSystemClientDecorator<long>(
                     localRootDirectory.Path,
                     _volumeInfoProvider,
@@ -173,14 +287,18 @@ internal sealed class LocalDecoratedFileSystemClientFactory
 
             // Local volume space checking decorator is not needed when using
             // the on-demand hydration file system client
-            SyncMethod.OnDemand => new RootedFileSystemClientDecorator<long>(
+            SyncMethod.OnDemand => new RootedFileSystemClientDecorator(
                 localRootDirectory,
-                null,
                 CreateUndecoratedClient(syncMethod)),
 
             _ => throw new InvalidEnumArgumentException(nameof(syncMethod), (int)syncMethod, typeof(SyncMethod)),
         };
 
+        return AddCommonDecorators(mapping, settings, client);
+    }
+
+    private IFileSystemClient<long> AddCommonDecorators(RemoteToLocalMapping mapping, LocalAdapterSettings settings, IFileSystemClient<long> client)
+    {
         var rootFolder = new SpecialRootFolder<long>(mapping.Local.RootFolderId);
 
         var localTempFolder = new HiddenSpecialFolder<long>(
@@ -197,17 +315,25 @@ internal sealed class LocalDecoratedFileSystemClientFactory
             TimeSpan.FromMinutes(5),
             _loggerFactory.CreateLogger<LocalTrash<long>>());
 
-        return
-            new TransferAbortionCapableFileSystemClientDecorator<long>(
-                _fileTransferAbortionStrategy,
-                new PermanentDeletionFallbackFileSystemClientDecorator<long>(
-                    _loggerFactory.CreateLogger<PermanentDeletionFallbackFileSystemClientDecorator<long>>(),
-                    localTrashFolder,
-                    new FileNameFactory<long>(settings.DeletedNamePattern),
-                    new BackingUpFileSystemClientDecorator<long>(
-                        _loggerFactory.CreateLogger<BackingUpFileSystemClientDecorator<long>>(),
-                        new FileNameFactory<long>(settings.EditConflictNamePattern),
-                        client)));
+        if (!mapping.Remote.IsReadOnly)
+        {
+            client = new BackingUpFileSystemClientDecorator<long>(
+                _loggerFactory.CreateLogger<BackingUpFileSystemClientDecorator<long>>(),
+                new FileNameFactory<long>(settings.EditConflictNamePattern),
+                client);
+        }
+
+        var deletionFallbackClient = new PermanentDeletionFallbackFileSystemClientDecorator<long>(
+            _loggerFactory.CreateLogger<PermanentDeletionFallbackFileSystemClientDecorator<long>>(),
+            localTrashFolder,
+            new FileNameFactory<long>(settings.DeletedNamePattern),
+            client);
+
+        var transferAbortionClient = new TransferAbortionCapableFileSystemClientDecorator<long>(
+            _fileTransferAbortionStrategy,
+            deletionFallbackClient);
+
+        return transferAbortionClient;
     }
 
     private IFileSystemClient<long> CreateUndecoratedClient(SyncMethod syncMethod)

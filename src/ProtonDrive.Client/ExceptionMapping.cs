@@ -44,12 +44,15 @@ internal static class ExceptionMapping
         ResponseCode.AlreadyExists => FileSystemErrorCode.DuplicateName,
         ResponseCode.DoesNotExist => FileSystemErrorCode.ObjectNotFound,
         ResponseCode.InvalidEncryptedIdFormat => FileSystemErrorCode.ObjectNotFound,
-        ResponseCode.InvalidRequirements => FileSystemErrorCode.Unknown,
+        ResponseCode.InsufficientQuota => FileSystemErrorCode.FreeSpaceExceeded,
+        ResponseCode.InsufficientSpace => FileSystemErrorCode.FreeSpaceExceeded,
         ResponseCode.TooManyChildren => FileSystemErrorCode.TooManyChildren,
         ResponseCode.Timeout => FileSystemErrorCode.TimedOut,
-        ResponseCode.RequestTimeout => FileSystemErrorCode.TimedOut,
         ResponseCode.Offline => FileSystemErrorCode.Offline,
         ResponseCode.InvalidVerificationToken => FileSystemErrorCode.IntegrityFailure,
+        ResponseCode.TooManyRequests => FileSystemErrorCode.RateLimited,
+        ResponseCode.NetworkError => FileSystemErrorCode.NetworkError,
+        ResponseCode.ServerError => FileSystemErrorCode.ServerError,
         _ => FileSystemErrorCode.Unknown,
     };
 }

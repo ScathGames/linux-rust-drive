@@ -60,20 +60,22 @@ internal sealed class NotifyingExecutionStep<TId, TAltId>
         UpdateDetectionSwitch updateDetection,
         CancellationToken cancellationToken)
     {
-        IRevision? sourceRevision;
+        IRevision sourceRevision;
 
         try
         {
             sourceRevision = await OpenFileForReading(operation.Model, cancellationToken).ConfigureAwait(false);
+
+            await sourceRevision.CheckReadabilityAsync(cancellationToken).ConfigureAwait(false);
         }
-        catch (FileRevisionProviderException ex)
+        catch (Exception exception) when (exception is IFileSystemErrorCodeProvider ex)
         {
             // We report all failures to obtain source revision, even though some of them are transient
-            var syncActivity = operation.GetSyncActivityItem(nodeInfo, destinationInfo);
+            var syncActivity = operation.GetSyncActivityItem(nodeInfo, destinationInfo, stage: SyncActivityStage.Preparation);
 
             if (ex.ErrorCode is FileSystemErrorCode.Unknown)
             {
-                _errorCounter.Add(ErrorScope.ItemOperation, ex);
+                _errorCounter.Add(ErrorScope.ItemOperation, exception);
             }
 
             switch (ex.ErrorCode)

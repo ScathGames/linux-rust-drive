@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using ProtonDrive.App.Authentication;
 using ProtonDrive.App.Mapping;
@@ -11,13 +11,12 @@ using ProtonDrive.App.Mapping.SyncFolders;
 using ProtonDrive.App.Onboarding;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Windows.SystemIntegration;
-using ProtonDrive.App.Windows.Toolkit.Threading;
 using ProtonDrive.Shared.Configuration;
 using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Windows.Views.Onboarding;
 
-internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepViewModel
+internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepViewModel, ISessionStateAware
 {
     private readonly AppConfig _appConfig;
     private readonly IOnboardingService _onboardingService;
@@ -26,6 +25,7 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
     private readonly ILocalFolderService _localFolderService;
     private readonly CoalescingAction _setupDefaultLocalFolderPath;
 
+    private SessionState _sessionState = SessionState.None;
     private SyncFolderValidationResult _validationResult;
     private string? _localFolderPath;
     private ImageSource? _folderIcon;
@@ -38,8 +38,7 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
         IFileSystemDisplayNameAndIconProvider fileSystemDisplayNameAndIconProvider,
         ISyncFolderService syncFolderService,
         ILocalFolderService localFolderService,
-        DispatcherScheduler scheduler)
-    : base(scheduler)
+        [FromKeyedServices("Dispatcher")] IScheduler scheduler)
     {
         _appConfig = appConfig;
         _onboardingService = onboardingService;
@@ -48,10 +47,9 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
         _localFolderService = localFolderService;
 
         ContinueCommand = new AsyncRelayCommand(ContinueAsync, CanContinue);
-        ContinueCommand.PropertyChanged += OnAsyncRelayCommandPropertyChanged;
         ChangeSyncFolderCommand = new RelayCommand(ChangeSyncFolder, CanChangeSyncFolder);
 
-        _setupDefaultLocalFolderPath = new CoalescingAction(scheduler, SetupDefaultLocalFolderPath);
+        _setupDefaultLocalFolderPath = new CoalescingAction(scheduler, SetUpDefaultLocalFolderPath);
     }
 
     public IAsyncRelayCommand ContinueCommand { get; }
@@ -92,32 +90,20 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
         private set => SetProperty(ref _folderIcon, value);
     }
 
-    private void OnAsyncRelayCommandPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    public override void Activate()
     {
-        if (sender is AsyncRelayCommand command && e.PropertyName == nameof(AsyncRelayCommand.IsRunning))
-        {
-            command.NotifyCanExecuteChanged();
-            ChangeSyncFolderCommand.NotifyCanExecuteChanged();
-        }
-    }
-
-    protected override void OnSessionStateChanged()
-    {
-        TrySetUpDefaultLocalFolderPath();
-    }
-
-    protected override void Activate()
-    {
-        IsActive = true;
+        base.Activate();
 
         _isSyncingCloudFilesAllowed = false;
 
         TrySetUpDefaultLocalFolderPath();
     }
 
-    protected override bool SkipActivation()
+    void ISessionStateAware.OnSessionStateChanged(SessionState value)
     {
-        return _onboardingService.IsAccountRootFolderSelectionCompleted();
+        _sessionState = value;
+
+        TrySetUpDefaultLocalFolderPath();
     }
 
     private bool CanChangeSyncFolder()
@@ -145,8 +131,10 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
             initialDirectoryPath = _appConfig.UserDataPath;
         }
 
-        var folderPickingDialog = new OpenFolderDialog();
-        folderPickingDialog.InitialDirectory = initialDirectoryPath;
+        var folderPickingDialog = new OpenFolderDialog
+        {
+            InitialDirectory = initialDirectoryPath,
+        };
 
         var result = folderPickingDialog.ShowDialog();
 
@@ -155,7 +143,7 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
 
     private bool CanContinue()
     {
-        return IsActive && !ContinueCommand.IsRunning;
+        return IsActive;
     }
 
     private async Task ContinueAsync()
@@ -164,8 +152,7 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
 
         if (!_isSyncingCloudFilesAllowed)
         {
-            // Display the progress spinner for a bit longer, so that the user can notice it
-            await Task.Delay(DelayBeforeSwitchingStep).ConfigureAwait(true);
+            await DelayBeforeSwitchingStepAsync().ConfigureAwait(true);
 
             return;
         }
@@ -176,19 +163,16 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
             return;
         }
 
+        await DelayBeforeSwitchingStepAsync().ConfigureAwait(true);
+
         await _syncFolderService.SetAccountRootFolderAsync(path).ConfigureAwait(true);
 
-        _onboardingService.SetAccountRootFolderSelectionCompleted();
-
-        // Display the progress spinner for a bit longer, so that the user can notice it
-        await Task.Delay(DelayBeforeSwitchingStep).ConfigureAwait(true);
-
-        IsActive = false;
+        _onboardingService.CompleteStep(OnboardingStep.AccountRootFolderSelection);
     }
 
     private void TrySetUpDefaultLocalFolderPath()
     {
-        if (SessionState.Status is SessionStatus.Ending or SessionStatus.NotStarted or SessionStatus.SigningIn or SessionStatus.Starting)
+        if (_sessionState.Status is SessionStatus.Ending or SessionStatus.NotStarted or SessionStatus.SigningIn or SessionStatus.Starting)
         {
             LocalFolderPath = default;
 
@@ -201,16 +185,18 @@ internal sealed class AccountRootFolderSelectionStepViewModel : OnboardingStepVi
         }
     }
 
-    private void SetupDefaultLocalFolderPath()
+    private void SetUpDefaultLocalFolderPath()
     {
         if (!string.IsNullOrEmpty(LocalFolderPath))
         {
             return;
         }
 
-        var defaultFolderName = !string.IsNullOrEmpty(SessionState.Username)
-            ? SessionState.Username
-            : SessionState.UserEmailAddress?.Split("@").FirstOrDefault();
+        var sessionState = _sessionState;
+
+        var defaultFolderName = !string.IsNullOrEmpty(sessionState.Username)
+            ? sessionState.Username
+            : sessionState.UserEmailAddress?.Split("@").FirstOrDefault();
 
         LocalFolderPath = _localFolderService.GetDefaultAccountRootFolderPath(_appConfig.UserDataPath, defaultFolderName);
     }

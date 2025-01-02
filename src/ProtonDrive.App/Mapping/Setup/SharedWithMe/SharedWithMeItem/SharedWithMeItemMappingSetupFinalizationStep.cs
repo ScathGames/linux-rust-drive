@@ -24,9 +24,9 @@ internal sealed class SharedWithMeItemMappingSetupFinalizationStep
             throw new ArgumentException("Mapping type has unexpected value", nameof(mapping));
         }
 
-        if (mapping.Remote.RootLinkType is LinkType.Folder)
+        if (mapping.Remote.RootItemType is LinkType.Folder)
         {
-            TryProtectSharedWithMeFolderItem(mapping.Local.RootFolderPath);
+            TryProtectSharedWithMeFolderItem(mapping.Local.Path);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -36,10 +36,10 @@ internal sealed class SharedWithMeItemMappingSetupFinalizationStep
 
     private bool TryProtectSharedWithMeFolderItem(string folderPath)
     {
-        var sharedWithMeItemsFolderPath = Path.GetDirectoryName(folderPath)
-                                       ?? throw new InvalidOperationException("Shared with me items folder path cannot be obtained");
+        var sharedWithMeRootFolderPath = Path.GetDirectoryName(folderPath)
+            ?? throw new InvalidOperationException("Shared with me root folder path cannot be obtained");
 
-        return _syncFolderProtector.Protect(sharedWithMeItemsFolderPath, FolderProtectionType.AncestorWithFiles) &&
-               _syncFolderProtector.Protect(folderPath, FolderProtectionType.Leaf);
+        return _syncFolderProtector.ProtectFolder(sharedWithMeRootFolderPath, FolderProtectionType.AncestorWithFiles)
+            && _syncFolderProtector.ProtectFolder(folderPath, FolderProtectionType.Leaf);
     }
 }

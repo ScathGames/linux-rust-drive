@@ -3,47 +3,62 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using ProtonDrive.App.Account;
 using ProtonDrive.App.Authentication;
 using ProtonDrive.App.Reporting;
 using ProtonDrive.Client;
+using ProtonDrive.Client.Core.Events;
 using ProtonDrive.Client.Settings;
 using ProtonDrive.Client.Settings.Contracts;
+using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Settings.Remote;
 
-public sealed class RemoteSettingsService : ISessionStateAware
+internal sealed class RemoteSettingsService : IRemoteSettingsService, ISessionStateAware
 {
-    private readonly ISettingsApiClient _settingsApiClient;
-    private readonly IErrorReporting _errorReporting;
-    private readonly Lazy<IEnumerable<IRemoteSettingsStateAware>> _remoteSettingsStateAware;
     private readonly ILogger<RemoteSettingsService> _logger;
+    private readonly ISettingsApiClient _settingsApiClient;
+    private readonly ICoreEventProvider _coreEventProvider;
+    private readonly IErrorReporting _errorReporting;
+    private readonly Lazy<IEnumerable<IRemoteSettingsStateAware>> _settingsStateAwareInstances;
+    private readonly Lazy<IEnumerable<IRemoteSettingsAware>> _remoteSettingsAwareInstances;
 
     private readonly CancellationHandle _cancellationHandle = new();
     private readonly IScheduler _scheduler;
 
     private RemoteSettingsStatus _status = RemoteSettingsStatus.None;
+    private RemoteSettings _settings = RemoteSettings.Default;
 
     public RemoteSettingsService(
+        ILogger<RemoteSettingsService> logger,
         ISettingsApiClient settingsApiClient,
+        ICoreEventProvider coreEventProvider,
         IErrorReporting errorReporting,
-        Lazy<IEnumerable<IRemoteSettingsStateAware>> remoteSettingsStateAware,
-        ILogger<RemoteSettingsService> logger)
+        Lazy<IEnumerable<IRemoteSettingsStateAware>> settingsStateAwareInstances,
+        Lazy<IEnumerable<IRemoteSettingsAware>> remoteSettingsAwareInstances)
     {
         _settingsApiClient = settingsApiClient;
+        _coreEventProvider = coreEventProvider;
         _errorReporting = errorReporting;
-        _remoteSettingsStateAware = remoteSettingsStateAware;
+        _settingsStateAwareInstances = settingsStateAwareInstances;
+        _remoteSettingsAwareInstances = remoteSettingsAwareInstances;
         _logger = logger;
 
         _scheduler =
             new HandlingCancellationSchedulerDecorator(
-                nameof(AccountService),
+                nameof(RemoteSettingsService),
                 logger,
                 new LoggingExceptionsSchedulerDecorator(
-                    nameof(AccountService),
+                    nameof(RemoteSettingsService),
                     logger,
                     new SerialScheduler()));
+
+        _coreEventProvider.EventsReceived += OnCoreEventsReceived;
+    }
+
+    public Task SetUpAsync()
+    {
+        return Schedule(RefreshSettingsAsync);
     }
 
     void ISessionStateAware.OnSessionStateChanged(SessionState value)
@@ -59,6 +74,28 @@ public sealed class RemoteSettingsService : ISessionStateAware
         }
     }
 
+    private static RemoteSettings ToRemoteSettings(GeneralSettings settings)
+    {
+        return new RemoteSettings
+        {
+            IsTelemetryEnabled = settings.IsTelemetryEnabled,
+            HasInAppNotificationsEnabled = settings.News.HasFlag(NewsSettings.InAppNotificationsEnabled),
+        };
+    }
+
+    private static bool HasRemoteSettingsChanged(CoreEvents events)
+    {
+        return events.ResumeToken.IsRefreshRequired || events.HasSettingsChanged;
+    }
+
+    private void OnCoreEventsReceived(object? sender, CoreEvents events)
+    {
+        if (HasRemoteSettingsChanged(events))
+        {
+            Schedule(RefreshSettingsAsync);
+        }
+    }
+
     private async Task SetUpAsync(CancellationToken cancellationToken)
     {
         if (_status is RemoteSettingsStatus.Succeeded)
@@ -66,26 +103,35 @@ public sealed class RemoteSettingsService : ISessionStateAware
             return;
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
+        _logger.LogDebug("Remote settings set up started");
 
-        _logger.LogInformation("Remote settings set up started");
-        SetState(RemoteSettingsStatus.SettingUp);
-
-        try
+        if (await TryRefreshSettingsAsync(cancellationToken).ConfigureAwait(false))
         {
-            var settings = await GetSettingsAsync(cancellationToken).ConfigureAwait(false);
-            HandleSettingsChange(settings);
+            _logger.LogInformation("Remote settings set up succeeded");
         }
-        catch (Exception ex) when (ex.IsDriveClientException())
+        else
         {
-            _logger.LogWarning("Remote settings set up failed: {Error}", ex.Message);
-            SetState(RemoteSettingsStatus.Failed);
+            _logger.LogWarning("Remote settings set up failed");
+        }
+    }
 
+    private async Task RefreshSettingsAsync(CancellationToken cancellationToken)
+    {
+        if (_status is not RemoteSettingsStatus.Succeeded and not RemoteSettingsStatus.Failed)
+        {
             return;
         }
 
-        _logger.LogInformation("Remote settings set up succeeded");
-        SetState(RemoteSettingsStatus.Succeeded);
+        _logger.LogDebug("Remote settings refresh started");
+
+        if (await TryRefreshSettingsAsync(cancellationToken).ConfigureAwait(false))
+        {
+            _logger.LogInformation("Remote settings refresh succeeded");
+        }
+        else
+        {
+            _logger.LogWarning("Remote settings refresh failed");
+        }
     }
 
     private void CancelSetUp()
@@ -95,7 +141,7 @@ public sealed class RemoteSettingsService : ISessionStateAware
             return;
         }
 
-        var settings = new GeneralSettings { IsSendingCrashReportsEnabled = false };
+        var settings = new GeneralSettings();
         HandleSettingsChange(settings);
 
         _logger.LogInformation("Remote settings set up has been cancelled");
@@ -103,46 +149,79 @@ public sealed class RemoteSettingsService : ISessionStateAware
         SetState(RemoteSettingsStatus.None);
     }
 
-    private async Task<GeneralSettings> GetSettingsAsync(CancellationToken cancellationToken)
+    private async Task<bool> TryRefreshSettingsAsync(CancellationToken cancellationToken)
     {
-        var settingsResponse = await _settingsApiClient.GetAsync(cancellationToken).ThrowOnFailure().ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        return settingsResponse.Settings;
+        SetState(RemoteSettingsStatus.SettingUp);
+
+        var settings = await TryGetSettingsAsync(cancellationToken).ConfigureAwait(false);
+        if (settings == null)
+        {
+            SetState(RemoteSettingsStatus.Failed);
+
+            return false;
+        }
+
+        HandleSettingsChange(settings);
+
+        SetState(RemoteSettingsStatus.Succeeded);
+
+        return true;
+    }
+
+    private async Task<GeneralSettings?> TryGetSettingsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var settingsResponse = await _settingsApiClient.GetAsync(cancellationToken).ThrowOnFailure().ConfigureAwait(false);
+
+            return settingsResponse.Settings;
+        }
+        catch (Exception ex) when (ex.IsDriveClientException())
+        {
+            _logger.LogWarning("Remote settings retrieval failed: {ErrorCode} {ErrorMessage}", ex.GetRelevantFormattedErrorCode(), ex.CombinedMessage());
+
+            return null;
+        }
     }
 
     private void HandleSettingsChange(GeneralSettings settings)
     {
         _errorReporting.IsEnabled = settings.IsSendingCrashReportsEnabled;
 
-        foreach (var listener in _remoteSettingsStateAware.Value)
+        var remoteSettings = ToRemoteSettings(settings);
+
+        if (_settings == remoteSettings)
         {
-            listener.OnRemoteSettingsChanged(settings.IsTelemetryEnabled);
+            return;
+        }
+
+        _settings = remoteSettings;
+
+        foreach (var listener in _remoteSettingsAwareInstances.Value)
+        {
+            listener.OnRemoteSettingsChanged(remoteSettings);
         }
     }
 
     private void SetState(RemoteSettingsStatus status)
     {
         _status = status;
+
+        foreach (var listener in _settingsStateAwareInstances.Value)
+        {
+            listener.OnRemoteSettingsStateChanged(status);
+        }
     }
 
     private void Schedule(Action action)
     {
-        Schedule(_ =>
-            {
-                action();
-                return Task.CompletedTask;
-            });
+        _scheduler.Schedule(action, _cancellationHandle.Token);
     }
 
-    private void Schedule(Func<CancellationToken, Task> action)
+    private Task Schedule(Func<CancellationToken, Task> action)
     {
-        var cancellationToken = _cancellationHandle.Token;
-
-        _scheduler.Schedule(() =>
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return action(cancellationToken);
-        });
+        return _scheduler.Schedule(action, _cancellationHandle.Token);
     }
 }

@@ -12,6 +12,7 @@ public sealed class CoreEvents
     public CoreEventResumeToken ResumeToken { get; internal init; }
 
     public bool HasAddressChanged { get; internal init; }
+    public bool HasSettingsChanged { get; internal init; }
 
     public User? User { get; internal init; }
 
@@ -20,4 +21,6 @@ public sealed class CoreEvents
     public UserSubscription? Subscription { get; internal init; }
 
     public long? UsedSpace { get; internal init; }
+
+    public long? DriveUsedSpace { get; internal init; }
 }

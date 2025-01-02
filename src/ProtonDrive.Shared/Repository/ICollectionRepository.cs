@@ -4,7 +4,7 @@ namespace ProtonDrive.Shared.Repository;
 
 public interface ICollectionRepository<T>
 {
-    ICollection<T> GetAll();
+    IReadOnlyCollection<T> GetAll();
 
     void SetAll(IEnumerable<T> value);
 }

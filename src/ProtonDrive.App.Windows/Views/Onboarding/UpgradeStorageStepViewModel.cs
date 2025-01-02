@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -19,32 +20,31 @@ internal sealed class UpgradeStorageStepViewModel : OnboardingStepViewModel, IUs
     private readonly IUpgradeStoragePlanAvailabilityVerifier _upgradeStoragePlanAvailabilityVerifier;
     private readonly DispatcherScheduler _scheduler;
     private readonly IReadOnlyList<StorageUpgradeOffer> _allOffers;
-    private readonly ObservableCollection<StorageUpgradeOffer> _relevantOffers = new();
+    private readonly ObservableCollection<StorageUpgradeOffer> _relevantOffers = [];
 
-    private UserState _user = UserState.Empty;
+    private UserState _userState = UserState.Empty;
 
     public UpgradeStorageStepViewModel(
         IOnboardingService onboardingService,
         IExternalHyperlinks externalHyperlinks,
         IUpgradeStoragePlanAvailabilityVerifier upgradeStoragePlanAvailabilityVerifier,
         DispatcherScheduler scheduler)
-        : base(scheduler)
     {
         _onboardingService = onboardingService;
         _externalHyperlinks = externalHyperlinks;
         _upgradeStoragePlanAvailabilityVerifier = upgradeStoragePlanAvailabilityVerifier;
         _scheduler = scheduler;
 
-        UpgradeCommand = new RelayCommand(OpenWebPageAndContinue);
+        UpgradeCommand = new RelayCommand(OpenUpgradeStorageLinkAndContinue);
         SkipCommand = new RelayCommand(CompleteStep);
 
-        _allOffers = new StorageUpgradeOffer[]
-        {
-            new("Unlimited", StorageInGb: 500, NumberOfUsers: 1, IsRecommended: true, UpgradeCommand),
-            new("Family", StorageInGb: 3000, NumberOfUsers: 6, IsRecommended: false, UpgradeCommand),
-        };
+        _allOffers =
+        [
+            new StorageUpgradeOffer("Unlimited", StorageInGb: 500, NumberOfUsers: 1, IsRecommended: true, UpgradeCommand),
+            new StorageUpgradeOffer("Family", StorageInGb: 3000, NumberOfUsers: 6, IsRecommended: false, UpgradeCommand),
+        ];
 
-        RelevantOffers = new(_relevantOffers);
+        RelevantOffers = new ReadOnlyObservableCollection<StorageUpgradeOffer>(_relevantOffers);
     }
 
     public ReadOnlyObservableCollection<StorageUpgradeOffer> RelevantOffers { get; }
@@ -55,50 +55,61 @@ internal sealed class UpgradeStorageStepViewModel : OnboardingStepViewModel, IUs
 
     void IUserStateAware.OnUserStateChanged(UserState value)
     {
-        if (!_onboardingService.IsUpgradeStorageStepCompleted() && _user.MaxSpace != value.MaxSpace)
+        var previousState = _userState;
+        _userState = value;
+
+        if (previousState.MaxSpace != value.MaxSpace ||
+            previousState.SubscriptionPlanCode != value.SubscriptionPlanCode)
         {
-            _scheduler.Schedule(() => UpdateAvailableOffers(value.MaxSpace, value.SubscriptionPlanCode));
+            Schedule(UpdateAvailableOffers);
         }
-
-        _user = value;
     }
 
-    protected override void Activate()
-    { }
-
-    protected override bool SkipActivation()
+    public override void Activate()
     {
-        return true;
+        base.Activate();
+
+        Schedule(UpdateAvailableOffers);
     }
 
-    private void UpdateAvailableOffers(long availableStorageSpace, string? planCode)
+    public void CompleteStep()
     {
-        if (!_upgradeStoragePlanAvailabilityVerifier.UpgradedPlanIsAvailable(UpgradeStoragePlanMode.Onboarding, planCode))
+        _onboardingService.CompleteStep(OnboardingStep.UpgradeStorage);
+    }
+
+    private void UpdateAvailableOffers()
+    {
+        if (!IsActive)
         {
             return;
         }
 
-        var availableStorageSpaceInGb = availableStorageSpace / 1_000_000_000;
+        var userState = _userState;
+
+        if (!_upgradeStoragePlanAvailabilityVerifier.UpgradedPlanIsAvailable(UpgradeStoragePlanMode.Onboarding, userState.SubscriptionPlanCode))
+        {
+            CompleteStep();
+            return;
+        }
+
+        var availableStorageSpaceInGb = userState.MaxSpace / 1_000_000_000;
         _relevantOffers.Clear();
         _relevantOffers.AddEach(_allOffers.Where(x => x.StorageInGb > availableStorageSpaceInGb));
 
         if (_relevantOffers.Count == 0)
         {
-            return;
+            CompleteStep();
         }
-
-        IsActive = true;
     }
 
-    private void OpenWebPageAndContinue()
+    private void OpenUpgradeStorageLinkAndContinue()
     {
         _externalHyperlinks.UpgradePlanFromOnboarding.Open();
         CompleteStep();
     }
 
-    private void CompleteStep()
+    private void Schedule(Action action)
     {
-        IsActive = false;
-        _onboardingService.SetUpgradeStorageStepCompleted();
+        _scheduler.Schedule(action);
     }
 }

@@ -51,7 +51,7 @@ internal sealed class ForeignDeviceMappingFoldersSetupStep
             throw new ArgumentException("Mapping type has unexpected value", nameof(mapping));
         }
 
-        var result = SetUpLocalFolder(mapping.Local, mapping.Remote.RootLinkType, cancellationToken);
+        var result = SetUpLocalFolder(mapping.Local, mapping.Remote.RootItemType, cancellationToken);
 
         return Task.FromResult(result ?? MappingErrorCode.None);
     }
@@ -66,14 +66,14 @@ internal sealed class ForeignDeviceMappingFoldersSetupStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!TryCreateLocalFolder(replica.RootFolderPath))
+        if (!TryCreateLocalFolder(replica.Path))
         {
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_localFolderService.TryGetFolderInfo(replica.RootFolderPath, FileShare.ReadWrite, out var rootFolder))
+        if (!_localFolderService.TryGetFolderInfo(replica.Path, FileShare.ReadWrite, out var rootFolder))
         {
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
@@ -86,7 +86,7 @@ internal sealed class ForeignDeviceMappingFoldersSetupStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_localFolderService.EmptyFolderExists(replica.RootFolderPath, _specialFolders))
+        if (!_localFolderService.EmptyFolderExists(replica.Path, _specialFolders))
         {
             _logger.LogWarning("The local sync folder is not empty");
             return MappingErrorCode.LocalFolderNotEmpty;
@@ -116,7 +116,7 @@ internal sealed class ForeignDeviceMappingFoldersSetupStep
 
             var foreignDevicesFolderPath = GetForeignDevicesFolderPath(path);
 
-            _syncFolderStructureProtector.Unprotect(foreignDevicesFolderPath, FolderProtectionType.Ancestor);
+            _syncFolderStructureProtector.UnprotectFolder(foreignDevicesFolderPath, FolderProtectionType.Ancestor);
 
             Directory.CreateDirectory(path);
 
@@ -145,7 +145,7 @@ internal sealed class ForeignDeviceMappingFoldersSetupStep
         var accountRootFolderPath = Path.GetDirectoryName(foreignDevicesFolderPath)
                                     ?? throw new FileSystemClientException("Account root folder path cannot be obtained");
 
-        _syncFolderStructureProtector.Unprotect(accountRootFolderPath, FolderProtectionType.Ancestor);
+        _syncFolderStructureProtector.UnprotectFolder(accountRootFolderPath, FolderProtectionType.Ancestor);
 
         try
         {
@@ -153,7 +153,7 @@ internal sealed class ForeignDeviceMappingFoldersSetupStep
         }
         finally
         {
-            _syncFolderStructureProtector.Protect(accountRootFolderPath, FolderProtectionType.Ancestor);
+            _syncFolderStructureProtector.ProtectFolder(accountRootFolderPath, FolderProtectionType.Ancestor);
         }
 
         return foreignDevicesFolderPath;

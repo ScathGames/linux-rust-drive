@@ -48,8 +48,9 @@
         <ScrollViewer
             Grid.Row="1"
             VerticalScrollBarVisibility="Auto"
-            MaxWidth="350"
+            MaxWidth="420"
             MaxHeight="500"
+            HorizontalAlignment="Left"
             Margin="0,20,0,0">
             <ItemsControl
                 IsEnabled="{Binding IsSaving, Converter={x:Static converters:BooleanToOppositeBooleanConverter.Instance}}"
@@ -145,7 +146,7 @@
                     FontSize="{StaticResource TextBlock.Small.FontSize}"
                     Foreground="{StaticResource ErrorBrush}"
                     TextWrapping="Wrap"
-                    MaxWidth="250"
+                    MaxWidth="200"
                     Margin="7,0,0,0" />
             </WrapPanel>
 

@@ -41,9 +41,9 @@ internal class NodeEnumeration<TId, TAltId>
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var nodeInfo = await Schedule(() => ShouldEnumerateNode(node) ? ToNodeInfo(node) : null).ConfigureAwait(false);
+        var (nodeModel, nodeInfo) = await Schedule(() => ShouldEnumerateNode(node) ? (node.Model, ToNodeInfo(node)) : (null, null)).ConfigureAwait(false);
 
-        if (nodeInfo == null)
+        if (nodeInfo is null || nodeModel is null)
         {
             // Nothing to enumerate
             return Result.Success<NodeInfo<TAltId>>();
@@ -59,9 +59,9 @@ internal class NodeEnumeration<TId, TAltId>
         }
         catch (FileSystemClientException<TAltId> ex)
         {
-            LogFailure(node, nodeInfo, ex);
+            LogFailure(nodeModel, nodeInfo, ex);
 
-            await Schedule(() => HandleFailure(ex, node)).ConfigureAwait(false);
+            await Schedule(() => HandleFailure(ex, nodeModel)).ConfigureAwait(false);
 
             return Result.Failure(nodeInfo, ex);
         }
@@ -83,9 +83,9 @@ internal class NodeEnumeration<TId, TAltId>
         _success.Execute(currentNode, nodeInfo);
     }
 
-    private void HandleFailure(Exception exception, AdapterTreeNode<TId, TAltId> node)
+    private void HandleFailure(Exception exception, AdapterTreeNodeModel<TId, TAltId> nodeModel)
     {
-        _failure.Execute(exception, node);
+        _failure.Execute(exception, nodeModel);
     }
 
     private void EscapeIfUnstable(AdapterTreeNode<TId, TAltId> node)
@@ -141,14 +141,14 @@ internal class NodeEnumeration<TId, TAltId>
         return _fileSystemEnumeration.ToNodeInfo(node);
     }
 
-    private void LogFailure(AdapterTreeNode<TId, TAltId> node, NodeInfo<TAltId> nodeInfo, Exception exception)
+    private void LogFailure(AdapterTreeNodeModel<TId, TAltId> nodeModel, NodeInfo<TAltId> nodeInfo, Exception exception)
     {
         _logger.LogWarning(
             "Enumerating {Type} \"{Root}\"/{Id} at parent with Id={ParentId} {ParentExternalId} failed: {ErrorMessage}",
             nodeInfo.IsDirectory() ? NodeType.Directory : NodeType.File,
             nodeInfo.Root?.Id,
-            node.Id,
-            node.Model.ParentId,
+            nodeModel.Id,
+            nodeModel.ParentId,
             nodeInfo.GetCompoundParentId(),
             exception.CombinedMessage());
     }

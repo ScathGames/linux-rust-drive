@@ -10,17 +10,17 @@ using ProtonDrive.App.Authentication;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Services;
 using ProtonDrive.App.Settings;
-using ProtonDrive.Shared.IO;
 using ProtonDrive.Shared.Offline;
 using ProtonDrive.Shared.Repository;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Shared.ExecutionStatistics;
 using ProtonDrive.Sync.Shared.SyncActivity;
+using ProtonDrive.Sync.Shared.Trees;
 
 namespace ProtonDrive.App.Sync;
 
 internal class SyncService
-    : ISyncService, IStoppableService, ISessionStateAware, IMappingsSetupStateAware, IOfflineStateAware, IRemoteIdsFromLocalPathProvider, ISyncRootPathProvider
+    : ISyncService, IStoppableService, ISessionStateAware, IMappingsSetupStateAware, IOfflineStateAware, IMappedFileSystemIdentityProvider, ISyncRootPathProvider
 {
     private readonly SyncAgentFactory _syncAgentFactory;
     private readonly IRepository<SyncSettings> _settingsRepository;
@@ -28,7 +28,6 @@ internal class SyncService
     private readonly Lazy<IEnumerable<ISyncStateAware>> _syncStateAware;
     private readonly Lazy<IEnumerable<ISyncStatisticsAware>> _syncStatisticsAware;
     private readonly Lazy<IEnumerable<ISyncActivityAware>> _syncActivityAware;
-    private readonly IFileSystemIdentityProvider<long> _fileSystemIdentityProvider;
     private readonly ILogger<SyncService> _logger;
 
     private readonly CancellationHandle _cancellationHandle = new();
@@ -55,7 +54,6 @@ internal class SyncService
         Lazy<IEnumerable<ISyncStateAware>> syncStateAware,
         Lazy<IEnumerable<ISyncStatisticsAware>> syncStatisticsAware,
         Lazy<IEnumerable<ISyncActivityAware>> syncActivityAware,
-        IFileSystemIdentityProvider<long> fileSystemIdentityProvider,
         ILogger<SyncService> logger)
     {
         _syncAgentFactory = syncAgentFactory;
@@ -64,7 +62,6 @@ internal class SyncService
         _syncStateAware = syncStateAware;
         _syncStatisticsAware = syncStatisticsAware;
         _syncActivityAware = syncActivityAware;
-        _fileSystemIdentityProvider = fileSystemIdentityProvider;
         _logger = logger;
 
         _processStateChange = new CoalescingAction(InternalProcessStateChange);
@@ -128,11 +125,13 @@ internal class SyncService
         }
     }
 
-    async Task<RemoteIds?> IRemoteIdsFromLocalPathProvider.GetRemoteIdsOrDefaultAsync(string localPath, CancellationToken cancellationToken)
+    async Task<LooseCompoundAltIdentity<string>?> IMappedFileSystemIdentityProvider.GetRemoteIdFromLocalIdOrDefaultAsync(
+        LooseCompoundAltIdentity<long> localId,
+        CancellationToken cancellationToken)
     {
         await _syncAgentAvailabilityEvent.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-        return await Schedule<RemoteIds?>(
+        return await Schedule(
             async ct =>
             {
                 if (_syncAgent is null || !_syncAgentAvailabilityEvent.IsSet)
@@ -140,40 +139,18 @@ internal class SyncService
                     return null;
                 }
 
-                var mapping = _syncedMappings.FirstOrDefault(m => PathComparison.IsAncestor(m.Local.RootFolderPath, localPath));
-
-                if (mapping is not { Remote: { VolumeId: not null, ShareId: not null } })
-                {
-                    return default;
-                }
-
-                if (!_fileSystemIdentityProvider.TryGetIdFromPath(localPath, out var fileId))
-                {
-                    return default;
-                }
-
-                var linkId = await _syncAgent.GetRemoteIdFromAltIdOrDefaultAsync((mapping.Local.InternalVolumeId, fileId), ct)
-                    .ConfigureAwait(false);
-
-                return linkId?.ItemId is not null ? new RemoteIds(mapping.Remote.VolumeId, mapping.Remote.ShareId, linkId.Value.ItemId) : null;
-            }).ConfigureAwait(false);
+                return await _syncAgent.GetRemoteIdFromLocalIdOrDefaultAsync(localId, ct).ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
     }
 
     IReadOnlyList<string> ISyncRootPathProvider.GetOfTypes(IReadOnlyCollection<MappingType> types)
     {
         return _mappingsSetupState.Mappings
             .Where(mapping => mapping.Status == MappingStatus.Complete && types.Contains(mapping.Type))
-            .Select(mapping => mapping.Local.RootFolderPath)
+            .Select(mapping => mapping.Local.Path)
             .ToList()
             .AsReadOnly();
-    }
-
-    public void Synchronize()
-    {
-        if (ServiceStatus == SyncServiceStatus.Started)
-        {
-            _syncAgent?.Synchronize();
-        }
     }
 
     public async Task RestartAsync()

@@ -48,13 +48,13 @@ internal class ChildrenEnumeration<TId, TAltId>
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var (nodeInfo, unprocessedChildren) = await Schedule(() =>
+        var (nodeModel, nodeInfo, unprocessedChildren) = await Schedule(() =>
                 ShouldEnumerateChildren(node)
-                    ? (ToNodeInfo(node), Prepare(node))
-                    : (null, null))
+                    ? (node.Model, ToNodeInfo(node), Prepare(node))
+                    : (null, null, null))
             .ConfigureAwait(false);
 
-        if (nodeInfo == null || unprocessedChildren == null)
+        if (nodeModel is null || nodeInfo is null || unprocessedChildren is null)
         {
             // Nothing to enumerate
             return Result.Success<NodeInfo<TAltId>>();
@@ -75,9 +75,9 @@ internal class ChildrenEnumeration<TId, TAltId>
         }
         catch (FileSystemClientException<TAltId> ex)
         {
-            LogFailure(node, nodeInfo, ex);
+            LogFailure(nodeModel, nodeInfo, ex);
 
-            await Schedule(() => HandleFailure(ex, node)).ConfigureAwait(false);
+            await Schedule(() => HandleFailure(ex, nodeModel)).ConfigureAwait(false);
 
             return Result.Failure(nodeInfo, ex);
         }
@@ -103,9 +103,9 @@ internal class ChildrenEnumeration<TId, TAltId>
         _success.Execute(parentNode, nodeInfo, unprocessedChildren);
     }
 
-    private void HandleFailure(Exception exception, AdapterTreeNode<TId, TAltId> node)
+    private void HandleFailure(Exception exception, AdapterTreeNodeModel<TId, TAltId> nodeModel)
     {
-        _failure.Execute(exception, node);
+        _failure.Execute(exception, nodeModel);
     }
 
     private void Complete(
@@ -157,14 +157,14 @@ internal class ChildrenEnumeration<TId, TAltId>
         return _fileSystemEnumeration.EnumerateChildren(nodeInfo, cancellationToken);
     }
 
-    private void LogFailure(AdapterTreeNode<TId, TAltId> node, NodeInfo<TAltId> nodeInfo, Exception exception)
+    private void LogFailure(AdapterTreeNodeModel<TId, TAltId> nodeModel, NodeInfo<TAltId> nodeInfo, Exception exception)
     {
         _logger.LogWarning(
             "Enumerating children of {Type} \"{Root}\"/{Id} at parent with Id={ParentId} {ParentExternalId} failed: {ErrorMessage}",
             nodeInfo.IsDirectory() ? NodeType.Directory : NodeType.File,
             nodeInfo.Root?.Id,
-            node.Id,
-            node.Model.ParentId,
+            nodeModel.Id,
+            nodeModel.ParentId,
             nodeInfo.GetCompoundParentId(),
             exception.CombinedMessage());
     }

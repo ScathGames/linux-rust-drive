@@ -10,6 +10,8 @@ public record SyncState
         Failed = failed;
     }
 
+    public static SyncState Synchronizing { get; } = new(SyncStatus.Synchronizing, false);
+    public static SyncState Idle { get; } = new(SyncStatus.Idle, false);
     public static SyncState Terminated { get; } = new(SyncStatus.Terminated, false);
 
     public SyncStatus Status { get; }

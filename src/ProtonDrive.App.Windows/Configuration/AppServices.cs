@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,8 @@ using ProtonDrive.App.InterProcessCommunication;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Mapping.SyncFolders;
 using ProtonDrive.App.Notifications;
+using ProtonDrive.App.Notifications.Offers;
+using ProtonDrive.App.Onboarding;
 using ProtonDrive.App.Reporting;
 using ProtonDrive.App.Services;
 using ProtonDrive.App.Sync;
@@ -30,6 +33,7 @@ using ProtonDrive.App.Windows.Views.Main.Activity;
 using ProtonDrive.App.Windows.Views.Main.Computers;
 using ProtonDrive.App.Windows.Views.Main.Settings;
 using ProtonDrive.App.Windows.Views.Main.SharedWithMe;
+using ProtonDrive.App.Windows.Views.Offer;
 using ProtonDrive.App.Windows.Views.Onboarding;
 using ProtonDrive.App.Windows.Views.Shared;
 using ProtonDrive.App.Windows.Views.Shared.Navigation;
@@ -45,21 +49,18 @@ namespace ProtonDrive.App.Windows.Configuration;
 
 internal static class AppServices
 {
-    public static IHostBuilder AddApp(this IHostBuilder builder, AppLaunchMode launchMode, bool crashOnMainWindowActivation)
+    public static IHostBuilder AddApp(this IHostBuilder builder, AppArguments appArguments)
     {
         return builder.ConfigureServices(
             services =>
                 services
-                    .AddSingleton(
-                        sp => new App(
-                            sp.GetRequiredService<IHost>(),
-                            sp.GetRequiredService<IErrorReporting>(),
-                            sp.GetRequiredService<ILogger<App>>(),
-                            launchMode,
-                            crashOnMainWindowActivation))
-                    .AddSingleton<IApp>(sp => sp.GetRequiredService<App>())
-                    .AddSingleton<ISessionStateAware>(sp => sp.GetRequiredService<App>())
-                    .AddSingleton<IDialogService>(sp => sp.GetRequiredService<App>()));
+                    .AddSingleton(appArguments)
+                    .AddSingleton<AppLifecycleService>()
+                    .AddSingleton<App>()
+                    .AddSingleton<IApp>(provider => provider.GetRequiredService<App>())
+                    .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<App>())
+                    .AddSingleton<IOnboardingStateAware>(provider => provider.GetRequiredService<App>())
+                    .AddSingleton<IDialogService>(provider => provider.GetRequiredService<App>()));
     }
 
     public static IHostBuilder AddServices(this IHostBuilder builder, IErrorReporting errorReporting, AppLaunchMode launchMode)
@@ -77,17 +78,19 @@ internal static class AppServices
         services
             .AddAppServices(errorReporting, launchMode)
 
-            .AddSingleton(sp => new DispatcherScheduler(sp.GetRequiredService<App>().Dispatcher))
+            .AddSingleton(new DispatcherScheduler(Dispatcher.CurrentDispatcher))
             .AddKeyedSingleton<IScheduler>("Dispatcher", (sp, _) => sp.GetRequiredService<DispatcherScheduler>())
             .AddSingleton<IFileSystemDisplayNameAndIconProvider, Win32FileSystemDisplayNameAndIconProvider>()
             .AddSingleton<IFileSystemItemTypeProvider>(_ => new CachingFileSystemItemTypeProvider(new Win32FileSystemItemTypeProvider()))
             .AddSingleton<IOperatingSystemIntegrationService, OperatingSystemIntegrationService>()
             .AddSingleton<ILocalVolumeInfoProvider, VolumeInfoProvider>()
             .AddSingleton<ILocalFolderService, LocalFolderService>()
+            .AddSingleton<IReadOnlyFileAttributeRemover, ReadOnlyFileAttributeRemover>()
             .AddSingleton<IPlaceholderToRegularItemConverter, PlaceholderToRegularItemConverter>()
             .AddSingleton<INonSyncablePathProvider, NonSyncablePathProvider>()
             .AddSingleton<INotificationService, SystemToastNotificationService>()
             .AddSingleton<IUrlOpener, UrlOpener>()
+            .AddSingleton<IForkingSessionUrlOpener, ForkingSessionUrlOpener>()
             .AddSingleton<IExternalHyperlinks, ExternalHyperlinks>()
             .AddSingleton<IClipboard, SystemClipboard>()
             .AddSingleton<ISyncFolderStructureProtector>(
@@ -107,6 +110,11 @@ internal static class AppServices
             .AddSingleton<UpdateNotificationService>()
             .AddSingleton<IStartableService>(provider => provider.GetRequiredService<UpdateNotificationService>())
 
+            .AddSingleton<OfferNotificationService>()
+            .AddSingleton<IStoppableService>(provider => provider.GetRequiredService<OfferNotificationService>())
+            .AddSingleton<IOnboardingStateAware>(provider => provider.GetRequiredService<OfferNotificationService>())
+            .AddSingleton<IOffersAware>(provider => provider.GetRequiredService<OfferNotificationService>())
+
             .AddSingleton<AppCommands>()
             .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<AppCommands>())
             .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<AppCommands>())
@@ -124,25 +132,26 @@ internal static class AppServices
             .AddSingleton<INavigationService<DetailsPageViewModel>>(provider => provider.GetRequiredService<NavigationService<DetailsPageViewModel>>())
             .AddSingleton<INavigatablePages<DetailsPageViewModel>>(provider => provider.GetRequiredService<NavigationService<DetailsPageViewModel>>())
             .AddSingleton<MainWindowViewModel>()
-            .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<MainWindowViewModel>())
             .AddSingleton<PageViewModelFactory>()
             .AddSingleton<IUpgradeStoragePlanAvailabilityVerifier, UpgradeStoragePlanAvailabilityVerifier>()
+
             .AddSingleton<OnboardingViewModel>()
+            .AddSingleton<IOnboardingStateAware>(provider => provider.GetRequiredService<OnboardingViewModel>())
             .AddSingleton<SyncFolderSelectionStepViewModel>()
-            .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<SyncFolderSelectionStepViewModel>())
-            .AddSingleton<IAccountSwitchingAware>(provider => provider.GetRequiredService<SyncFolderSelectionStepViewModel>())
             .AddSingleton<AccountRootFolderSelectionStepViewModel>()
             .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<AccountRootFolderSelectionStepViewModel>())
-            .AddSingleton<IAccountSwitchingAware>(provider => provider.GetRequiredService<AccountRootFolderSelectionStepViewModel>())
             .AddSingleton<UpgradeStorageStepViewModel>()
             .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<UpgradeStorageStepViewModel>())
+
             .AddSingleton<MainViewModel>()
             .AddSingleton<IApplicationPages>(provider => provider.GetRequiredService<MainViewModel>())
-            .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<MainViewModel>())
             .AddSingleton<IAccountStateAware>(provider => provider.GetRequiredService<MainViewModel>())
             .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<MainViewModel>())
             .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<MainViewModel>())
             .AddSingleton<IFeatureFlagsAware>(provider => provider.GetRequiredService<MainViewModel>())
+            .AddSingleton<ISharedWithMeOnboardingStateAware>(provider => provider.GetRequiredService<MainViewModel>())
+            .AddSingleton<IOffersAware>(provider => provider.GetRequiredService<MainViewModel>())
+
             .AddTransient<AddedFolderValidationResultMessageBuilder>()
             .AddTransient<AddFoldersViewModel>()
             .AddTransient<Func<AddFoldersViewModel>>(provider => provider.GetRequiredService<AddFoldersViewModel>)
@@ -154,6 +163,8 @@ internal static class AppServices
             .AddSingleton<IMappingStateAware>(provider => provider.GetRequiredService<SyncedDevicesViewModel>())
 
             .AddSingleton<SharedWithMeViewModel>()
+            .AddSingleton<ISharedWithMeOnboardingStateAware>(provider => provider.GetRequiredService<SharedWithMeViewModel>())
+
             .AddSingleton<SharedWithMeListViewModel>()
             .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<SharedWithMeListViewModel>())
             .AddSingleton<IFeatureFlagsAware>(provider => provider.GetRequiredService<SharedWithMeListViewModel>())
@@ -175,6 +186,9 @@ internal static class AppServices
             .AddSingleton<ISyncStateAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<ISyncActivityAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<SystemTrayViewModel>()
+
+            .AddTransient<OfferViewModel>()
+            .AddTransient<Func<OfferViewModel>>(provider => provider.GetRequiredService<OfferViewModel>)
 
             .AddSingleton(
                 provider => new NamedPipeBasedIpcServer(

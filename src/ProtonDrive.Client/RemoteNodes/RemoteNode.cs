@@ -25,10 +25,10 @@ internal abstract record RemoteNode(
         ExtendedAttributes?.Common?.LastWriteTime
         ?? DateTimeOffset.FromUnixTimeSeconds(Link.ModificationTime).UtcDateTime;
 
-    public DateTime? ExpirationTime =>
-        Link.ExpirationTime is not null ? DateTimeOffset.FromUnixTimeSeconds(Link.ExpirationTime.GetValueOrDefault()).UtcDateTime : default(DateTime?);
     public DateTime? DeletionTime =>
         Link.DeletionTime is not null ? DateTimeOffset.FromUnixTimeSeconds(Link.DeletionTime.GetValueOrDefault()).UtcDateTime : default(DateTime?);
+
+    public bool IsNodePassphraseSignedAnonymously => string.IsNullOrEmpty(Link.SignatureEmailAddress);
 
     protected Link Link { get; } = Link;
 

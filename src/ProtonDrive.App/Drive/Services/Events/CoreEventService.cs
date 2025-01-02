@@ -38,7 +38,7 @@ internal sealed class CoreEventService : ISessionStateAware, IStoppableService, 
 
         _timer = scheduler.CreateTimer();
         _timer.Interval = apiConfig.EventsPollingInterval.RandomizedWithDeviation(0.2);
-        _timer.Tick += TimerOnTick;
+        _timer.Tick += OnTimerTick;
     }
 
     void ISessionStateAware.OnSessionStateChanged(SessionState value)
@@ -83,8 +83,7 @@ internal sealed class CoreEventService : ISessionStateAware, IStoppableService, 
 
     internal Task WaitForCompletionAsync()
     {
-        // Wait for the current scheduled task to complete
-        return _getEvents.CurrentTask;
+        return _getEvents.WaitForCompletionAsync();
     }
 
     private void ResetEventStream()
@@ -92,7 +91,7 @@ internal sealed class CoreEventService : ISessionStateAware, IStoppableService, 
         Interlocked.Exchange(ref _resumeToken, CoreEventResumeToken.Start);
     }
 
-    private void TimerOnTick(object? sender, EventArgs e)
+    private void OnTimerTick(object? sender, EventArgs e)
     {
         _getEvents.RunAsync();
     }
@@ -125,7 +124,7 @@ internal sealed class CoreEventService : ISessionStateAware, IStoppableService, 
         }
         catch (Exception ex) when (ex.IsDriveClientException())
         {
-            _logger.LogWarning("Failed to get core events : {ErrorMessage}", ex.Message);
+            _logger.LogWarning("Failed to get core events : {ErrorCode} {ErrorMessage}", ex.GetRelevantFormattedErrorCode(), ex.CombinedMessage());
 
             return false;
         }

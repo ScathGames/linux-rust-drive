@@ -19,9 +19,10 @@ public static class SyncActivityExtensions
         {
             Source = SyncActivitySource.UpdateDetection,
             Id = node.Id,
+            RootId = nodeInfo.Root?.Id,
             ActivityType = SyncActivityType.FetchUpdates,
             NodeType = nodeInfo.IsDirectory() ? NodeType.Directory : NodeType.File,
-            Name = nodeInfo.Name,
+            Name = string.IsNullOrEmpty(nodeInfo.Path) ? string.Empty : nodeInfo.Name,
             RelativeParentFolderPath = nodeInfo.GetParentFolderPath() ?? string.Empty,
             LocalRootPath = nodeInfo.Root?.LocalPath ?? string.Empty,
             Size = nodeInfo.IsDirectory() ? null : (nodeInfo.Size >= 0 ? nodeInfo.Size : null),
@@ -49,7 +50,8 @@ public static class SyncActivityExtensions
             this ExecutableOperation<TId> operation,
             NodeInfo<TAltId> nodeInfo,
             NodeInfo<TAltId>? destinationInfo,
-            IRevision? sourceRevision = null)
+            IRevision? sourceRevision = null,
+            SyncActivityStage stage = SyncActivityStage.Execution)
         where TId : IEquatable<TId>
         where TAltId : IEquatable<TAltId>
     {
@@ -57,12 +59,14 @@ public static class SyncActivityExtensions
         {
             Source = SyncActivitySource.OperationExecution,
             Id = operation.Model.Id,
+            RootId = nodeInfo.Root?.Id,
             NodeType = nodeInfo.IsDirectory() ? NodeType.Directory : NodeType.File,
             ActivityType = operation.GetActivityType(nodeInfo, destinationInfo),
             Name = string.IsNullOrEmpty(destinationInfo?.Name) ? nodeInfo.Name : destinationInfo.Name,
             RelativeParentFolderPath = destinationInfo?.GetParentFolderPath() ?? nodeInfo.GetParentFolderPath() ?? string.Empty,
             LocalRootPath = destinationInfo?.Root?.LocalPath ?? nodeInfo.Root?.LocalPath ?? string.Empty,
             Size = nodeInfo.IsDirectory() ? null : (sourceRevision?.Size ?? (nodeInfo.Size >= 0 ? nodeInfo.Size : null)),
+            Stage = stage,
         };
     }
 

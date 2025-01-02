@@ -113,7 +113,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_localFolderService.TryGetFolderInfo(replica.RootFolderPath, FileShare.ReadWrite, out var rootFolder))
+        if (!_localFolderService.TryGetFolderInfo(replica.Path, FileShare.ReadWrite, out var rootFolder))
         {
             _logger.LogWarning("Failed to access local sync folder");
             return MappingErrorCode.LocalFileSystemAccessFailed;
@@ -125,7 +125,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
             return MappingErrorCode.LocalFolderDoesNotExist;
         }
 
-        var result = _localFolderIdentityValidator.ValidateFolderIdentity(rootFolder, replica, mapping.Remote.RootLinkType);
+        var result = _localFolderIdentityValidator.ValidateFolderIdentity(rootFolder, replica, mapping.Remote.RootItemType);
         if (result is not null)
         {
             return result;
@@ -156,7 +156,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
 
         _logger.LogInformation("Creating host device folder for sync folder mapping {Id} ({Type})", mapping.Id, mapping.Type);
 
-        var folderName = GetFolderNameFromRootFolderPath(mapping.Local.RootFolderPath);
+        var folderName = GetFolderNameFromRootFolderPath(mapping.Local.Path);
         var folder = await CreateDeviceFolderAsync(hostDevice, folderName, cancellationToken).ConfigureAwait(false);
         if (folder is null)
         {
@@ -166,7 +166,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
         replica.VolumeId = hostDevice.DataItem.VolumeId;
         replica.ShareId = hostDevice.DataItem.ShareId;
         replica.RootLinkId = folder.Value.Id;
-        replica.RootFolderName = folder.Value.Name;
+        replica.RootItemName = folder.Value.Name;
         replica.InternalVolumeId = _volumeIdentityProvider.GetRemoteVolumeId(replica.VolumeId);
 
         return default;

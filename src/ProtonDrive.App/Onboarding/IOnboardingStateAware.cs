@@ -1,6 +1,6 @@
 ﻿namespace ProtonDrive.App.Onboarding;
 
-internal interface IOnboardingStateAware
+public interface IOnboardingStateAware
 {
     void OnboardingStateChanged(OnboardingState value);
 }

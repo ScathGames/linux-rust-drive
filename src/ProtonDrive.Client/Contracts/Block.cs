@@ -4,14 +4,14 @@ namespace ProtonDrive.Client.Contracts;
 
 public sealed class Block
 {
-    public int Index { get; set; }
+    public int Index { get; init; }
 
     [JsonPropertyName("URL")]
-    public string Url { get; set; } = string.Empty;
+    public string? Url { get; init; }
 
     [JsonPropertyName("EncSignature")]
-    public string? EncryptedSignature { get; set; }
+    public string? EncryptedSignature { get; init; }
 
     [JsonPropertyName("SignatureEmail")]
-    public string SignatureEmailAddress { get; set; } = string.Empty;
+    public string? SignatureEmailAddress { get; init; }
 }

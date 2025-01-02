@@ -8,6 +8,5 @@ public interface ISyncService
     SyncStatus Status { get; }
     bool Paused { get; set; }
 
-    void Synchronize();
     Task RestartAsync();
 }

@@ -2,8 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using ProtonDrive.App.Instrumentation.Telemetry.Synchronization;
 using ProtonDrive.App.Sync;
-using ProtonDrive.App.Telemetry;
 using ProtonDrive.Client.Cryptography;
 using ProtonDrive.Shared.Configuration;
 using ProtonDrive.Shared.Diagnostics;

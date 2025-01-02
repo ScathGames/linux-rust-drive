@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using ProtonDrive.Client.Contracts;
+using ProtonDrive.Client.Settings.Contracts;
 
 namespace ProtonDrive.Client.Core.Events.Contracts;
 
@@ -32,11 +33,16 @@ internal sealed record CoreEventListResponse : ApiResponse
 
     public UserSubscription? Subscription { get; init; }
 
+    public GeneralSettings? UserSettings { get; init; }
+
     public long? UsedSpace { get; init; }
 
-    public long? UsedDriveSpace
+    [JsonPropertyName("UsedDriveSpace")]
+    public long? SplitStorageUsedSpace
     {
         get => _usedDriveSpace ?? UsedSpace;
         set => _usedDriveSpace = value;
     }
+
+    public ProductUsedSpace ProductUsedSpace { get; init; } = ProductUsedSpace.Empty;
 }

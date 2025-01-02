@@ -123,7 +123,7 @@ internal sealed class CredentialInputViewModel : SessionWorkflowStepWithPassword
 
     private bool CanSignIn()
     {
-        return !string.IsNullOrEmpty(Username) && Password is not null && Password.Length > 0;
+        return !string.IsNullOrEmpty(Username) && Password?.Length > 0;
     }
 
     private async Task SignInAsync()

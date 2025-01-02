@@ -65,10 +65,10 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
             var initialLength = hydrationDemand.HydrationStream.Length;
             await HydrateFileAsync(hydrationDemand.HydrationStream, mappedNodeId.Value, nodeModel, cancellationToken).ConfigureAwait(false);
 
-            var sizeDidNotMatch = hydrationDemand.HydrationStream.Length != initialLength;
-            if (sizeDidNotMatch)
+            var sizeMismatch = hydrationDemand.HydrationStream.Length - initialLength;
+            if (sizeMismatch != 0)
             {
-                LogSizeMismatch(nodeModel.Id);
+                LogSizeMismatch(nodeModel.Id, sizeMismatch);
 
                 await ScheduleExecution(() => CorrectFileSize(nodeModel, hydrationDemand, cancellationToken), cancellationToken).ConfigureAwait(false);
 
@@ -93,19 +93,22 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
         void LogSuccess(TId nodeId)
         {
             _logger.LogInformation(
-                "On-demand hydration of \"{FileName}\" with Id={Id} {ExternalId} succeeded",
+                "On-demand hydration of \"{FileName}\" with Id=\"{Root}\"/{Id} {ExternalId} succeeded",
                 fileNameToLog,
                 nodeId,
+                hydrationDemand.FileInfo.Root?.Id,
                 hydrationDemand.FileInfo.GetCompoundId());
         }
 
-        void LogSizeMismatch(TId nodeId)
+        void LogSizeMismatch(TId nodeId, long mismatch)
         {
             _logger.LogInformation(
-                "On-demand hydration of \"{FileName}\" with Id={Id} {ExternalId} requires size correction",
+                "On-demand hydration of \"{FileName}\" with Id=\"{Root}\"/{Id} {ExternalId} requires size correction by {Mismatch}",
                 fileNameToLog,
+                hydrationDemand.FileInfo.Root?.Id,
                 nodeId,
-                hydrationDemand.FileInfo.GetCompoundId());
+                hydrationDemand.FileInfo.GetCompoundId(),
+                mismatch);
         }
 
         void LogCancellation()
@@ -113,7 +116,7 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
             _logger.LogInformation(
                 "On-demand hydration of \"{FileName}\" with external Id={ExternalId} was cancelled",
                 fileNameToLog,
-                hydrationDemand.FileInfo.Id);
+                hydrationDemand.FileInfo.GetCompoundId());
         }
     }
 

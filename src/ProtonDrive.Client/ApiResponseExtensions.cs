@@ -111,7 +111,26 @@ public static class ApiResponseExtensions
         }
     }
 
-    public static async Task<T> ThrowOnApiFailure<T>(this Task<T> origin)
+    public static async Task<T?> TryGetContentAsApiResponseAsync<T>(this Refit.ApiException exception)
+        where T : ApiResponse
+    {
+        try
+        {
+            var response = await exception.GetContentAsAsync<T>().ConfigureAwait(false);
+            if (response != null && response.Code != default)
+            {
+                return response;
+            }
+        }
+        catch
+        {
+            // Ignore
+        }
+
+        return null;
+    }
+
+    private static async Task<T> ThrowOnApiFailure<T>(this Task<T> origin)
     {
         try
         {
@@ -127,7 +146,7 @@ public static class ApiResponseExtensions
         }
         catch (HttpRequestException ex) when (ex.InnerException is SocketException socketException)
         {
-            throw new ApiException(ResponseCode.SocketError, socketException.Message, ex);
+            throw new ApiException(ToResponseCode(socketException), socketException.Message, ex);
         }
         catch (HttpRequestException ex)
         {
@@ -151,10 +170,10 @@ public static class ApiResponseExtensions
         }
     }
 
-    public static async Task<Exception> MapToApiExceptionAsync<T>(this Refit.ApiException ex)
+    private static async Task<Exception> MapToApiExceptionAsync<T>(this Refit.ApiException ex)
         where T : ApiResponse
     {
-        var response = await ex.GetContentAsApiResponseAsync<T>().ConfigureAwait(false);
+        var response = await ex.TryGetContentAsApiResponseAsync<T>().ConfigureAwait(false);
 
         return ex.StatusCode switch
         {
@@ -167,25 +186,6 @@ public static class ApiResponseExtensions
                 => new ApiException<T>(ex.StatusCode, (ResponseCode)ex.StatusCode, "Failed to deserialize JSON content", response, ex),
             _ => new ApiException<T>(ex.StatusCode, (ResponseCode)ex.StatusCode, "API request failed", response, ex),
         };
-    }
-
-    public static async Task<T?> GetContentAsApiResponseAsync<T>(this Refit.ApiException exception)
-        where T : ApiResponse
-    {
-        try
-        {
-            var response = await exception.GetContentAsAsync<T>().ConfigureAwait(false);
-            if (response != null && response.Code != default)
-            {
-                return response;
-            }
-        }
-        catch
-        {
-            // Ignore
-        }
-
-        return null;
     }
 
     private static async Task<T> WithApiException<T>(this Task<T> origin)
@@ -245,5 +245,15 @@ public static class ApiResponseExtensions
         origin.Dispose();
 
         return content;
+    }
+
+    private static ResponseCode ToResponseCode(SocketException exception)
+    {
+        return (exception.SocketErrorCode is SocketError.ConnectionRefused or
+                                             SocketError.ConnectionAborted or
+                                             SocketError.HostDown or
+                                             SocketError.TimedOut)
+            ? ResponseCode.ServerError
+            : ResponseCode.NetworkError;
     }
 }

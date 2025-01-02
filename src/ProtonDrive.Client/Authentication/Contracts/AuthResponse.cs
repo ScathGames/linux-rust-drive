@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace ProtonDrive.Client.Authentication.Contracts;
 
-public sealed record AuthResponse : ApiResponse
+internal sealed record AuthResponse : ApiResponse
 {
     public string AccessToken { get; init; } = string.Empty;
     public int ExpiresIn { get; init; }

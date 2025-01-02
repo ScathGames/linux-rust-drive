@@ -2,8 +2,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=System.ComponentModel.TypeConverter"
     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
     xmlns:shared="clr-namespace:ProtonDrive.App.Windows.Views.Shared"
+    xmlns:sorting="clr-namespace:ProtonDrive.App.Windows.Views.Shared.Sorting"
     xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
     <system:Double x:Key="GridViewColumnHeader.FontSize">14</system:Double>
@@ -43,7 +45,7 @@
     <SolidColorBrush
         x:Key="ListView.Disabled.Background"
         po:Freeze="True"
-        Color="White" />
+        Color="Transparent" />
 
     <SolidColorBrush
         x:Key="ListViewItem.BorderBrush"
@@ -422,5 +424,61 @@
                 </b:EventTrigger>
             </b:Interaction.Triggers>
         </Button>
+    </DataTemplate>
+
+    <Style
+        x:Key="ColumnSortIndicatorStyle"
+        TargetType="TextBlock">
+        <Setter Property="FontSize" Value="8" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="6,0,0,0" />
+        <Style.Triggers>
+            <DataTrigger
+                Binding="{Binding SortDirection}"
+                Value="{x:Static componentModel:ListSortDirection.Ascending}">
+                <Setter Property="Text" Value="▲" />
+            </DataTrigger>
+
+            <DataTrigger
+                Binding="{Binding SortDirection}"
+                Value="{x:Static componentModel:ListSortDirection.Descending}">
+                <Setter Property="Text" Value="▼" />
+            </DataTrigger>
+
+            <DataTrigger
+                Binding="{Binding SortDirection}"
+                Value="{x:Null}">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style
+        x:Key="SortableHeaderContainerStyle"
+        TargetType="{x:Type GridViewColumnHeader}"
+        BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
+        <Setter Property="Command" Value="{Binding SortCommand}" />
+        <Setter Property="CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content}" />
+    </Style>
+
+    <DataTemplate
+        x:Key="SortableColumnHeaderTemplate"
+        DataType="{x:Type sorting:GridColumnViewModel}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                Text="{Binding DisplayName}"
+                TextTrimming="CharacterEllipsis"
+                ToolTip="{Binding Tooltip}" />
+
+            <TextBlock
+                Grid.Column="1"
+                Style="{StaticResource ColumnSortIndicatorStyle}" />
+        </Grid>
     </DataTemplate>
 </ResourceDictionary>

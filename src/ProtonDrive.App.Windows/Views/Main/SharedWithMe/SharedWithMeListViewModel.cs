@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -16,6 +19,7 @@ using ProtonDrive.App.Sync;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Windows.Extensions;
 using ProtonDrive.App.Windows.Toolkit.Threading;
+using ProtonDrive.App.Windows.Views.Shared.Sorting;
 using ProtonDrive.Client;
 using ProtonDrive.Client.Contracts;
 using ProtonDrive.Client.Shares.SharedWithMe;
@@ -26,7 +30,7 @@ using SharedWithMeItem = ProtonDrive.Client.Shares.SharedWithMe.SharedWithMeItem
 
 namespace ProtonDrive.App.Windows.Views.Main.SharedWithMe;
 
-internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItemViewModel, string>, ISyncFoldersAware, IFeatureFlagsAware, ISyncStateAware
+internal sealed class SharedWithMeListViewModel : SortableListViewModel, ISyncFoldersAware, IFeatureFlagsAware, ISyncStateAware
 {
     private readonly ISharedWithMeDataProvider _dataProvider;
     private readonly ISharedWithMeClient _sharedWithMeClient;
@@ -42,6 +46,8 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
     private readonly AsyncRelayCommand<SharedWithMeItemViewModel?> _toggleSyncCommand;
     private readonly AsyncRelayCommand<SharedWithMeItemViewModel?> _removeMeCommand;
     private readonly TimeSpan _refreshCooldownDuration = TimeSpan.FromSeconds(30);
+
+    private readonly ObservableCollection<SharedWithMeItemViewModel> _items = [];
 
     private DataServiceStatus _status;
     private DateTime _lastRefreshTime = DateTime.MinValue;
@@ -80,7 +86,28 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
         _removeMeCommand = new AsyncRelayCommand<SharedWithMeItemViewModel?>(RemoveMeAsync, CanRemoveMe);
 
         _initializeData = new Lazy<Task>(() => InitializeAsync(CancellationToken.None));
+
+        GridColumns = new SharedWithMeGridColumnsViewModel();
+
+        Items = new ListCollectionView(_items)
+        {
+            IsLiveSorting = true,
+
+            // We do not enable live sorting of Sync column, so that list entries
+            // preserve their vertical position upon enabling or disabling sync.
+            LiveSortingProperties =
+            {
+                GridColumns.PermissionsColumn.Name,
+                GridColumns.NameColumn.Name,
+                GridColumns.SharedByColumn.Name,
+                GridColumns.SharedOnColumn.Name,
+            },
+        };
+
+        SortItems(GridColumns.SharedOnColumn, ListSortDirection.Descending);
     }
+
+    public ListCollectionView Items { get; }
 
     public DataServiceStatus Status
     {
@@ -116,16 +143,24 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
     public bool IsFeatureDisabled
     {
         get => _isFeatureDisabled;
-        private set => SetProperty(ref _isFeatureDisabled, value);
+        private set
+        {
+            if (SetProperty(ref _isFeatureDisabled, value))
+            {
+                _toggleSyncCommand.NotifyCanExecuteChanged();
+            }
+        }
     }
 
     public int MaximumNumberOfSyncedItemsSupported { get; }
 
     public ICommand OpenSharedWithMeRootFolderCommand => _openSharedWithMeRootFolderCommand;
 
+    public SharedWithMeGridColumnsViewModel GridColumns { get; }
+
     public async Task LoadDataAsync()
     {
-        await _initializeData.Value.ConfigureAwait(false);
+        await _initializeData.Value.ConfigureAwait(true);
 
         // TODO:
         // Replace this workaround when global and volume-based events are implemented.
@@ -159,11 +194,7 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
     void IFeatureFlagsAware.OnFeatureFlagsChanged(IReadOnlyCollection<(Feature Feature, bool IsEnabled)> features)
     {
-        Schedule(
-            () =>
-            {
-                IsFeatureDisabled = features.Any(x => x.Feature is Feature.DriveSharingDisabled or Feature.DriveSharingEditingDisabled && x.IsEnabled);
-            });
+        Schedule(() => IsFeatureDisabled = features.Any(x => x.Feature is Feature.DriveSharingDisabled or Feature.DriveSharingEditingDisabled && x.IsEnabled));
     }
 
     void ISyncStateAware.OnSyncStateChanged(SyncState value)
@@ -174,6 +205,17 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
                 _syncIsRestarting = value.Status is SyncStatus.Initializing or SyncStatus.Terminating;
                 _toggleSyncCommand.NotifyCanExecuteChanged();
             });
+    }
+
+    protected override void SortItems(GridColumnViewModel? column)
+    {
+        if (column is null)
+        {
+            return;
+        }
+
+        var sortDirection = column.SortDirection is ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+        SortItems(column, sortDirection);
     }
 
     private static SharedWithMeItem ToSharedWithMeItem(SyncFolder syncFolder)
@@ -229,7 +271,7 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
             using (dataItems)
             {
-                Items.AddEach(dataItems.Select(CreateItemViewModel));
+                _items.AddEach(dataItems.Select(CreateItemViewModel));
 
                 _dataProvider.ItemsChanged += OnDataItemsChanged;
             }
@@ -279,21 +321,21 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
     private void HandleClearedItems()
     {
-        if (Items.All(i => i.SyncFolder == null))
+        if (_items.All(i => i.SyncFolder == null))
         {
-            Items.Clear();
+            _items.Clear();
         }
         else
         {
             for (var i = Items.Count - 1; i >= 0; i--)
             {
-                if (Items[i].SyncFolder == null)
+                if (_items[i].SyncFolder == null)
                 {
-                    Items.RemoveAt(i);
+                    _items.RemoveAt(i);
                 }
                 else
                 {
-                    Items[i].DataItem = null;
+                    _items[i].DataItem = null;
                 }
             }
         }
@@ -301,11 +343,11 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
     private void HandleAddedOrUpdatedItem(SharedWithMeItem dataItem)
     {
-        var item = Items.FirstOrDefault(i => i.Id.Equals(dataItem.Id));
+        var item = _items.FirstOrDefault(i => i.Id.Equals(dataItem.Id));
 
         if (item is null)
         {
-            Items.Add(CreateItemViewModel(dataItem));
+            _items.Add(CreateItemViewModel(dataItem));
         }
         else
         {
@@ -315,7 +357,7 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
     private void HandleRemovedItem(SharedWithMeItem dataItem)
     {
-        var item = Items.FirstOrDefault(i => i.Id.Equals(dataItem.Id));
+        var item = _items.FirstOrDefault(i => i.Id.Equals(dataItem.Id));
         if (item is null)
         {
             // Item already removed due to lack of coordination
@@ -324,7 +366,7 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
         if (item.SyncFolder is null)
         {
-            Items.Remove(item);
+            _items.Remove(item);
         }
         else
         {
@@ -334,16 +376,16 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
     private void HandleAddedOrUpdatedSyncFolder(SyncFolder syncFolder)
     {
-        var item = Items.FirstOrDefault(i => i.SyncFolder == syncFolder);
+        var item = _items.FirstOrDefault(i => i.SyncFolder == syncFolder);
 
         if (item == null && !string.IsNullOrEmpty(syncFolder.RemoteShareId))
         {
-            item = Items.FirstOrDefault(i => i.Id.Equals(syncFolder.RemoteShareId));
+            item = _items.FirstOrDefault(i => i.Id.Equals(syncFolder.RemoteShareId));
         }
 
         if (item == null)
         {
-            Items.Add(CreateItemViewModel(syncFolder));
+            _items.Add(CreateItemViewModel(syncFolder));
         }
         else
         {
@@ -353,11 +395,16 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
     private void HandleRemovedSyncFolder(SyncFolder syncFolder)
     {
-        var item = Items.First(i => i.SyncFolder == syncFolder);
+        var item = _items.FirstOrDefault(i => i.SyncFolder == syncFolder);
+        if (item is null)
+        {
+            // Item already removed
+            return;
+        }
 
         if (item.DataItem is null)
         {
-            Items.Remove(item);
+            _items.Remove(item);
         }
         else
         {
@@ -373,6 +420,16 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
     private SharedWithMeItemViewModel CreateItemViewModel(SyncFolder syncFolder)
     {
         return _itemViewModelFactory.Create(syncFolder, _toggleSyncCommand, _removeMeCommand);
+    }
+
+    private void SortItems(GridColumnViewModel column, ListSortDirection sortDirection)
+    {
+        GridColumns.ClearSorting();
+
+        column.SortDirection = sortDirection;
+
+        Items.SortDescriptions.Clear();
+        Items.SortDescriptions.Add(new SortDescription(column.Name, sortDirection));
     }
 
     private bool CanToggleSync(SharedWithMeItemViewModel? itemViewModel)
@@ -392,8 +449,7 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
             return false;
         }
 
-        return !MaximumNumberOfSyncedFoldersReached
-            && itemViewModel is { IsReadOnly: false };
+        return !MaximumNumberOfSyncedFoldersReached;
     }
 
     private async Task ToggleSync(SharedWithMeItemViewModel? itemViewModel, CancellationToken cancellationToken)
@@ -441,7 +497,7 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
                 itemViewModel.DataItem.MemberId,
                 cancellationToken).ConfigureAwait(true);
 
-            Items.Remove(itemViewModel.Id);
+            Items.Remove(itemViewModel);
         }
         catch (Exception ex) when (ex.IsDriveClientException())
         {
@@ -458,26 +514,24 @@ internal sealed class SharedWithMeListViewModel : ListViewModel<SharedWithMeItem
 
     private bool CanOpenSharedWithMeRootFolder()
     {
-        return Items.Any(x => x.SyncFolder is not null);
+        return _items.Any(x => x.SyncFolder is not null);
     }
 
     private async Task OpenSharedWithMeRootFolder()
     {
-        var sharedWithMeFolder = Items.Select(x => x.SyncFolder).FirstOrDefault(x => x is not null);
+        var sharedWithMeFolder = _items.Select(x => x.SyncFolder).FirstOrDefault(x => x is not null);
         if (sharedWithMeFolder is null)
         {
             return;
         }
 
-        var sharedWithMeRootFolderPath = sharedWithMeFolder.RootLinkType is LinkType.Folder
-            ? Path.GetDirectoryName(sharedWithMeFolder.LocalPath)
-            : sharedWithMeFolder.LocalPath;
+        var sharedWithMeRootFolderPath = Path.GetDirectoryName(sharedWithMeFolder.LocalPath);
 
         await _localFolderService.OpenFolderAsync(sharedWithMeRootFolderPath).ConfigureAwait(true);
     }
 
-    private Task Schedule(Action action)
+    private void Schedule(Action action)
     {
-        return _scheduler.ScheduleAsync(action);
+        _scheduler.Schedule(action);
     }
 }

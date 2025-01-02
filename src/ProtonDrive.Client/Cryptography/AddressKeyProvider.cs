@@ -102,19 +102,36 @@ internal sealed class AddressKeyProvider : IAddressKeyProvider
 
     public async Task<IReadOnlyList<PublicPgpKey>> GetPublicKeysForEmailAddressAsync(string emailAddress, CancellationToken cancellationToken)
     {
-        return await _cache.GetOrExclusivelyCreateAsync(
+        return await _cache.GetOrExclusivelyCreateAsync<IReadOnlyList<PublicPgpKey>>(
             new PublicKeysCacheKey(emailAddress),
             async () =>
             {
-                var publicKeysResponse = await _keyApiClient.GetActivePublicKeysAsync(emailAddress, cancellationToken).ThrowOnFailure()
-                    .ConfigureAwait(false);
+                try
+                {
+                    var publicKeysResponse = await _keyApiClient
+                        .GetActivePublicKeysAsync(emailAddress, cancellationToken)
+                        .ThrowOnFailure()
+                        .ConfigureAwait(false);
 
-                var publicKeys = new List<PublicPgpKey>(publicKeysResponse.Address.Keys.Count);
-                publicKeys.AddRange(
-                    publicKeysResponse.Address.Keys
-                        .Where(keyEntry => (keyEntry.Flags & PublicKeyFlags.IsNotCompromised) != 0)
-                        .Select(entry => PublicPgpKey.FromArmored(entry.PublicKey)));
-                return publicKeys.AsReadOnly();
+                    var publicKeys = new List<PublicPgpKey>(publicKeysResponse.Address.Keys.Count);
+                    publicKeys.AddRange(
+                        publicKeysResponse.Address.Keys
+                            .Where(keyEntry => keyEntry.Flags.HasFlag(PublicKeyFlags.IsNotCompromised))
+                            .Select(entry => PublicPgpKey.FromArmored(entry.PublicKey)));
+
+                    return publicKeys.AsReadOnly();
+                }
+                catch (ApiException ex)
+                {
+                    _logger.LogWarning("Failed to retrieve public keys for address \"{EmailAddress}\": {ErrorCode}", emailAddress, ex.ResponseCode);
+
+                    if (ex.ResponseCode is ResponseCode.AddressInvalid or ResponseCode.AddressMissing or ResponseCode.AddressDomainExternal or ResponseCode.AddressInvalidKeyTransparency)
+                    {
+                        return [];
+                    }
+
+                    throw;
+                }
             },
             _cacheSemaphore,
             cancellationToken).ConfigureAwait(false);

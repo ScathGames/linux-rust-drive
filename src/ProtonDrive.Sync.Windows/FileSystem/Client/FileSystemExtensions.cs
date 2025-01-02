@@ -9,6 +9,12 @@ namespace ProtonDrive.Sync.Windows.FileSystem.Client;
 
 internal static class FileSystemExtensions
 {
+    private static readonly EnumerationOptions EnumerationOptions = new()
+    {
+        RecurseSubdirectories = false,
+        AttributesToSkip = FileAttributes.None, // By default, Hidden and System attributes are skipped
+    };
+
     public static NodeInfo<long> ToNodeInfo(this FileSystemEntry entry, long parentId)
     {
         return new NodeInfo<long>()
@@ -135,6 +141,77 @@ internal static class FileSystemExtensions
         {
             // Ignore
         }
+    }
+
+    public static void Delete(this FileSystemObject fsObject, NodeInfo<long> info)
+    {
+        fsObject.Delete(info.Attributes.HasFlag(FileAttributes.ReadOnly));
+    }
+
+    public static FileSystemFileAccess GetAccessForDeletion(this FileAttributes attributes, bool deleteReadOnly)
+    {
+        var access = FileSystemFileAccess.Delete;
+
+        if (!attributes.HasFlag(FileAttributes.Directory))
+        {
+            if (deleteReadOnly && attributes.HasFlag(FileAttributes.ReadOnly))
+            {
+                // Need to remove read-only attribute before deleting file
+                access |= FileSystemFileAccess.WriteAttributes;
+            }
+        }
+        else
+        {
+            access |= FileSystemFileAccess.ReadData;
+        }
+
+        return access;
+    }
+
+    private static void Delete(this FileSystemObject fsObject, bool deleteReadOnly)
+    {
+        switch (fsObject)
+        {
+            case FileSystemDirectory folder:
+                folder.DeleteFolder(deleteReadOnly);
+                break;
+            case FileSystemFile file:
+                file.DeleteFile(deleteReadOnly);
+                break;
+            default:
+                throw new InvalidOperationException();
+        }
+    }
+
+    private static void DeleteFolder(this FileSystemDirectory folder, bool deleteReadOnly)
+    {
+        foreach (var childEntry in folder.EnumerateFileSystemEntries(default, EnumerationOptions))
+        {
+            using var fsObject = FileSystemObject.Open(
+                Path.Combine(folder.FullPath, childEntry.Name),
+                FileMode.Open,
+                GetAccessForDeletion(childEntry.Attributes, deleteReadOnly),
+                FileShare.Read | FileShare.Delete,
+                FileOptions.None);
+
+            Delete(fsObject, deleteReadOnly);
+        }
+
+        folder.Delete();
+    }
+
+    private static void DeleteFile(this FileSystemFile file, bool deleteReadOnly)
+    {
+        if (!deleteReadOnly)
+        {
+            file.ThrowIfReadOnlyFile();
+        }
+        else if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
+        {
+            file.Attributes &= ~FileAttributes.ReadOnly;
+        }
+
+        file.Delete();
     }
 
     public static void ConvertToPlaceholder(this FileSystemObject fsObject, CF_PLACEHOLDER_CREATE_INFO creationInfo, CF_CONVERT_FLAGS flags)
@@ -299,6 +376,15 @@ internal static class FileSystemExtensions
         if (fsObject.GetPlaceholderState().HasFlag(PlaceholderState.Partial))
         {
             throw new FileSystemClientException<long>(FileSystemErrorCode.Partial, id, innerException: null);
+        }
+    }
+
+    public static void ThrowIfReadOnlyFile(this FileSystemObject fsObject)
+    {
+        if (!fsObject.Attributes.HasFlag(FileAttributes.Directory) &&
+            fsObject.Attributes.HasFlag(FileAttributes.ReadOnly))
+        {
+            throw new FileSystemClientException<long>("File is read-only", FileSystemErrorCode.ReadOnlyFile, fsObject.ObjectId, innerException: null);
         }
     }
 

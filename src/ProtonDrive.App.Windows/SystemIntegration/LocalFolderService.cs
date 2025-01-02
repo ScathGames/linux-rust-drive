@@ -123,7 +123,40 @@ internal sealed class LocalFolderService : ILocalFolderService
         catch (Exception ex) when (ex.IsFileAccessException() || ex is Win32Exception)
         {
             var pathToLog = _logger.GetSensitiveValueForLogging(path);
-            _logger.LogWarning("Failed to get local folder information for \"{Path}\": {ErrorMessage}", pathToLog, ex.Message);
+            _logger.LogWarning(
+                "Failed to get local folder information for \"{Path}\": {ExceptionType} {ErrorCode}",
+                pathToLog,
+                ex.GetType().Name,
+                ex.GetRelevantFormattedErrorCode());
+
+            return false;
+        }
+    }
+
+    public bool TryDeleteEmptyFolder(string path)
+    {
+        if (NonEmptyFolderExists(path))
+        {
+            _logger.LogWarning("Local folder is not empty, skipping deletion");
+            return true;
+        }
+
+        try
+        {
+            Directory.Delete(path, recursive: false);
+            return true;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return true;
+        }
+        catch (IOException exception) when (exception.HResultContainsWin32ErrorCode(Win32SystemErrorCode.ErrorInvalidName))
+        {
+            return true;
+        }
+        catch (Exception ex) when (ex.IsFileAccessException())
+        {
+            _logger.LogWarning("Failed to delete local folder: {ExceptionType} {ErrorCode}", ex.GetType().Name, ex.GetRelevantFormattedErrorCode());
 
             return false;
         }
@@ -180,7 +213,7 @@ internal sealed class LocalFolderService : ILocalFolderService
             var pathToLog = _logger.GetSensitiveValueForLogging(path);
 
             _logger.LogWarning(
-                "Failed to convert local folder \"{Path}\" to placeholder: {ExceptionType}: {ErrorCode}",
+                "Failed to convert local folder \"{Path}\" to placeholder: {ExceptionType} {ErrorCode}",
                 pathToLog,
                 ex.GetType().Name,
                 ex.GetRelevantFormattedErrorCode());
@@ -223,7 +256,7 @@ internal sealed class LocalFolderService : ILocalFolderService
         {
             return Directory.Exists(path) && Directory.EnumerateFileSystemEntries(path, SearchAll, enumerationOptions).Any();
         }
-        catch (Exception ex) when (ex is IOException or Win32Exception or UnauthorizedAccessException)
+        catch (Exception ex) when (ex.IsFileAccessException() || ex is Win32Exception)
         {
             return false;
         }

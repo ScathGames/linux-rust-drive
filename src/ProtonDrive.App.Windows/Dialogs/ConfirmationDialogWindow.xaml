@@ -51,8 +51,8 @@
                 AutomationProperties.AutomationId="ConfirmDialogButton"
                 Grid.Column="0"
                 Content="{Binding ConfirmButtonText, Mode=OneWay, FallbackValue='Ok'}"
-                Command="{Binding ConfirmAndCloseCommand, Mode=OneWay}"
                 CommandParameter="{Binding ElementName=Dialog}"
+                Command="{Binding ConfirmAndCloseCommand, Mode=OneWay}"
                 IsDefault="True"
                 Style="{StaticResource PrimaryButtonStyle}" />
 

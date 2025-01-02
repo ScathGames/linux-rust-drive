@@ -31,7 +31,7 @@ internal sealed class ExtendedAttributesReader : IExtendedAttributesReader
                 return default;
             }
 
-            var signatureEmailAddress = link.FileProperties?.ActiveRevision?.SignatureEmailAddress ?? link.SignatureEmailAddress;
+            var signatureEmailAddress = link.FileProperties?.ActiveRevision?.SignatureEmailAddress;
 
             var decrypter = await _cryptographyService.CreateNodeNameAndKeyPassphraseDecrypterAsync(nodeKey, signatureEmailAddress, cancellationToken)
                 .ConfigureAwait(false);

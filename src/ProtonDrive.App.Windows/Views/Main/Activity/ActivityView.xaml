@@ -298,8 +298,8 @@
 
                     <Image
                         AutomationProperties.AutomationId="ItemNodeTypeIcon"
-                        Grid.Column="0"
                         AutomationProperties.HelpText="{Binding NodeType, Mode=OneWay}"
+                        Grid.Column="0"
                         RenderOptions.BitmapScalingMode="NearestNeighbor"
                         Source="{Binding Icon, Mode=OneWay}"
                         Stretch="None"
@@ -468,8 +468,8 @@
                         Margin="0,100,0,0" />
 
                     <TextBlock
-                        Text="Sync is paused"
                         AutomationProperties.HelpText="Sync is paused"
+                        Text="Sync is paused"
                         Style="{StaticResource Subtitle.DarkTheme.Style}"
                         HorizontalAlignment="Center" />
 
@@ -491,8 +491,8 @@
                         Margin="0,100,0,0" />
 
                     <TextBlock
-                        Text="Your files are up to date"
                         AutomationProperties.HelpText="All your files are up to date"
+                        Text="Your files are up to date"
                         Style="{StaticResource Subtitle.DarkTheme.Style}"
                         HorizontalAlignment="Center" />
 
@@ -534,8 +534,8 @@
                     Margin="0,100,0,0" />
 
                 <TextBlock
-                    Text="Initializing sync"
                     AutomationProperties.HelpText="Synchronization is getting initialized"
+                    Text="Initializing sync"
                     Style="{StaticResource Subtitle.DarkTheme.Style}"
                     HorizontalAlignment="Center"
                     Margin="0,20,0,0" />
@@ -560,9 +560,9 @@
                 </Grid.RowDefinitions>
 
                 <ToggleButton
-                    Grid.Row="0"
                     AutomationProperties.HelpText="Display all the errors in a new section"
                     AutomationProperties.Name="DisplayErrorDetailsButton"
+                    Grid.Row="0"
                     Cursor="Hand"
                     IsChecked="{Binding IsDisplayingDetails}"
                     Style="{StaticResource TransparentButtonStyle}"

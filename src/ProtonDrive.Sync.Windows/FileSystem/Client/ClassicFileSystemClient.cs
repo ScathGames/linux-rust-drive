@@ -14,7 +14,7 @@ namespace ProtonDrive.Sync.Windows.FileSystem.Client;
 /// <summary>
 /// Classic local File System Client for Windows.
 /// </summary>
-public sealed class ClassicFileSystemClient : IFileSystemClient<long>
+public sealed class ClassicFileSystemClient : BaseFileSystemClient, IFileSystemClient<long>
 {
     private static readonly EnumerationOptions EnumerationOptions = new()
     {
@@ -245,10 +245,10 @@ public sealed class ClassicFileSystemClient : IFileSystemClient<long>
 
         if (!string.IsNullOrEmpty(tempFileName))
         {
-            // Open and check the file to ensure it exists and has not diverged metadata.
+            // Open and check the file to ensure it exists, is writable, and has not diverged metadata
             using var originalFile = info.OpenAsFile(
                 FileMode.Open,
-                FileSystemFileAccess.ReadAttributes | FileSystemFileAccess.Delete,
+                FileSystemFileAccess.ReadAttributes | FileSystemFileAccess.WriteData | FileSystemFileAccess.Delete,
                 FileShare.Read | FileShare.Delete);
 
             originalFile.ThrowIfMetadataMismatch(info);
@@ -326,35 +326,6 @@ public sealed class ClassicFileSystemClient : IFileSystemClient<long>
         }
 
         return Task.CompletedTask;
-    }
-
-    public Task Delete(NodeInfo<long> info, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return Delete(info, (path, ct) => RecycleBin.MoveToRecycleBinAsync(path).WaitAsync(ct), cancellationToken);
-    }
-
-    public Task DeletePermanently(NodeInfo<long> info, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return Delete(
-            info,
-            (path, _) =>
-            {
-                if (info.IsFile())
-                {
-                    File.Delete(path);
-                }
-                else
-                {
-                    Directory.Delete(path, true);
-                }
-
-                return Task.CompletedTask;
-            },
-            cancellationToken);
     }
 
     public Task DeleteRevision(NodeInfo<long> info, CancellationToken cancellationToken)
@@ -435,35 +406,6 @@ public sealed class ClassicFileSystemClient : IFileSystemClient<long>
                 () => fsObject.Move(newParent, newName, replaceIfExists),
                 id),
             id);
-    }
-
-    private async Task Delete(
-        NodeInfo<long> info,
-        Func<string, CancellationToken, Task> deletionFunction,
-        CancellationToken cancellationToken)
-    {
-        Ensure.NotNullOrEmpty(info.Path, nameof(info), nameof(info.Path));
-
-        string path;
-        using (var fsObject = info.Open(FileSystemFileAccess.ReadAttributes, FileShare.Read | FileShare.Delete))
-        {
-            CheckType(fsObject, info);
-            CheckIdentity(fsObject, info);
-            CheckMetadata(fsObject, info);
-
-            path = fsObject.FullPath;
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        try
-        {
-            await deletionFunction.Invoke(path, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ExceptionMapping.TryMapException(ex, info.Id, out var mappedException))
-        {
-            throw mappedException;
-        }
     }
 
     private void CheckParentIdentity(FileSystemObject fsObject, NodeInfo<long> info)

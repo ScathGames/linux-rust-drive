@@ -62,10 +62,12 @@ internal sealed class CoreEventClient : ICoreEventClient, ICoreEventProvider
         return new CoreEvents(ToResumeToken(eventsResponse))
         {
             HasAddressChanged = eventsResponse.AddressEvents.Any(),
+            HasSettingsChanged = eventsResponse.UserSettings is not null,
             User = eventsResponse.User,
             Organization = eventsResponse.Organization,
             Subscription = eventsResponse.Subscription,
-            UsedSpace = eventsResponse.UsedDriveSpace,
+            UsedSpace = eventsResponse.SplitStorageUsedSpace,
+            DriveUsedSpace = eventsResponse.User?.ProductUsedSpace.Drive,
         };
     }
 

@@ -19,6 +19,10 @@ using ProtonDrive.App.EarlyAccess;
 using ProtonDrive.App.Features;
 using ProtonDrive.App.FileSystem.Local;
 using ProtonDrive.App.FileSystem.Remote;
+using ProtonDrive.App.Instrumentation.Observability;
+using ProtonDrive.App.Instrumentation.Telemetry;
+using ProtonDrive.App.Instrumentation.Telemetry.MappingSetup;
+using ProtonDrive.App.Instrumentation.Telemetry.Synchronization;
 using ProtonDrive.App.InterProcessCommunication;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Mapping.Setup;
@@ -26,9 +30,10 @@ using ProtonDrive.App.Mapping.Setup.CloudFiles;
 using ProtonDrive.App.Mapping.Setup.ForeignDevices;
 using ProtonDrive.App.Mapping.Setup.HostDeviceFolders;
 using ProtonDrive.App.Mapping.Setup.SharedWithMe.SharedWithMeItem;
-using ProtonDrive.App.Mapping.Setup.SharedWithMe.SharedWithMeItemsFolder;
+using ProtonDrive.App.Mapping.Setup.SharedWithMe.SharedWithMeRootFolder;
 using ProtonDrive.App.Mapping.SyncFolders;
 using ProtonDrive.App.Mapping.Teardown;
+using ProtonDrive.App.Notifications.Offers;
 using ProtonDrive.App.Onboarding;
 using ProtonDrive.App.Reporting;
 using ProtonDrive.App.Sanitization;
@@ -36,7 +41,6 @@ using ProtonDrive.App.Services;
 using ProtonDrive.App.Settings;
 using ProtonDrive.App.Settings.Remote;
 using ProtonDrive.App.Sync;
-using ProtonDrive.App.Telemetry;
 using ProtonDrive.App.Update;
 using ProtonDrive.App.Volumes;
 using ProtonDrive.Client.Configuration;
@@ -145,6 +149,14 @@ public static class AppServices
                     provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<OnboardingSettings>>())
 
                 .AddSingleton(
+                    provider =>
+                        new ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>(
+                            provider.GetRequiredService<IRepositoryFactory>()
+                                .GetCachingRepository<NotificationSettings>("NotificationSettings.json")))
+                .AddSingleton<IRepository<NotificationSettings>>(provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>>())
+                .AddSingleton<IAccountSwitchingHandler>(provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>>())
+
+                .AddSingleton(
                     provider => provider.GetRequiredService<IRepositoryFactory>()
                         .GetCachingRepository<UserSettings>("UserSettings.json"))
 
@@ -163,6 +175,7 @@ public static class AppServices
                 .AddSingleton<IStartableService>(provider => provider.GetRequiredService<EarlyAccessService>())
 
                 .AddSingleton<RemoteSettingsService>()
+                .AddSingleton<IRemoteSettingsService>(provider => provider.GetRequiredService<RemoteSettingsService>())
                 .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<RemoteSettingsService>())
 
                 .AddSingleton<FeatureService>()
@@ -225,8 +238,8 @@ public static class AppServices
                 .AddSingleton<ForeignDeviceMappingFolderValidationStep>()
                 .AddSingleton<ForeignDeviceMappingFoldersSetupStep>()
                 .AddSingleton<ForeignDeviceMappingSetupFinalizationStep>()
-                .AddSingleton<SharedWithMeItemsFolderMappingFoldersSetupStep>()
-                .AddSingleton<SharedWithMeItemsFolderMappingSetupFinalizationStep>()
+                .AddSingleton<SharedWithMeRootFolderMappingFoldersSetupStep>()
+                .AddSingleton<SharedWithMeRootFolderMappingSetupFinalizationStep>()
                 .AddSingleton<SharedWithMeItemMappingValidationStep>()
                 .AddSingleton<SharedWithMeItemMappingSetupStep>()
                 .AddSingleton<SharedWithMeItemMappingSetupFinalizationStep>()
@@ -240,7 +253,7 @@ public static class AppServices
                 .AddSingleton<HostDeviceFolderMappingTeardownStep>()
                 .AddSingleton<ForeignDeviceMappingTeardownStep>()
                 .AddSingleton<SharedWithMeItemMappingTeardownStep>()
-                .AddSingleton<SharedWithMeItemsFolderMappingTeardownStep>()
+                .AddSingleton<SharedWithMeRootFolderMappingTeardownStep>()
                 .AddSingleton<ILocalSpecialSubfoldersDeletionStep, LocalSpecialFoldersDeletionStep>()
 
                 .AddSingleton<VolumeIdentityProvider>()
@@ -271,7 +284,10 @@ public static class AppServices
                 .AddSingleton<ISyncFolderPathProvider>(provider => provider.GetRequiredService<SyncFolderPathProvider>())
                 .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<SyncFolderPathProvider>())
 
-                .AddSingleton<IOnboardingService, OnboardingService>()
+                .AddSingleton<OnboardingService>()
+                .AddSingleton<IOnboardingService>(provider => provider.GetRequiredService<OnboardingService>())
+                .AddSingleton<IStartableService>(provider => provider.GetRequiredService<OnboardingService>())
+                .AddSingleton<IAccountSwitchingAware>(provider => provider.GetRequiredService<OnboardingService>())
 
                 .AddSingleton<SyncService>()
                 .AddSingleton<ISyncService>(provider => provider.GetRequiredService<SyncService>())
@@ -279,14 +295,19 @@ public static class AppServices
                 .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<SyncService>())
                 .AddSingleton<IMappingsSetupStateAware>(provider => provider.GetRequiredService<SyncService>())
                 .AddSingleton<IOfflineStateAware>(provider => provider.GetRequiredService<SyncService>())
-                .AddSingleton<IRemoteIdsFromLocalPathProvider>(provider => provider.GetRequiredService<SyncService>())
+                .AddSingleton<IMappedFileSystemIdentityProvider>(provider => provider.GetRequiredService<SyncService>())
                 .AddSingleton<ISyncRootPathProvider>(provider => provider.GetRequiredService<SyncService>())
 
                 .AddSingleton<SyncStateClearingService>()
                 .AddSingleton<IAccountSwitchingHandler>(provider => provider.GetRequiredService<SyncStateClearingService>())
 
+                .AddSingleton<RemoteIdsFromLocalPathProvider>()
+                .AddSingleton<IRemoteIdsFromLocalPathProvider>(provider => provider.GetRequiredService<RemoteIdsFromLocalPathProvider>())
+                .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<RemoteIdsFromLocalPathProvider>())
+
                 .AddSingleton<ResilientSetup>()
                 .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<ResilientSetup>())
+                .AddSingleton<IRemoteSettingsStateAware>(provider => provider.GetRequiredService<ResilientSetup>())
                 .AddSingleton<IAccountStateAware>(provider => provider.GetRequiredService<ResilientSetup>())
                 .AddSingleton<IVolumeStateAware>(provider => provider.GetRequiredService<ResilientSetup>())
                 .AddSingleton<IDeviceServiceStateAware>(provider => provider.GetRequiredService<ResilientSetup>())
@@ -331,12 +352,36 @@ public static class AppServices
                 .AddSingleton<SharedWithMeStateBasedUpdateDetector>()
 
                 .AddSingleton<TelemetryService>()
-                .AddSingleton<IRemoteSettingsStateAware>(provider => provider.GetRequiredService<TelemetryService>())
+                .AddSingleton<IRemoteSettingsAware>(provider => provider.GetRequiredService<TelemetryService>())
                 .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<TelemetryService>())
+
+                .AddSingleton<IReadOnlyDictionary<AttemptRetryShareType, AttemptRetryMonitor<long>>>(
+                    _ =>
+                    {
+                        var attemptRetryMonitors = new Dictionary<AttemptRetryShareType, AttemptRetryMonitor<long>>()
+                        {
+                            { AttemptRetryShareType.Main, new AttemptRetryMonitor<long>() },
+                            { AttemptRetryShareType.Device, new AttemptRetryMonitor<long>() },
+                            { AttemptRetryShareType.Standard, new AttemptRetryMonitor<long>() },
+                        };
+                        return attemptRetryMonitors.AsReadOnly();
+                    })
+                .AddSingleton<UploadSuccessMeter>()
+                .AddSingleton<ISyncActivityAware>(provider => provider.GetRequiredService<UploadSuccessMeter>())
+                .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<UploadSuccessMeter>())
+                .AddSingleton<GenericUploadMetricsFactory>()
+
+                .AddSingleton<ObservabilityService>()
+                .AddSingleton<IRemoteSettingsAware>(provider => provider.GetRequiredService<ObservabilityService>())
 
                 .AddSingleton<SyncedItemCounters>()
                 .AddSingleton<SharedWithMeItemCounters>()
                 .AddSingleton<OpenedDocumentsCounters>()
+
+                .AddSingleton<MappingSetupStatistics>()
+                .AddSingleton<IMappingStateAware>(provider => provider.GetRequiredService<MappingSetupStatistics>())
+                .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<MappingSetupStatistics>())
+
                 .AddSingleton<SyncStatistics>()
                 .AddSingleton<ISyncStateAware>(provider => provider.GetRequiredService<SyncStatistics>())
                 .AddSingleton<ISyncActivityAware>(provider => provider.GetRequiredService<SyncStatistics>())
@@ -348,6 +393,7 @@ public static class AppServices
 
                 .AddSingleton(provider => new Lazy<IEnumerable<ISessionStateAware>>(provider.GetRequiredService<IEnumerable<ISessionStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IRemoteSettingsStateAware>>(provider.GetRequiredService<IEnumerable<IRemoteSettingsStateAware>>))
+                .AddSingleton(provider => new Lazy<IEnumerable<IRemoteSettingsAware>>(provider.GetRequiredService<IEnumerable<IRemoteSettingsAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IEarlyAccessStateAware>>(provider.GetRequiredService<IEnumerable<IEarlyAccessStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IAccountStateAware>>(provider.GetRequiredService<IEnumerable<IAccountStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IAccountSwitchingAware>>(provider.GetRequiredService<IEnumerable<IAccountSwitchingAware>>))
@@ -358,6 +404,7 @@ public static class AppServices
                 .AddSingleton(provider => new Lazy<IEnumerable<IMappingsAware>>(provider.GetRequiredService<IEnumerable<IMappingsAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IMappingStateAware>>(provider.GetRequiredService<IEnumerable<IMappingStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IOnboardingStateAware>>(provider.GetRequiredService<IEnumerable<IOnboardingStateAware>>))
+                .AddSingleton(provider => new Lazy<IEnumerable<ISharedWithMeOnboardingStateAware>>(provider.GetRequiredService<IEnumerable<ISharedWithMeOnboardingStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IMappingsSetupStateAware>>(provider.GetRequiredService<IEnumerable<IMappingsSetupStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IAccountSwitchingHandler>>(provider.GetRequiredService<IEnumerable<IAccountSwitchingHandler>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<ISyncFoldersAware>>(provider.GetRequiredService<IEnumerable<ISyncFoldersAware>>))
@@ -367,11 +414,19 @@ public static class AppServices
                 .AddSingleton(provider => new Lazy<IEnumerable<IFeatureFlagsAware>>(provider.GetRequiredService<IEnumerable<IFeatureFlagsAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IOfflineStateAware>>(provider.GetRequiredService<IEnumerable<IOfflineStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IIpcMessageHandler>>(provider.GetRequiredService<IEnumerable<IIpcMessageHandler>>))
+                .AddSingleton(provider => new Lazy<IEnumerable<IOffersAware>>(provider.GetRequiredService<IEnumerable<IOffersAware>>))
 
                 .AddSingleton<ActivityService>()
                 .AddSingleton<IAccountStateAware>(provider => provider.GetRequiredService<ActivityService>())
+                .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<ActivityService>())
 
                 .AddSingleton<DocumentOpener>()
+
+                .AddSingleton<OfferService>()
+                .AddSingleton<IStoppableService>(provider => provider.GetRequiredService<OfferService>())
+                .AddSingleton<IAccountStateAware>(provider => provider.GetRequiredService<OfferService>())
+                .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<OfferService>())
+                .AddSingleton<IRemoteSettingsAware>(provider => provider.GetRequiredService<OfferService>())
             ;
     }
 

@@ -92,8 +92,6 @@ internal sealed class ExecutionStep<TId, TAltId>
             .WithLastWriteTimeUtc(sourceRevision.LastWriteTimeUtc)
             .WithSize(sourceRevision.Size);
 
-        await sourceRevision.CheckReadabilityAsync(cancellationToken).ConfigureAwait(false);
-
         var destinationRevision = await _fileSystemClient.CreateFile(
             nodeInfo,
             GetTempFileName(nodeModel),
@@ -117,8 +115,6 @@ internal sealed class ExecutionStep<TId, TAltId>
         CancellationToken cancellationToken)
     {
         Ensure.NotNullOrEmpty(nodeInfo.Name, nameof(nodeInfo), nameof(nodeInfo.Name));
-
-        await sourceRevision.CheckReadabilityAsync(cancellationToken).ConfigureAwait(false);
 
         var destinationRevision = await _fileSystemClient.CreateRevision(
                 nodeInfo,

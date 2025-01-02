@@ -10,22 +10,22 @@ namespace ProtonDrive.App.FileSystem;
 internal sealed class LoggingEventLogClientDecorator<TId> : IEventLogClient<TId>
 {
     private readonly ILogger<LoggingEventLogClientDecorator<TId>> _logger;
-    private readonly IEventLogClient<TId> _origin;
     private readonly int _volumeId;
     private readonly string _scope;
+    private readonly IEventLogClient<TId> _decoratedInstance;
 
     public LoggingEventLogClientDecorator(
         ILogger<LoggingEventLogClientDecorator<TId>> logger,
-        IEventLogClient<TId> origin,
         int volumeId,
-        string scope)
+        string scope,
+        IEventLogClient<TId> instanceToDecorate)
     {
         _logger = logger;
-        _origin = origin;
         _volumeId = volumeId;
         _scope = scope;
+        _decoratedInstance = instanceToDecorate;
 
-        _origin.LogEntriesReceived += OnOriginLogEntriesReceived;
+        _decoratedInstance.LogEntriesReceived += OnDecoratedInstanceLogEntriesReceived;
     }
 
     public event EventHandler<EventLogEntriesReceivedEventArgs<TId>>? LogEntriesReceived;
@@ -34,17 +34,17 @@ internal sealed class LoggingEventLogClientDecorator<TId> : IEventLogClient<TId>
     {
         _logger.LogInformation("Enabling directory change observation on {Volume}/\"{Scope}\"", _volumeId, _scope);
 
-        _origin.Enable();
+        _decoratedInstance.Enable();
     }
 
     public void Disable()
     {
         _logger.LogInformation("Disabling directory change observation on {Volume}/\"{Scope}\"", _volumeId, _scope);
 
-        _origin.Disable();
+        _decoratedInstance.Disable();
     }
 
-    public Task GetEventsAsync() => _origin.GetEventsAsync();
+    public Task GetEventsAsync() => _decoratedInstance.GetEventsAsync();
 
     private static string ToType(FileAttributes attributes)
     {
@@ -53,7 +53,7 @@ internal sealed class LoggingEventLogClientDecorator<TId> : IEventLogClient<TId>
             : "File";
     }
 
-    private void OnOriginLogEntriesReceived(object? sender, EventLogEntriesReceivedEventArgs<TId> e)
+    private void OnDecoratedInstanceLogEntriesReceived(object? sender, EventLogEntriesReceivedEventArgs<TId> e)
     {
         foreach (var entry in e.Entries)
         {

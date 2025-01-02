@@ -1,29 +1,38 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
+using ProtonDrive.App.Authentication;
+using ProtonDrive.App.Onboarding;
+using ProtonDrive.App.Windows.Views.Shared;
 using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Windows.Views.Onboarding;
 
-internal sealed class OnboardingViewModel : ObservableObject
+internal sealed class OnboardingViewModel : ObservableObject, IOnboardingStateAware, ICloseable
 {
-    private readonly List<OnboardingStepViewModel> _steps = new();
-    private readonly CoalescingAction _updateCurrentStep;
+    private readonly IStatefulSessionService _sessionService;
+    private readonly IScheduler _scheduler;
+    private readonly Dictionary<OnboardingStep, OnboardingStepViewModel> _onboardingStepViewModelMap;
 
     private OnboardingStepViewModel? _currentStep;
 
     public OnboardingViewModel(
-        AccountRootFolderSelectionStepViewModel accountRootFolderSelectionStep,
         SyncFolderSelectionStepViewModel syncFolderSelectionStepViewModel,
-        UpgradeStorageStepViewModel upgradeStorageStepViewModel)
+        AccountRootFolderSelectionStepViewModel accountRootFolderSelectionStep,
+        UpgradeStorageStepViewModel upgradeStorageStepViewModel,
+        IStatefulSessionService sessionService,
+        [FromKeyedServices("Dispatcher")] IScheduler scheduler)
     {
-        AddStep(syncFolderSelectionStepViewModel);
-        AddStep(accountRootFolderSelectionStep);
-        AddStep(upgradeStorageStepViewModel);
+        _sessionService = sessionService;
+        _scheduler = scheduler;
 
-        _updateCurrentStep = new CoalescingAction(UpdateCurrentStep);
-        UpdateCurrentStep();
+        _onboardingStepViewModelMap = new Dictionary<OnboardingStep, OnboardingStepViewModel>
+        {
+            { OnboardingStep.SyncFolderSelection, syncFolderSelectionStepViewModel },
+            { OnboardingStep.AccountRootFolderSelection, accountRootFolderSelectionStep },
+            { OnboardingStep.UpgradeStorage, upgradeStorageStepViewModel },
+        };
     }
 
     public OnboardingStepViewModel? CurrentStep
@@ -32,22 +41,56 @@ internal sealed class OnboardingViewModel : ObservableObject
         private set => SetProperty(ref _currentStep, value);
     }
 
-    private void UpdateCurrentStep()
+    void IOnboardingStateAware.OnboardingStateChanged(OnboardingState value)
     {
-        CurrentStep = _steps.FirstOrDefault(s => s.IsActive);
+        Schedule(() => UpdateCurrentStep(value));
     }
 
-    private void AddStep(OnboardingStepViewModel step)
+    void ICloseable.Close()
     {
-        _steps.Add(step);
-        step.PropertyChanged += OnStepPropertyChanged;
-    }
-
-    private void OnStepPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(OnboardingStepViewModel.IsActive))
+        switch (CurrentStep)
         {
-            _updateCurrentStep.Run();
+            case UpgradeStorageStepViewModel { IsActive: true } upgradeStorageStepViewModel:
+                upgradeStorageStepViewModel.CompleteStep();
+                break;
+
+            case { IsActive: true }:
+                // Onboarding is not completed, signing out
+                _sessionService.EndSessionAsync();
+                break;
         }
+    }
+
+    private void UpdateCurrentStep(OnboardingState state)
+    {
+        var previousStep = CurrentStep;
+        var currentStep = GetStepViewModel(state);
+
+        if (previousStep == currentStep)
+        {
+            if (state.Step is OnboardingStep.None)
+            {
+                previousStep?.Deactivate();
+            }
+
+            return;
+        }
+
+        previousStep?.Deactivate();
+        currentStep?.Activate();
+
+        CurrentStep = currentStep;
+    }
+
+    private OnboardingStepViewModel? GetStepViewModel(OnboardingState state)
+    {
+        return state.Step is OnboardingStep.None
+            ? CurrentStep
+            : _onboardingStepViewModelMap[state.Step];
+    }
+
+    private void Schedule(Action action)
+    {
+        _scheduler.Schedule(action);
     }
 }

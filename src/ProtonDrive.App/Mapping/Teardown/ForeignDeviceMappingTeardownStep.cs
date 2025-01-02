@@ -1,28 +1,31 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Settings;
 using ProtonDrive.App.SystemIntegration;
-using ProtonDrive.Shared.Extensions;
 
 namespace ProtonDrive.App.Mapping.Teardown;
 
 internal sealed class ForeignDeviceMappingTeardownStep
 {
+    private readonly ILocalFolderService _localFolderService;
+    private readonly ILocalSpecialSubfoldersDeletionStep _specialFoldersDeletion;
     private readonly IOnDemandSyncRootRegistry _onDemandSyncRootRegistry;
     private readonly ISyncFolderStructureProtector _syncFolderProtector;
-    private readonly ILogger<ForeignDeviceMappingTeardownStep> _logger;
+    private readonly IPlaceholderToRegularItemConverter _placeholderConverter;
 
     public ForeignDeviceMappingTeardownStep(
+        ILocalFolderService localFolderService,
+        ILocalSpecialSubfoldersDeletionStep specialFoldersDeletion,
         IOnDemandSyncRootRegistry onDemandSyncRootRegistry,
         ISyncFolderStructureProtector syncFolderProtector,
-        ILogger<ForeignDeviceMappingTeardownStep> logger)
+        IPlaceholderToRegularItemConverter placeholderConverter)
     {
+        _localFolderService = localFolderService;
+        _specialFoldersDeletion = specialFoldersDeletion;
         _onDemandSyncRootRegistry = onDemandSyncRootRegistry;
         _syncFolderProtector = syncFolderProtector;
-        _logger = logger;
+        _placeholderConverter = placeholderConverter;
     }
 
     public async Task<MappingErrorCode> TearDownAsync(RemoteToLocalMapping mapping, CancellationToken cancellationToken)
@@ -36,45 +39,45 @@ internal sealed class ForeignDeviceMappingTeardownStep
 
         TryUnprotectLocalFolder(mapping);
 
-        if (await TryRemoveOnDemandSyncRootAsync(mapping).ConfigureAwait(false)
-            && TryDeleteFolder(mapping.Local.RootFolderPath))
+        if (!TryConvertToRegularFolder(mapping))
         {
-            return MappingErrorCode.None;
+            return MappingErrorCode.LocalFileSystemAccessFailed;
         }
 
-        return MappingErrorCode.LocalFileSystemAccessFailed;
+        if (!TryDeleteSpecialSubfolders(mapping))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
+
+        if (!await TryRemoveOnDemandSyncRootAsync(mapping).ConfigureAwait(false))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
+
+        TryDeleteFolderIfEmpty(mapping);
+
+        return MappingErrorCode.None;
     }
 
     private bool TryUnprotectLocalFolder(RemoteToLocalMapping mapping)
     {
-        var foreignDeviceFolderPath = mapping.Local.RootFolderPath;
+        var foreignDeviceFolderPath = mapping.Local.Path;
 
         // The foreign devices folder ("Other computers") is not unprotected as part of tearing down the foreign device mapping.
         // It is unprotected when tearing down the cloud files mapping.
-        return _syncFolderProtector.Unprotect(foreignDeviceFolderPath, FolderProtectionType.Leaf);
+        return _syncFolderProtector.UnprotectFolder(foreignDeviceFolderPath, FolderProtectionType.Leaf);
     }
 
-    private bool TryDeleteFolder(string folderPath)
+    private bool TryConvertToRegularFolder(RemoteToLocalMapping mapping)
     {
-        try
-        {
-            Directory.Delete(folderPath, true);
-            return true;
-        }
-        catch (DirectoryNotFoundException)
-        {
-            return true;
-        }
-        catch (IOException exception) when (exception.HResultContainsWin32ErrorCode(Win32SystemErrorCode.ErrorInvalidName))
-        {
-            return true;
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            _logger.LogError("Failed to delete local folder: {ExceptionType}: {HResult}", exception.GetType().Name, exception.HResult);
+        return _placeholderConverter.TryConvertToRegularFolder(mapping.Local.Path, skipRoot: true);
+    }
 
-            return false;
-        }
+    private bool TryDeleteSpecialSubfolders(RemoteToLocalMapping mapping)
+    {
+        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.Path);
+
+        return true;
     }
 
     private async Task<bool> TryRemoveOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
@@ -84,8 +87,13 @@ internal sealed class ForeignDeviceMappingTeardownStep
             return true;
         }
 
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.RootFolderPath, RootId: mapping.Id.ToString(), ShellFolderVisibility.Hidden);
+        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Hidden);
 
         return await _onDemandSyncRootRegistry.TryUnregisterAsync(root).ConfigureAwait(false);
+    }
+
+    private void TryDeleteFolderIfEmpty(RemoteToLocalMapping mapping)
+    {
+        _localFolderService.TryDeleteEmptyFolder(mapping.Local.Path);
     }
 }

@@ -58,14 +58,14 @@ internal sealed class CloudFilesMappingSetupFinalizationStep
 
     private bool TryProtectLocalFolders(RemoteToLocalMapping mapping)
     {
-        var cloudFilesFolderPath = mapping.Local.RootFolderPath
+        var cloudFilesFolderPath = mapping.Local.Path
                                    ?? throw new InvalidOperationException("Cloud files folder path is not specified");
 
         var accountRootFolderPath = Path.GetDirectoryName(cloudFilesFolderPath)
                                     ?? throw new InvalidOperationException("Account root folder path cannot be obtained");
 
-        return _syncFolderProtector.Protect(accountRootFolderPath, FolderProtectionType.Ancestor) &&
-               _syncFolderProtector.Protect(cloudFilesFolderPath, FolderProtectionType.Leaf);
+        return _syncFolderProtector.ProtectFolder(accountRootFolderPath, FolderProtectionType.Ancestor) &&
+               _syncFolderProtector.ProtectFolder(cloudFilesFolderPath, FolderProtectionType.Leaf);
     }
 
     private Task<bool> TryAddShellFolderAsync(RemoteToLocalMapping mapping)
@@ -86,7 +86,7 @@ internal sealed class CloudFilesMappingSetupFinalizationStep
 
     private void AddClassicSyncShellFolder(RemoteToLocalMapping mapping)
     {
-        var path = Path.GetDirectoryName(mapping.Local.RootFolderPath);
+        var path = Path.GetDirectoryName(mapping.Local.Path);
         if (string.IsNullOrEmpty(path))
         {
             return;
@@ -97,7 +97,7 @@ internal sealed class CloudFilesMappingSetupFinalizationStep
 
     private Task<bool> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.RootFolderPath, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
+        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
 
         return _onDemandSyncRootRegistry.TryRegisterAsync(root);
     }

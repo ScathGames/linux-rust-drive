@@ -2,5 +2,5 @@
 
 public interface IRemoteSettingsStateAware
 {
-    void OnRemoteSettingsChanged(bool isEnabled);
+    void OnRemoteSettingsStateChanged(RemoteSettingsStatus status);
 }

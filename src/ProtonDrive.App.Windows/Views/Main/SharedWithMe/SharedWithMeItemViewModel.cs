@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -57,6 +58,8 @@ internal class SharedWithMeItemViewModel : ObservableObject, IIdentifiable<strin
 
     public string? InviterEmailAddress => DataItem?.InviterEmailAddress;
 
+    public string? InviterDisplayName => DataItem?.InviterDisplayName ?? InviterEmailAddress;
+
     public DateTime? SharingLocalDateTime => DataItem?.SharingTime.ToLocalTime();
 
     public bool IsReadOnly => DataItem?.IsReadOnly ?? SyncFolder?.RemoteIsReadOnly ?? throw new InvalidOperationException();
@@ -94,6 +97,7 @@ internal class SharedWithMeItemViewModel : ObservableObject, IIdentifiable<strin
             OnPropertyChanged(nameof(Type));
             OnPropertyChanged(nameof(Icon));
             OnPropertyChanged(nameof(Name));
+            OnPropertyChanged(nameof(InviterDisplayName));
             OnPropertyChanged(nameof(InviterEmailAddress));
             OnPropertyChanged(nameof(SharingLocalDateTime));
             OnPropertyChanged(nameof(IsReadOnly));
@@ -141,6 +145,10 @@ internal class SharedWithMeItemViewModel : ObservableObject, IIdentifiable<strin
             return;
         }
 
-        await _localFolderService.OpenFolderAsync(_syncFolder.LocalPath).ConfigureAwait(true);
+        var pathOfFolderToOpen = _syncFolder.RootLinkType is LinkType.Folder
+            ? _syncFolder.LocalPath
+            : Path.GetDirectoryName(_syncFolder.LocalPath);
+
+        await _localFolderService.OpenFolderAsync(pathOfFolderToOpen).ConfigureAwait(true);
     }
 }

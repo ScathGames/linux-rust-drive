@@ -36,7 +36,7 @@ internal sealed class MappingSetupPipeline : IMappingSetupPipeline
 
         if (result.Status is not MappingSetupStatus.Succeeded)
         {
-            _logger.LogInformation("Setting up sync folder mapping {Id} ({Type}) failed", mapping.Id, mapping.Type);
+            _logger.LogError("Setting up sync folder mapping {Id} ({Type}) failed", mapping.Id, mapping.Type);
 
             return result;
         }

@@ -54,6 +54,16 @@
         Color="{StaticResource RedColor}" />
 
     <SolidColorBrush
+        x:Key="OfferButtonBrush.Default.Background"
+        po:Freeze="True"
+        Color="{StaticResource YellowColor}" />
+
+    <SolidColorBrush
+        x:Key="OfferButtonBrush.MouseOver.Background"
+        po:Freeze="True"
+        Color="{StaticResource LightYellowColor}" />
+
+    <SolidColorBrush
         x:Key="PrimaryColorBrush"
         po:Freeze="True"
         Color="{StaticResource PrimaryColor}" />
@@ -149,6 +159,11 @@
         Color="{StaticResource DarkTheme.Black.Light}" />
 
     <SolidColorBrush
+        x:Key="OnboardingWindow.DarkTheme.Background"
+        po:Freeze="True"
+        Color="{StaticResource DarkTheme.Black}" />
+
+    <SolidColorBrush
         x:Key="Window.SignIn.Background"
         po:Freeze="True"
         Color="{StaticResource DarkTheme.Black}" />
@@ -187,4 +202,9 @@
         x:Key="ErrorPanelBackground"
         po:Freeze="True"
         Color="{StaticResource LightRedColor}" />
+
+    <SolidColorBrush
+        x:Key="NotificationBadge.Background"
+        po:Freeze="True"
+        Color="{StaticResource RedColor}" />
 </ResourceDictionary>

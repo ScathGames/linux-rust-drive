@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -178,8 +177,10 @@ internal sealed class CryptographyService : ICryptographyService
         CancellationToken cancellationToken)
     {
         var addressKeys = await _addressKeyProvider.Value.GetAddressKeysAsync(addressIds, cancellationToken).ConfigureAwait(false);
-        return await CreateVerificationCapableDecrypterAsync(addressKeys.Select(x => x.PrivateKey), signatureEmailAddress, cancellationToken)
+        var publicAddressKeys = await _addressKeyProvider.Value.GetPublicKeysForEmailAddressAsync(signatureEmailAddress, cancellationToken)
             .ConfigureAwait(false);
+
+        return _pgpTransformerFactory.CreateVerificationCapableDecrypter(addressKeys.Select(x => x.PrivateKey), publicAddressKeys);
     }
 
     public async Task<PgpSessionKey> DecryptShareKeyPassphraseSessionKeyAsync(
@@ -190,7 +191,7 @@ internal sealed class CryptographyService : ICryptographyService
         string passphraseSignature,
         CancellationToken cancellationToken)
     {
-        var decrypter = await CreateShareKeyPassphraseDecrypterAsync(new[] { addressId }, signatureEmailAddress, cancellationToken).ConfigureAwait(false);
+        var decrypter = await CreateShareKeyPassphraseDecrypterAsync([addressId], signatureEmailAddress, cancellationToken).ConfigureAwait(false);
 
         var messageSource = new PgpMessageSource(new AsciiStream(passphraseMessage), PgpArmoring.Ascii);
         var signatureSource = new PgpSignatureSource(new AsciiStream(passphraseSignature), PgpArmoring.Ascii);
@@ -207,37 +208,50 @@ internal sealed class CryptographyService : ICryptographyService
         }
     }
 
-    public Task<IVerificationCapablePgpDecrypter> CreateNodeNameAndKeyPassphraseDecrypterAsync(
+    public async Task<IVerificationCapablePgpDecrypter> CreateNodeNameAndKeyPassphraseDecrypterAsync(
         PrivatePgpKey parentNodeOrShareKey,
         string? signatureEmailAddress,
         CancellationToken cancellationToken)
     {
-        return CreateVerificationCapableDecrypterAsync(new[] { parentNodeOrShareKey }, signatureEmailAddress, cancellationToken);
+        var verificationKeys = !string.IsNullOrEmpty(signatureEmailAddress)
+            ? await _addressKeyProvider.Value.GetPublicKeysForEmailAddressAsync(signatureEmailAddress, cancellationToken).ConfigureAwait(false)
+            : [parentNodeOrShareKey.PublicKey];
+
+        return _pgpTransformerFactory.CreateVerificationCapableDecrypter([parentNodeOrShareKey], verificationKeys);
     }
 
     public IVerificationCapablePgpDecrypter CreateHashKeyDecrypter(PrivatePgpKey privateKey, PublicPgpKey verificationKey)
     {
-        return _pgpTransformerFactory.CreateVerificationCapableDecrypter(new[] { privateKey }, new[] { verificationKey });
+        return _pgpTransformerFactory.CreateVerificationCapableDecrypter([privateKey], [verificationKey]);
     }
 
     public async Task<IVerificationCapablePgpDecrypter> CreateFileContentsBlockKeyDecrypterAsync(
         PrivatePgpKey nodeKey,
-        string signatureEmailAddress,
+        string? signatureEmailAddress,
         CancellationToken cancellationToken)
     {
-        var addressKeys = await _addressKeyProvider.Value.GetPublicKeysForEmailAddressAsync(signatureEmailAddress, cancellationToken).ConfigureAwait(false);
+        var addressKeys = !string.IsNullOrEmpty(signatureEmailAddress)
+            ? await _addressKeyProvider.Value.GetPublicKeysForEmailAddressAsync(signatureEmailAddress, cancellationToken).ConfigureAwait(false)
+            : [];
 
+        // The signature e-mail address keys are included for signature verification,
+        // because we were singing with the address key in the past, but later switched
+        // to signing with the node key.
         var verificationKeys = addressKeys.Prepend(nodeKey.PublicKey);
 
-        return _pgpTransformerFactory.CreateVerificationCapableDecrypter(new[] { nodeKey }, verificationKeys);
+        return _pgpTransformerFactory.CreateVerificationCapableDecrypter([nodeKey], verificationKeys);
     }
 
-    public Task<IVerificationCapablePgpDecrypter> CreateFileContentsBlockDecrypterAsync(
+    public async Task<IVerificationCapablePgpDecrypter> CreateFileContentsBlockDecrypterAsync(
         PrivatePgpKey nodeKey,
-        string signatureEmailAddress,
+        string? signatureEmailAddress,
         CancellationToken cancellationToken)
     {
-        return CreateVerificationCapableDecrypterAsync(new[] { nodeKey }, signatureEmailAddress, cancellationToken);
+        var verificationKeys = !string.IsNullOrEmpty(signatureEmailAddress)
+            ? await _addressKeyProvider.Value.GetPublicKeysForEmailAddressAsync(signatureEmailAddress, cancellationToken).ConfigureAwait(false)
+            : [];
+
+        return _pgpTransformerFactory.CreateVerificationCapableDecrypter([nodeKey], verificationKeys);
     }
 
     public async Task<IPgpDecrypter> CreateShareUrlPasswordDecrypterAsync(IReadOnlyCollection<string> emailAddresses, CancellationToken cancellationToken)
@@ -263,7 +277,7 @@ internal sealed class CryptographyService : ICryptographyService
 
     public PgpSessionKey DecryptSessionKey(ReadOnlyMemory<byte> keyPacket, PrivatePgpKey privateKey)
     {
-        var decrypter = new KeyBasedPgpDecrypter(new[] { privateKey });
+        var decrypter = new KeyBasedPgpDecrypter([privateKey]);
         var sessionKey = decrypter.DecryptSessionKey(keyPacket);
         return sessionKey;
     }
@@ -278,14 +292,15 @@ internal sealed class CryptographyService : ICryptographyService
     public async Task<VerificationVerdict> VerifyManifestAsync(
         ReadOnlyMemory<byte> manifest,
         string manifestSignature,
-        string signatureEmailAddress,
+        PrivatePgpKey nodeKey,
+        string? signatureEmailAddress,
         CancellationToken cancellationToken)
     {
         var publicKeysForVerification = !string.IsNullOrEmpty(signatureEmailAddress)
             ? await _addressKeyProvider.Value.GetPublicKeysForEmailAddressAsync(signatureEmailAddress, cancellationToken).ConfigureAwait(false)
-            : Array.Empty<PublicPgpKey>();
+            : [nodeKey.PublicKey];
 
-        var verifier = _pgpTransformerFactory.CreateVerificationCapableDecrypter(Array.Empty<PrivatePgpKey>(), publicKeysForVerification);
+        var verifier = _pgpTransformerFactory.CreateVerificationCapableDecrypter([], publicKeysForVerification);
 
         var verificationVerdict = await verifier.VerifyAsync(
             manifest,
@@ -374,17 +389,6 @@ internal sealed class CryptographyService : ICryptographyService
         var randomBytes = PgpGenerator.GenerateRandomToken(length);
         var base64String = Convert.ToBase64String(randomBytes);
         return Encoding.ASCII.GetBytes(base64String);
-    }
-
-    private async Task<IVerificationCapablePgpDecrypter> CreateVerificationCapableDecrypterAsync(
-        IReadOnlyCollection<PrivatePgpKey> decryptionKeyRing,
-        string? signatureEmailAddress,
-        CancellationToken cancellationToken)
-    {
-        var publicKeysForVerification = !string.IsNullOrEmpty(signatureEmailAddress)
-            ? await _addressKeyProvider.Value.GetPublicKeysForEmailAddressAsync(signatureEmailAddress, cancellationToken).ConfigureAwait(false)
-            : Array.Empty<PublicPgpKey>();
-        return _pgpTransformerFactory.CreateVerificationCapableDecrypter(decryptionKeyRing, publicKeysForVerification);
     }
 
     private void LogIfShareKeyPassphraseIsInvalid(Task<VerificationVerdict> task, string shareId)

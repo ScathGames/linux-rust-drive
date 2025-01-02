@@ -16,12 +16,12 @@ internal sealed class DoubleToGridLengthConverter : IValueConverter
 
     public static IValueConverter Instance => LazyInstance.Value;
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return value is double d ? new GridLength(d) : value;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return value is GridLength length ? length.Value : value;
     }

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
 namespace ProtonDrive.App.Windows.Controls;
@@ -27,6 +28,7 @@ public class ToggleSwitch : ToggleButton
     static ToggleSwitch()
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(ToggleSwitch), new FrameworkPropertyMetadata(typeof(ToggleSwitch)));
+        ToolTipService.ShowOnDisabledProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(true));
     }
 
     public object OnContent

@@ -57,7 +57,7 @@ internal abstract class DataServiceBase<TKey, TItem> : IAccountStateAware, IStop
         _stopping = true;
         UpdateDetection.Cancel();
 
-        return UpdateDetection.CurrentTask;
+        return UpdateDetection.WaitForCompletionAsync();
     }
 
     private async Task DetectUpdatesAsync(CancellationToken cancellationToken)

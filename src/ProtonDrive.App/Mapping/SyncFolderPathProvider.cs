@@ -29,10 +29,10 @@ internal sealed class SyncFolderPathProvider : ISyncFolderPathProvider, IMapping
             : null;
     }
 
-    public string? GetSharedWithMeItemsFolderPath()
+    public string? GetSharedWithMeRootFolderPath()
     {
         return _activeMappings.TryGetAccountRootFolderPath(out var accountRootFolderPath)
-            ? Path.Combine(accountRootFolderPath, _appConfig.FolderNames.SharedWithMeItemsFolderName)
+            ? Path.Combine(accountRootFolderPath, _appConfig.FolderNames.SharedWithMeRootFolderName)
             : null;
     }
 }

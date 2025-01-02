@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
 using ProtonDrive.App.Configuration;
 using ProtonDrive.App.Docs;
 using ProtonDrive.App.InterProcessCommunication;
@@ -32,15 +33,14 @@ public static class Program
 {
     private static IHost? _host;
     private static AppLaunchMode _appLaunchMode;
-    private static bool _crashOnStartup;
-    private static bool _crashOnMainWindowActivation;
+    private static AppCrashMode _appCrashMode;
     private static bool _uninstall;
     private static string? _documentPath;
 
     [STAThread]
     public static void Main(string[] args)
     {
-        ParseArguments(args, out _appLaunchMode, out _documentPath, out _uninstall, out _crashOnStartup, out _crashOnMainWindowActivation);
+        ParseArguments(args, out _appLaunchMode, out _documentPath, out _uninstall, out _appCrashMode);
 
         var appConfig = new AppConfig();
 
@@ -75,8 +75,7 @@ public static class Program
         out AppLaunchMode launchMode,
         out string? documentPath,
         out bool uninstall,
-        out bool crashOnStartup,
-        out bool crashOnMainWindowActivation)
+        out AppCrashMode crashMode)
     {
         launchMode = args.Any(x => x.Equals("-quiet", StringComparison.OrdinalIgnoreCase))
             ? AppLaunchMode.Quiet
@@ -86,9 +85,9 @@ public static class Program
 
         documentPath = args.Take(1).FirstOrDefault(Path.IsPathFullyQualified);
 
-        crashOnStartup = args.Any(x => x.Equals("-crashAndSendReport", StringComparison.OrdinalIgnoreCase));
-
-        crashOnMainWindowActivation = args.Any(x => x.Equals("-crashLater", StringComparison.OrdinalIgnoreCase));
+        crashMode = AppCrashMode.None;
+        crashMode = args.Any(x => x.Equals("-crashLater", StringComparison.OrdinalIgnoreCase)) ? AppCrashMode.OnMainWindowActivation : crashMode;
+        crashMode = args.Any(x => x.Equals("-crashAndSendReport", StringComparison.OrdinalIgnoreCase)) ? AppCrashMode.OnStartup : crashMode;
     }
 
     private static void RunApplication()
@@ -197,7 +196,7 @@ public static class Program
         var host = Host.CreateDefaultBuilder()
             .AddAppConfiguration()
             .AddLogging()
-            .AddApp(_appLaunchMode, _crashOnMainWindowActivation)
+            .AddApp(new AppArguments(_appLaunchMode, _appCrashMode))
             .AddServices(errorReporting, _appLaunchMode)
             .Build();
 
@@ -214,7 +213,7 @@ public static class Program
         return new MainWindow
         {
             DataContext = mainViewModel,
-            Visibility = _appLaunchMode == AppLaunchMode.Quiet ? Visibility.Collapsed : Visibility.Visible,
+            Visibility = Visibility.Collapsed,
         };
     }
 
@@ -226,7 +225,7 @@ public static class Program
 
     private static void ThrowIfCrashOnStartupRequested(IErrorReporting errorReporting)
     {
-        if (!_crashOnStartup)
+        if (_appCrashMode is not AppCrashMode.OnStartup)
         {
             return;
         }
@@ -243,8 +242,10 @@ public static class Program
     private static void OnUninstallingApp()
     {
         var localFolderStructureProtector = new SafeSyncFolderStructureProtectorDecorator(new NtfsPermissionsBasedSyncFolderStructureProtector());
+        var placeholderConverter = new PlaceholderToRegularItemConverter(NullLogger<PlaceholderToRegularItemConverter>.Instance);
+        var readOnlyFileAttributeRemover = new ReadOnlyFileAttributeRemover(NullLogger<ReadOnlyFileAttributeRemover>.Instance);
 
-        LocalMappedFoldersTeardownService.TryUnprotectLocalFolders(localFolderStructureProtector);
+        LocalMappedFoldersTeardownService.TryTearDownLocalFolders(localFolderStructureProtector, placeholderConverter, readOnlyFileAttributeRemover);
 
         SystemToastNotificationService.Uninstall();
 

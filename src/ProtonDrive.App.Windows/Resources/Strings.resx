@@ -204,9 +204,6 @@
   <data name="MappingErrorCode_val_LocalFolderDoesNotExist" xml:space="preserve">
     <value>Sync folder not found. It may have been deleted, renamed, or moved. Restore it or set up a new sync folder.</value>
   </data>
-  <data name="MappingErrorCode_val_LocalFileDoesNotExist" xml:space="preserve">
-    <value>Sync file not found. It may have been deleted, renamed, or moved. Restore it or set it up again.</value>
-  </data>
   <data name="MappingErrorCode_val_LocalVolumeNotSupported" xml:space="preserve">
     <value>Unsupported local drive type. Try setting up sync folder on a different local drive.</value>
   </data>
@@ -226,7 +223,7 @@
     <value>Not enough free space on this device</value>
   </data>
   <data name="MappingErrorCode_val_InsufficientLocalFreeSpace" xml:space="preserve">
-    <value>Free up space or deselect the checkbox.</value>
+    <value>Free up space or deselect the checkbox</value>
   </data>
   <data name="MappingErrorCode_val_SharingDisabled" xml:space="preserve">
     <value>Sharing is temporarily unavailable</value>
@@ -373,7 +370,7 @@
     <value>File or folder has diverged</value>
   </data>
   <data name="FileSystemErrorCode_val_InvalidName" xml:space="preserve">
-    <value>Name is not valid</value>
+    <value>The name contains characters not supported by Windows. Please remove the following characters to allow syncing: \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="FileSystemErrorCode_val_MetadataMismatch" xml:space="preserve">
     <value>File or folder has diverged</value>
@@ -393,11 +390,30 @@
   <data name="FileSystemErrorCode_val_TimedOut" xml:space="preserve">
     <value>Timed out</value>
   </data>
+  <data name="FileSystemErrorCode_val_ServerError" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="FileSystemErrorCode_val_NetworkError" xml:space="preserve">
+    <value>Can't connect to Proton Drive. Try checking your internet connection.</value>
+  </data>
+  <data name="FileSystemErrorCode_val_RateLimited" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
   <data name="FileSystemErrorCode_val_UnauthorizedAccess" xml:space="preserve">
     <value>Not enough permissions</value>
   </data>
+  <data name="FileSystemErrorCode_val_CloudFileProviderNotRunning" xml:space="preserve">
+    <value>Please ensure that your cloud storage provider (e.g., OneDrive) is running and connected.</value>
+  </data>
+  <data name="FileSystemErrorCode_val_CyclicRedundancyCheck" xml:space="preserve">
+    <value>Data error (cyclic redundancy check). Please, check your drive (USB, disk etc...) for file system errors and bad sectors.</value>
+  </data>
   <data name="FileSystemErrorCode_val_Unknown" xml:space="preserve">
     <value>Something went wrong</value>
+  </data>
+  <data name="FileSystemErrorCode_val_MissingIndividuallySharedFile" xml:space="preserve">
+    <value>The original file shared with you has been deleted, moved or renamed.
+Toggle its sync off and on again to restore it and clear this error.</value>
   </data>
   <data name="MappingErrorCode_val_LocalFolderNonSyncable" xml:space="preserve">
     <value>The local folder is not eligible for synchronization. Set up a new sync folder.</value>
@@ -419,9 +435,6 @@
   </data>
   <data name="SyncFolderValidationResult_val_LocalFolderDoesNotExist" xml:space="preserve">
     <value>The folder cannot be found</value>
-  </data>
-  <data name="SyncFolderValidationResult_val_LocalFileDoesNotExist" xml:space="preserve">
-    <value>The file cannot be found</value>
   </data>
   <data name="SyncFolderValidationResult_val_LocalFolderNotEmpty" xml:space="preserve">
     <value>The folder must be empty before setting up sync</value>
@@ -452,5 +465,17 @@
   </data>
   <data name="AppDisplayStatus_val_SynchronizationError" xml:space="preserve">
     <value>Synchronization failed</value>
+  </data>
+  <data name="FileSystemErrorCode_val_ReadOnlyFile" xml:space="preserve">
+    <value>File is read-only</value>
+  </data>
+  <data name="FileSystemErrorCode_val_ReadOnlyRoot" xml:space="preserve">
+    <value>View-only files and folders can't be modified. Turn sync off and on under "Shared with me" to resolve.</value>
+  </data>
+  <data name="MappingErrorCode_val_RemoteShareWithMeItemDoesNotExist" xml:space="preserve">
+    <value>Can’t access shared Proton Drive file or folder. Check if it is still shared with you.</value>
+  </data>
+  <data name="MappingErrorCode_val_RemoteShareWithMeItemPermissionsDiverged" xml:space="preserve">
+    <value>Permissions of shared Proton Drive file or folder have changed. Toggle its sync off and on again to resolve.</value>
   </data>
 </root>

@@ -2,24 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MoreLinq;
 using ProtonDrive.Sync.Shared.FileSystem;
 
 namespace ProtonDrive.App.FileSystem;
 
 internal sealed class AggregatingEventLogClient<TId> : IEventLogClient<TId>
 {
-    private readonly IReadOnlyDictionary<string, (int VolumeId, IEventLogClient<TId> Client)> _eventScopeToClientMap;
-    private readonly ISharedWithMeFileRootDirectoryMaps _sharedWithMeFileRootDirectoryMaps;
-
+    private readonly IReadOnlyDictionary<(string EventScope, int VolumeId), IEventLogClient<TId>> _eventScopeToClientMap;
     private IReadOnlyCollection<EventSubscription>? _eventSubscriptions;
 
-    public AggregatingEventLogClient(
-        IReadOnlyDictionary<string, (int VolumeId, IEventLogClient<TId> Client)> eventScopeToClientMap,
-        ISharedWithMeFileRootDirectoryMaps sharedWithMeFileRootDirectoryMaps)
+    public AggregatingEventLogClient(IReadOnlyDictionary<(string EventScope, int VolumeId), IEventLogClient<TId>> eventScopeToClientMap)
     {
         _eventScopeToClientMap = eventScopeToClientMap;
-        _sharedWithMeFileRootDirectoryMaps = sharedWithMeFileRootDirectoryMaps;
     }
 
     public event EventHandler<EventLogEntriesReceivedEventArgs<TId>>? LogEntriesReceived
@@ -52,7 +46,7 @@ internal sealed class AggregatingEventLogClient<TId> : IEventLogClient<TId>
 
     public void Enable()
     {
-        foreach (var (_, client) in _eventScopeToClientMap.Values)
+        foreach (var client in _eventScopeToClientMap.Values)
         {
             client.Enable();
         }
@@ -60,7 +54,7 @@ internal sealed class AggregatingEventLogClient<TId> : IEventLogClient<TId>
 
     public void Disable()
     {
-        foreach (var (_, client) in _eventScopeToClientMap.Values)
+        foreach (var client in _eventScopeToClientMap.Values)
         {
             client.Disable();
         }
@@ -68,12 +62,14 @@ internal sealed class AggregatingEventLogClient<TId> : IEventLogClient<TId>
 
     public async Task GetEventsAsync()
     {
-        await Task.WhenAll(_eventScopeToClientMap.Values.Select(x => x.Client.GetEventsAsync())).ConfigureAwait(false);
+        await Task.WhenAll(_eventScopeToClientMap.Values.Select(x => x.GetEventsAsync())).ConfigureAwait(false);
     }
 
     private void SubscribeToDecoratedClients()
     {
-        _eventSubscriptions = _eventScopeToClientMap.Select(pair => new EventSubscription(this, pair.Value.Client, pair.Value.VolumeId, pair.Key)).ToList();
+        _eventSubscriptions = _eventScopeToClientMap
+            .Select(pair => new EventSubscription(this, pair.Value, volumeId: pair.Key.VolumeId, eventScope: pair.Key.EventScope))
+            .ToList();
     }
 
     private void UnsubscribeFromDecoratedClients()
@@ -114,34 +110,11 @@ internal sealed class AggregatingEventLogClient<TId> : IEventLogClient<TId>
             _client.LogEntriesReceived -= Handle;
         }
 
-        private void Handle(object? sender, EventLogEntriesReceivedEventArgs<TId> e)
+        private void Handle(object? sender, EventLogEntriesReceivedEventArgs<TId> eventArgs)
         {
-            var groupEventArgs = e.Entries
-                .Select(x => (
-                    VolumeId: GetVolumeIdFromEntryName(x.Name),
-                    Entry: x))
-                .GroupAdjacent(x => x.VolumeId)
-                .Select(
-                    x => new EventLogEntriesReceivedEventArgs<TId>(x.Select(y => y.Entry).ToList())
-                    {
-                        VolumeId = x.Key,
-                        Scope = _eventScope,
-                    });
-
-            foreach (var eventArgs in groupEventArgs)
-            {
-                _owner.LogEntriesReceivedHandlers?.Invoke(_client, eventArgs);
-            }
-        }
-
-        private int GetVolumeIdFromEntryName(string? entryName)
-        {
-            if (entryName is not null && _owner._sharedWithMeFileRootDirectoryMaps.TryGetMappingIdFromSharedWithMeFileName(entryName, out var mappingId))
-            {
-                return VirtualInternalVolumeIdProvider.GetId(_volumeId, mappingId.Value);
-            }
-
-            return _volumeId;
+            eventArgs.VolumeId = _volumeId;
+            eventArgs.Scope = _eventScope;
+            _owner.LogEntriesReceivedHandlers?.Invoke(_client, eventArgs);
         }
     }
 }

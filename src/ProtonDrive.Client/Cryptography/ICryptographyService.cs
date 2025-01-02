@@ -72,12 +72,12 @@ public interface ICryptographyService
 
     Task<IVerificationCapablePgpDecrypter> CreateFileContentsBlockKeyDecrypterAsync(
         PrivatePgpKey nodeKey,
-        string signatureEmailAddress,
+        string? signatureEmailAddress,
         CancellationToken cancellationToken);
 
     Task<IVerificationCapablePgpDecrypter> CreateFileContentsBlockDecrypterAsync(
         PrivatePgpKey nodeKey,
-        string signatureEmailAddress,
+        string? signatureEmailAddress,
         CancellationToken cancellationToken);
 
     Task<IPgpMessageProducer> CreateShareUrlPasswordEncrypterAsync(CancellationToken cancellationToken);
@@ -111,7 +111,8 @@ public interface ICryptographyService
     Task<VerificationVerdict> VerifyManifestAsync(
         ReadOnlyMemory<byte> manifest,
         string manifestSignature,
-        string signatureEmailAddress,
+        PrivatePgpKey nodeKey,
+        string? signatureEmailAddress,
         CancellationToken cancellationToken);
 
     bool PrivateKeyIsValid(PrivatePgpKey privateKey);

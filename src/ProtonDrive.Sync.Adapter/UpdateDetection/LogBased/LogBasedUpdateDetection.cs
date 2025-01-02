@@ -89,7 +89,7 @@ internal class LogBasedUpdateDetection<TId, TAltId> : IExecutionStatisticsProvid
         _eventLogClient.Disable();
 
         _updateDetection.Cancel();
-        return _updateDetection.CurrentTask;
+        return _updateDetection.WaitForCompletionAsync();
     }
 
     public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -98,7 +98,7 @@ internal class LogBasedUpdateDetection<TId, TAltId> : IExecutionStatisticsProvid
         await _eventLogClient.GetEventsAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
 
         // The Log-based updated detection is not cancelled, but the caller cancels awaiting it.
-        await _updateDetection.CurrentTask.WithCancellation(cancellationToken).ConfigureAwait(false);
+        await _updateDetection.WaitForCompletionAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
     }
 
     private void OnEventLogClientNextEntries(object? sender, EventLogEntriesReceivedEventArgs<TAltId> e)

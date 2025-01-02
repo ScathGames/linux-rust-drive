@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.Shared.Extensions;
-using ProtonDrive.Shared.Logging;
 
 namespace ProtonDrive.App.SystemIntegration;
 
@@ -18,35 +17,81 @@ public sealed class LoggingSyncFolderStructureProtectorDecorator : ISyncFolderSt
         _decoratedInstance = decoratedInstance;
     }
 
-    public bool Protect(string folderPath, FolderProtectionType protectionType)
+    public bool ProtectFolder(string folderPath, FolderProtectionType protectionType)
     {
-        var pathToLog = _logger.GetSensitiveValueForLogging(folderPath);
-        _logger.LogInformation("Adding folder \"{Path}\" protection", pathToLog);
+        _logger.LogDebug("Adding folder \"{Path}\" protection", folderPath);
 
         try
         {
-            return _decoratedInstance.Protect(folderPath, protectionType);
+            return _decoratedInstance.ProtectFolder(folderPath, protectionType);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Failed to add folder protection: {Message}", ex.CombinedMessage());
+            _logger.LogWarning("Failed to add folder protection: {ExceptionType} {ErrorCode}", ex.GetType().Name, ex.GetRelevantFormattedErrorCode());
 
             throw;
         }
     }
 
-    public bool Unprotect(string folderPath, FolderProtectionType protectionType)
+    public bool UnprotectFolder(string folderPath, FolderProtectionType protectionType)
     {
-        var pathToLog = _logger.GetSensitiveValueForLogging(folderPath);
-        _logger.LogInformation("Removing folder \"{Path}\" protection", pathToLog);
+        _logger.LogDebug("Removing folder \"{Path}\" protection", folderPath);
 
         try
         {
-            return _decoratedInstance.Unprotect(folderPath, protectionType);
+            return _decoratedInstance.UnprotectFolder(folderPath, protectionType);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Failed to remove folder protection: {Message}", ex.CombinedMessage());
+            _logger.LogWarning("Failed to remove folder protection: {ExceptionType} {ErrorCode}", ex.GetType().Name, ex.GetRelevantFormattedErrorCode());
+
+            throw;
+        }
+    }
+
+    public bool ProtectFile(string filePath, FileProtectionType protectionType)
+    {
+        _logger.LogDebug("Adding file \"{Path}\" protection", filePath);
+
+        try
+        {
+            return _decoratedInstance.ProtectFile(filePath, protectionType);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Failed to add file protection: {ExceptionType} {ErrorCode}", ex.GetType().Name, ex.GetRelevantFormattedErrorCode());
+
+            throw;
+        }
+    }
+
+    public bool UnprotectFile(string filePath, FileProtectionType protectionType)
+    {
+        _logger.LogDebug("Removing file \"{Path}\" protection", filePath);
+
+        try
+        {
+            return _decoratedInstance.UnprotectFile(filePath, protectionType);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Failed to remove file protection: {ExceptionType} {ErrorCode}", ex.GetType().Name, ex.GetRelevantFormattedErrorCode());
+
+            throw;
+        }
+    }
+
+    public bool UnprotectBranch(string folderPath, FolderProtectionType folderProtectionType, FileProtectionType fileProtectionType)
+    {
+        _logger.LogDebug("Removing branch \"{Path}\" protection", folderPath);
+
+        try
+        {
+            return _decoratedInstance.UnprotectBranch(folderPath, folderProtectionType, fileProtectionType);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning("Failed to remove branch protection: {ExceptionType} {ErrorCode}", ex.GetType().Name, ex.GetRelevantFormattedErrorCode());
 
             throw;
         }

@@ -10,7 +10,7 @@ using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Account;
 
-internal sealed class ActivityService : IAccountStateAware, IDisposable
+internal sealed class ActivityService : IAccountStateAware, IUserStateAware, IDisposable
 {
     internal const double QueryIntervalMaxDeviation = 0.2;
 
@@ -19,6 +19,7 @@ internal sealed class ActivityService : IAccountStateAware, IDisposable
 
     private readonly SingleAction _getIsActive;
     private readonly ISchedulerTimer _timer;
+    private long _driveUsedSpace;
 
     public ActivityService(AppConfig appConfig, IDriveUserApiClient driveUserApiClient, IScheduler scheduler, ILogger<ActivityService> logger)
     {
@@ -55,6 +56,11 @@ internal sealed class ActivityService : IAccountStateAware, IDisposable
         }
     }
 
+    void IUserStateAware.OnUserStateChanged(UserState value)
+    {
+        _driveUsedSpace = value.UsedDriveSpace;
+    }
+
     public void Dispose()
     {
         _timer.Dispose();
@@ -62,11 +68,16 @@ internal sealed class ActivityService : IAccountStateAware, IDisposable
 
     internal Task WaitForCompletionAsync()
     {
-        return _getIsActive.CurrentTask;
+        return _getIsActive.WaitForCompletionAsync();
     }
 
     private async Task GetIsActiveAsync(CancellationToken cancellationToken)
     {
+        if (_driveUsedSpace == 0)
+        {
+            return;
+        }
+
         try
         {
             await _driveUserApiClient.GetIsActiveAsync(cancellationToken).ThrowOnFailure().ConfigureAwait(false);

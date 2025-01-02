@@ -13,13 +13,13 @@ public sealed class SyncFolder
         Mapping = mapping;
         Type = ToSyncFolderType(mapping.Type);
         LocalPath = GetLocalPath();
-        RootLinkType = mapping.Remote.RootLinkType;
+        RootLinkType = mapping.Remote.RootItemType;
     }
 
     public LinkType RootLinkType { get; }
     public SyncFolderType Type { get; }
     public string LocalPath { get; }
-    public string? RemoteName => Mapping.Remote.RootFolderName;
+    public string? RemoteName => Mapping.Remote.RootItemName;
     public string? RemoteShareId => Mapping.Remote.ShareId;
     public bool RemoteIsReadOnly => Mapping.Remote.IsReadOnly;
     public MappingSetupStatus Status => _state.Status;
@@ -52,6 +52,6 @@ public sealed class SyncFolder
     {
         return Mapping.Type is MappingType.CloudFiles
             ? Mapping.TryGetAccountRootFolderPath(out var path) ? path : string.Empty
-            : Mapping.Local.RootFolderPath;
+            : Mapping.Local.Path;
     }
 }

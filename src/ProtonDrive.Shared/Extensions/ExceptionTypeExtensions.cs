@@ -14,6 +14,7 @@ public static class ExceptionTypeExtensions
     private const int COR_E_IO = unchecked((int)0x80131620);
     private const int COR_E_SYSTEM = unchecked((int)0x80131501);
     private const int COR_E_EXCEPTION = unchecked((int)0x80131500);
+
     // ReSharper restore InconsistentNaming
 #pragma warning restore SA1310
 
@@ -46,7 +47,7 @@ public static class ExceptionTypeExtensions
     {
         return ex switch
         {
-            IErrorCodeProvider errorCodeProvider
+            IFormattedErrorCodeProvider errorCodeProvider
                 => errorCodeProvider.TryGetRelevantFormattedErrorCode(out formattedErrorCode),
 
             Win32Exception win32Exception

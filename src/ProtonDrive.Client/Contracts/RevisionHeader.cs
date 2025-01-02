@@ -16,7 +16,7 @@ public class RevisionHeader
     public long Size { get; set; }
 
     [JsonPropertyName("SignatureEmail")]
-    public string SignatureEmailAddress { get; set; } = string.Empty;
+    public string? SignatureEmailAddress { get; set; }
 
     public string ManifestSignature { get; set; } = string.Empty;
 

@@ -1,78 +1,33 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using ProtonDrive.App.Account;
-using ProtonDrive.App.Authentication;
-using ProtonDrive.App.Windows.Toolkit.Threading;
 
 namespace ProtonDrive.App.Windows.Views.Onboarding;
 
-internal abstract class OnboardingStepViewModel : ObservableObject, ISessionStateAware, IAccountSwitchingAware
+internal abstract class OnboardingStepViewModel : ObservableObject
 {
-    protected static readonly TimeSpan DelayBeforeSwitchingStep = TimeSpan.FromMilliseconds(900);
-
-    private readonly DispatcherScheduler _scheduler;
+    private static readonly TimeSpan DelayBeforeSwitchingStep = TimeSpan.FromMilliseconds(900);
 
     private bool _isActive;
-
-    protected OnboardingStepViewModel(DispatcherScheduler scheduler)
-    {
-        _scheduler = scheduler;
-    }
 
     public bool IsActive
     {
         get => _isActive;
-        protected set => SetProperty(ref _isActive, value);
+        private set => SetProperty(ref _isActive, value);
     }
 
-    protected SessionState SessionState { get; private set; } = SessionState.None;
-
-    void ISessionStateAware.OnSessionStateChanged(SessionState value)
+    public virtual void Activate()
     {
-        Schedule(() =>
-        {
-            SessionState = value;
-
-            OnSessionStateChanged();
-            HandleExternalStateChange();
-        });
+        IsActive = true;
     }
 
-    void IAccountSwitchingAware.OnAccountSwitched()
+    public virtual void Deactivate()
     {
-        Schedule(HandleExternalStateChange);
+        IsActive = false;
     }
 
-    protected abstract void Activate();
-
-    protected abstract bool SkipActivation();
-
-    protected virtual void OnSessionStateChanged() { }
-
-    private void HandleExternalStateChange()
+    protected static Task DelayBeforeSwitchingStepAsync()
     {
-        if (SessionState.Status is SessionStatus.Ending or SessionStatus.NotStarted)
-        {
-            IsActive = false;
-
-            return;
-        }
-
-        if (IsActive)
-        {
-            return;
-        }
-
-        if (SkipActivation())
-        {
-            return;
-        }
-
-        Activate();
-    }
-
-    private void Schedule(Action origin)
-    {
-        _scheduler.Schedule(origin);
+        return Task.Delay(DelayBeforeSwitchingStep);
     }
 }

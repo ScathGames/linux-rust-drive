@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,8 @@ using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Settings;
 using ProtonDrive.Client;
 using ProtonDrive.Client.Configuration;
+using ProtonDrive.Client.Contracts;
+using ProtonDrive.Shared;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.Repository;
 using ProtonDrive.Sync.Shared.FileSystem;
@@ -56,21 +59,21 @@ internal sealed class RemoteDecoratedEventLogClientFactory
     {
         var isVolumeBased = await _switchingToVolumeEventsHandler.TrySwitchAsync(mappings, cancellationToken).ConfigureAwait(false);
 
-        var eventScopeToClientMap = (isVolumeBased
+        var clientMap = (isVolumeBased
             ? GetEventScopeToClientMapForOwnVolumeEvents(mappings, propertyRepository)
             : GetEventScopeToClientMapForOwnShareEvents(mappings, propertyRepository))
             .Concat(GetEventScopeToClientMapForForeignVolumeEvents(mappings, propertyRepository));
 
         var (volumeId, nodeIdToRootMap) = _rootMapForDeletionDetectionFactory.Create(mappings);
 
-        var eventScopeToClientMapDictionary = eventScopeToClientMap.ToDictionary(
-            x => x.EventScope,
-            x => (x.VolumeId, x.Client));
+        Dictionary<(string EventScope, int VolumeId), IEventLogClient<string>> eventScopeToClientMap = clientMap.ToDictionary(
+            x => (x.EventScope, x.VolumeId),
+            x => x.Client);
 
         return
             new RootDeletionDetectingEventLogClientDecorator<string>(
                 new RootDeletionDetector<string>(_rootDeletionHandler, volumeId, nodeIdToRootMap),
-                new AggregatingEventLogClient<string>(eventScopeToClientMapDictionary, SharedWithMeFileRootDirectoryMaps<string>.Empty));
+                new AggregatingEventLogClient<string>(eventScopeToClientMap));
     }
 
     private IEnumerable<(string EventScope, int VolumeId, IEventLogClient<string> Client)> GetEventScopeToClientMapForOwnVolumeEvents(
@@ -86,27 +89,59 @@ internal sealed class RemoteDecoratedEventLogClientFactory
             .Distinct()
             .Where(x => x.RemoteVolumeId != string.Empty)
             .Select(x => (
-                EventScope: x.RemoteVolumeId,
+                EventScope: RootPropertyProvider.GetEventScope(x.InternalVolumeId),
                 VolumeId: x.InternalVolumeId,
-                Client: CreateClientForVolume(VolumeType.Own, x.InternalVolumeId, x.RemoteVolumeId, propertyRepository)));
+                Client: CreateClientForOwnVolume(x.InternalVolumeId, x.RemoteVolumeId, propertyRepository)));
     }
 
     private IEnumerable<(string EventScope, int VolumeId, IEventLogClient<string> Client)> GetEventScopeToClientMapForForeignVolumeEvents(
-        IEnumerable<RemoteToLocalMapping> mappings,
+        IReadOnlyCollection<RemoteToLocalMapping> mappings,
         IPropertyRepository propertyRepository)
     {
-        // A remote event log client is created per remote volume.
-        // Each remote volume belongs to a different event scope.
-        // Unsuccessfully set up mappings are excluded.
-        return mappings
-            .Where(m => m is { HasSetupSucceeded: true, Type: MappingType.SharedWithMeItem })
-            .Select(m => (m.Remote.InternalVolumeId, RemoteVolumeId: m.Remote.VolumeId ?? string.Empty))
+        // A remote event log client is created per foreign remote volume.
+        // Foreign volumes with no successfully set up mappings are excluded.
+        var remoteVolumeIds = mappings
+            .Where(m => m is
+            {
+                HasSetupSucceeded: true,
+                Type: MappingType.SharedWithMeItem,
+            })
+            .Select(m => m.Remote.VolumeId ?? string.Empty)
             .Distinct()
-            .Where(x => x.RemoteVolumeId != string.Empty)
-            .Select(x => (
-                EventScope: x.RemoteVolumeId,
-                VolumeId: x.InternalVolumeId,
-                Client: CreateClientForVolume(VolumeType.Foreign, x.InternalVolumeId, x.RemoteVolumeId, propertyRepository)));
+            .Where(x => !string.IsNullOrEmpty(x));
+
+        return remoteVolumeIds
+            .SelectMany(remoteVolumeId => GetEventScopeToClientMapForSharedWithMeItems(remoteVolumeId, mappings, propertyRepository));
+    }
+
+    private IEnumerable<(string EventScope, int VolumeId, IEventLogClient<string> Client)> GetEventScopeToClientMapForSharedWithMeItems(
+        string remoteVolumeId,
+        IReadOnlyCollection<RemoteToLocalMapping> mappings,
+        IPropertyRepository propertyRepository)
+    {
+        var undecoratedClient = CreateUndecoratedClientForVolume(VolumeType.Foreign, remoteVolumeId, propertyRepository);
+
+        var dispatchingClient = new DispatchingEventLogClientDecorator<string>(undecoratedClient);
+
+        // Unsuccessfully set up mappings are included, because we must process events for all roots, even disabled ones.
+        // If we skip events, we will lose consistency between local cache and remote file system state.
+        var mapForFolders = mappings
+            .Where(m => m is { Type: MappingType.SharedWithMeItem } && m.Remote.VolumeId == remoteVolumeId && m.Remote.RootItemType is LinkType.Folder)
+            .Select(m => (
+                EventScope: RootPropertyProvider.GetEventScope(m.Remote.InternalVolumeId),
+                VolumeId: m.Remote.InternalVolumeId,
+                Client: CreateClientForSharedWithMeFolder(m, dispatchingClient)));
+
+        // Unsuccessfully set up mappings are included, because we must process events for all roots, even disabled ones.
+        // If we skip events, we will lose consistency between local cache and remote file system state.
+        var mapForFiles = mappings
+            .Where(m => m is { Type: MappingType.SharedWithMeItem } && m.Remote.VolumeId == remoteVolumeId && m.Remote.RootItemType is LinkType.File)
+            .Select(m => (
+                EventScope: RootPropertyProvider.GetEventScope(m.Remote.InternalVolumeId),
+                VolumeId: m.Remote.InternalVolumeId,
+                Client: CreateClientForSharedWithMeFile(m, dispatchingClient)));
+
+        return mapForFolders.Union(mapForFiles);
     }
 
     private IEnumerable<(string EventScope, int VolumeId, IEventLogClient<string> Client)> GetEventScopeToClientMapForOwnShareEvents(
@@ -127,34 +162,92 @@ internal sealed class RemoteDecoratedEventLogClientFactory
                 Client: CreateClientForShare(x.InternalVolumeId, x.ShareId, propertyRepository)));
     }
 
-    private IEventLogClient<string> CreateClientForVolume(
-        VolumeType volumeType,
+    private IEventLogClient<string> CreateClientForOwnVolume(
         int internalVolumeId,
         string remoteVolumeId,
         IPropertyRepository propertyRepository)
     {
-        var anchorIdRepository = new CachingRepository<string>(new NamedProperty<string>(VolumeEventAnchorIdPrefix + remoteVolumeId, propertyRepository));
+        var undecoratedClient = CreateUndecoratedClientForVolume(VolumeType.Own, remoteVolumeId, propertyRepository);
+
+        var scopedClient = new ScopedEventLogClientDecorator(
+            internalVolumeId,
+            scope: RootPropertyProvider.GetEventScope(internalVolumeId),
+            undecoratedClient);
 
         return new LoggingEventLogClientDecorator<string>(
             _loggerFactory.CreateLogger<LoggingEventLogClientDecorator<string>>(),
-            CreateUndecoratedClientForVolume(volumeType, remoteVolumeId, anchorIdRepository),
             internalVolumeId,
-            remoteVolumeId);
+            remoteVolumeId,
+            scopedClient);
+    }
+
+    private IEventLogClient<string> CreateClientForSharedWithMeFolder(RemoteToLocalMapping mapping, IEventLogClient<string> dispatchingClient)
+    {
+        var scopedClient = CreateScopedDecorator(mapping, dispatchingClient);
+
+        return CreateLoggingDecorator(mapping, scopedClient);
+    }
+
+    private IEventLogClient<string> CreateClientForSharedWithMeFile(RemoteToLocalMapping mapping, IEventLogClient<string> dispatchingClient)
+    {
+        var scopedClient = CreateScopedDecorator(mapping, dispatchingClient);
+
+        var virtualRootClient = CreateVirtualFileRootDecorator(mapping, scopedClient);
+
+        return CreateLoggingDecorator(mapping, virtualRootClient);
+    }
+
+    private ScopedEventLogClientDecorator CreateScopedDecorator(RemoteToLocalMapping mapping, IEventLogClient<string> client)
+    {
+        var internalVolumeId = mapping.Remote.InternalVolumeId;
+
+        return new ScopedEventLogClientDecorator(
+            internalVolumeId,
+            scope: RootPropertyProvider.GetEventScope(internalVolumeId),
+            client);
+    }
+
+    private VirtualFileRootEventLogClientDecorator CreateVirtualFileRootDecorator(RemoteToLocalMapping mapping, IEventLogClient<string> client)
+    {
+        var fileId = mapping.Remote.RootLinkId;
+        var fileName = Path.GetFileName(mapping.Local.Path);
+        var virtualFolderId = RootPropertyProvider.GetVirtualRootFolderId(mapping.Id);
+
+        Ensure.NotNullOrEmpty(fileId, nameof(fileId));
+
+        return new VirtualFileRootEventLogClientDecorator(
+            fileId,
+            fileName,
+            virtualFolderId,
+            client);
+    }
+
+    private LoggingEventLogClientDecorator<string> CreateLoggingDecorator(RemoteToLocalMapping mapping, IEventLogClient<string> client)
+    {
+        var internalVolumeId = mapping.Remote.InternalVolumeId;
+
+        return new LoggingEventLogClientDecorator<string>(
+            _loggerFactory.CreateLogger<LoggingEventLogClientDecorator<string>>(),
+            volumeId: internalVolumeId,
+            scope: RootPropertyProvider.GetEventScope(internalVolumeId),
+            client);
     }
 
     private IEventLogClient<string> CreateClientForShare(int internalVolumeId, string shareId, IPropertyRepository propertyRepository)
     {
-        var anchorIdRepository = new CachingRepository<string>(new NamedProperty<string>(ShareEventAnchorIdPrefix + shareId, propertyRepository));
+        var undecoratedClient = CreateUndecoratedClientForShare(shareId, propertyRepository);
 
         return new LoggingEventLogClientDecorator<string>(
             _loggerFactory.CreateLogger<LoggingEventLogClientDecorator<string>>(),
-            CreateUndecoratedClientForShare(shareId, anchorIdRepository),
             internalVolumeId,
-            shareId);
+            shareId,
+            undecoratedClient);
     }
 
-    private IEventLogClient<string> CreateUndecoratedClientForVolume(VolumeType volumeType, string volumeId, IRepository<string> anchorIdRepository)
+    private IEventLogClient<string> CreateUndecoratedClientForVolume(VolumeType volumeType, string remoteVolumeId, IPropertyRepository propertyRepository)
     {
+        var anchorIdRepository = new CachingRepository<string>(new NamedProperty<string>(VolumeEventAnchorIdPrefix + remoteVolumeId, propertyRepository));
+
         var eventsPollingInterval = volumeType switch
         {
             VolumeType.Own => _driveConfig.EventsPollingInterval.RandomizedWithDeviation(0.2),
@@ -162,11 +255,15 @@ internal sealed class RemoteDecoratedEventLogClientFactory
             _ => throw new InvalidEnumArgumentException(nameof(volumeType), (int)volumeType, typeof(VolumeType)),
         };
 
-        return _undecoratedClientFactory.CreateClientForVolume(volumeId, anchorIdRepository, eventsPollingInterval);
+        return _undecoratedClientFactory.CreateClientForVolume(remoteVolumeId, anchorIdRepository, eventsPollingInterval);
     }
 
-    private IEventLogClient<string> CreateUndecoratedClientForShare(string shareId, IRepository<string> anchorIdRepository)
+    private IEventLogClient<string> CreateUndecoratedClientForShare(string shareId, IPropertyRepository propertyRepository)
     {
-        return _undecoratedClientFactory.CreateClientForShare(shareId, anchorIdRepository, _driveConfig.EventsPollingInterval.RandomizedWithDeviation(0.2));
+        var anchorIdRepository = new CachingRepository<string>(new NamedProperty<string>(ShareEventAnchorIdPrefix + shareId, propertyRepository));
+
+        var eventsPollingInterval = _driveConfig.EventsPollingInterval.RandomizedWithDeviation(0.2);
+
+        return _undecoratedClientFactory.CreateClientForShare(shareId, anchorIdRepository, eventsPollingInterval);
     }
 }

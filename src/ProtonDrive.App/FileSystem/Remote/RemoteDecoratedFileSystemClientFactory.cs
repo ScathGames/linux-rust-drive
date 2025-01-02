@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Account;
@@ -50,7 +51,7 @@ internal sealed class RemoteDecoratedFileSystemClientFactory
     private static IFileSystemClient<string> CreateClientForMapping(RemoteToLocalMapping mapping, IFileSystemClient<string> clientForShare)
     {
         return mapping.HasSetupSucceeded
-            ? new RootedFileSystemClientDecorator<string>(new RemoteRootDirectory(mapping), null, clientForShare)
+            ? new RootedFileSystemClientDecorator(new RemoteRootDirectory(mapping), clientForShare)
             : new OfflineFileSystemClient<string>();
     }
 
@@ -91,31 +92,33 @@ internal sealed class RemoteDecoratedFileSystemClientFactory
                    Client: CreateClientForMapping(mapping, client));
     }
 
-    private RootInfo<string> CreateRoot(RemoteToLocalMapping shareMapping)
+    private RootInfo<string> CreateRoot(RemoteToLocalMapping mapping)
     {
         var isUsingOwnVolumeEvents = _switchingToVolumeEventsHandler.HasSwitched;
-        var isOwnVolume = shareMapping.Type is MappingType.CloudFiles or MappingType.HostDeviceFolder or MappingType.ForeignDevice;
-        var nodeId = shareMapping.Remote.RootLinkType is LinkType.Folder
-            ? shareMapping.Remote.RootLinkId ?? throw new InvalidOperationException()
-            : "virtual_" + shareMapping.Id;
+        var isOwnVolume = mapping.Type is MappingType.CloudFiles or MappingType.HostDeviceFolder or MappingType.ForeignDevice;
+        var nodeId = mapping.Remote.RootItemType is LinkType.Folder
+            ? mapping.Remote.RootLinkId ?? throw new InvalidOperationException()
+            : RootPropertyProvider.GetVirtualRootFolderId(mapping.Id);
 
         return new RootInfo<string>(
-            Id: shareMapping.Id,
-            VolumeId: shareMapping.Remote.InternalVolumeId,
+            Id: mapping.Id,
+            VolumeId: mapping.Remote.InternalVolumeId,
             nodeId)
         {
-            // Remote events are retrieved per volume, remote VolumeId serves as an event scope.
+            // Remote events are retrieved per volume, remote InternalVolumeId serves as an event scope.
             // Except for own volume if switching to volume events has not succeeded,
             // then remote ShareId serves as an event scope.
             EventScope = (isOwnVolume && !isUsingOwnVolumeEvents
-                    ? shareMapping.Remote.ShareId
-                    : shareMapping.Remote.VolumeId)
+                    ? mapping.Remote.ShareId
+                    : RootPropertyProvider.GetEventScope(mapping.Remote.InternalVolumeId))
                 ?? throw new InvalidOperationException(),
 
             // Moving between local sync folders is not currently supported
-            MoveScope = shareMapping.Id,
-            LocalPath = shareMapping.Local.RootFolderPath,
-            IsEnabled = shareMapping.HasSetupSucceeded,
+            MoveScope = mapping.Id,
+            LocalPath = mapping.Remote.RootItemType is LinkType.File
+                ? Path.GetDirectoryName(mapping.Local.Path.AsSpan()).ToString()
+                : mapping.Local.Path,
+            IsEnabled = mapping.HasSetupSucceeded,
         };
     }
 
@@ -126,12 +129,11 @@ internal sealed class RemoteDecoratedFileSystemClientFactory
     {
         var parameters = new FileSystemClientParameters(volumeId, shareId);
 
-        return new RemoteSpaceCheckingFileSystemClientDecorator(
-            _userService,
-            new StorageReservationHandler(),
-            new DraftCleaningFileSystemClientDecorator(
-                revisionUploadAttemptRepository,
-                CreateUndecoratedClient(parameters)));
+        var undecoratedClient = CreateUndecoratedClient(parameters);
+
+        var draftCleaningClient = new DraftCleaningFileSystemClientDecorator(revisionUploadAttemptRepository, undecoratedClient);
+
+        return new RemoteSpaceCheckingFileSystemClientDecorator(_userService, new StorageReservationHandler(), draftCleaningClient);
     }
 
     private IFileSystemClient<string> CreateClientForSharedWithMeItem(
@@ -141,21 +143,35 @@ internal sealed class RemoteDecoratedFileSystemClientFactory
         var volumeId = mapping.Remote.VolumeId ?? throw new InvalidOperationException("Remote volume ID is not specified");
         var shareId = mapping.Remote.ShareId ?? throw new InvalidOperationException("Remote share ID is not specified");
 
-        if (mapping.Remote.RootLinkType is LinkType.File)
+        var undecoratedClient = mapping.Remote.RootItemType is LinkType.File
+            ? CreateUndecoratedClientForFile()
+            : CreateUndecoratedClientForFolder();
+
+        IFileSystemClient<string> decoratedClient = mapping.Remote.IsReadOnly
+            ? new ReadOnlyFileSystemClientDecorator(undecoratedClient)
+            : new DraftCleaningFileSystemClientDecorator(revisionUploadAttemptRepository, undecoratedClient);
+
+        if (mapping.Remote.RootItemType is LinkType.File)
         {
-            var virtualParentId = "virtual_" + mapping.Id;
-            var linkId = mapping.Remote.RootLinkId;
-            var linkName = mapping.Remote.RootFolderName;
-
-            var parameters = new FileSystemClientParameters(volumeId, shareId, virtualParentId, linkId, linkName);
-
-            return new FilteringSingleFileFileSystemClientDecorator(
-                new DraftCleaningFileSystemClientDecorator(revisionUploadAttemptRepository, CreateUndecoratedClient(parameters)));
+            decoratedClient = new FilteringSingleFileFileSystemClientDecorator(decoratedClient);
         }
 
-        return new DraftCleaningFileSystemClientDecorator(
-            revisionUploadAttemptRepository,
-            CreateUndecoratedClient(new FileSystemClientParameters(volumeId, shareId)));
+        return decoratedClient;
+
+        IFileSystemClient<string> CreateUndecoratedClientForFile()
+        {
+            var virtualFolderId = RootPropertyProvider.GetVirtualRootFolderId(mapping.Id);
+            var linkId = mapping.Remote.RootLinkId;
+            var linkName = Path.GetFileName(mapping.Local.Path.AsSpan()).ToString();
+            var parameters = new FileSystemClientParameters(volumeId, shareId, virtualFolderId, linkId, linkName);
+
+            return CreateUndecoratedClient(parameters);
+        }
+
+        IFileSystemClient<string> CreateUndecoratedClientForFolder()
+        {
+            return CreateUndecoratedClient(new FileSystemClientParameters(volumeId, shareId));
+        }
     }
 
     private IFileSystemClient<string> CreateUndecoratedClient(FileSystemClientParameters parameters)

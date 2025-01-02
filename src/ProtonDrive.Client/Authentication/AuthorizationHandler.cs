@@ -13,12 +13,12 @@ internal sealed class AuthorizationHandler : DelegatingHandler
     private const string AuthenticationUrlBase = "/auth/v4";
     private const string SessionHeaderName = "x-pm-uid";
 
-    private readonly Lazy<ISessionService> _sessionService;
+    private readonly Lazy<IAuthenticationService> _authenticationService;
     private readonly Lazy<ISessionProvider> _sessionProvider;
 
-    public AuthorizationHandler(Lazy<ISessionService> sessionService, Lazy<ISessionProvider> sessionProvider)
+    public AuthorizationHandler(Lazy<IAuthenticationService> authenticationService, Lazy<ISessionProvider> sessionProvider)
     {
-        _sessionService = sessionService;
+        _authenticationService = authenticationService;
         _sessionProvider = sessionProvider;
     }
 
@@ -55,12 +55,12 @@ internal sealed class AuthorizationHandler : DelegatingHandler
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
             // Awaiting this call would create a deadlock when Unauthorized (401) is returned to the sign-out API request.
-            _ = _sessionService.Value.EndSessionAsync(sessionId, apiResponse ?? new ApiResponse { Code = ResponseCode.Unauthorized });
+            _ = _authenticationService.Value.EndSessionAsync(sessionId, apiResponse ?? new ApiResponse { Code = ResponseCode.Unauthorized });
         }
         else if (IsAccountDisabled(apiResponse))
         {
             // Awaiting this call would create a deadlock when Account disabled (10002 or 10003) is returned to the sign-out API request.
-            _ = _sessionService.Value.EndSessionAsync(sessionId, apiResponse);
+            _ = _authenticationService.Value.EndSessionAsync(sessionId, apiResponse);
         }
 
         return response;

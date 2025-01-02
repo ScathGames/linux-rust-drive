@@ -18,8 +18,7 @@ public enum FolderProtectionType
     Leaf,
 
     /// <summary>
-    /// For "Shared with me" folder which contains shared files
-    /// which must be protected to prevent users from deleting or renaming them.
+    /// For folders which should not be modified by the user
     /// </summary>
-    AncestorWithSharedWithMeFiles,
+    ReadOnly,
 }

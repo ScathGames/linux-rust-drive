@@ -10,6 +10,7 @@ public class DriveApiConfig
     public Uri? DriveBaseUrl { get; internal set; }
     public Uri? PaymentsBaseUrl { get; internal set; }
     public Uri? FeatureBaseUrl { get; internal set; }
+    public Uri? ContactsBaseUrl { get; internal set; }
     public Uri? DocsBaseUrl { get; internal set; }
     public string? ClientVersion { get; set; }
     public string? UserAgent { get; set; }

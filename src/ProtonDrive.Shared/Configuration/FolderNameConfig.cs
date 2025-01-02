@@ -16,5 +16,5 @@ public class FolderNameConfig
     public string TrashFolderName { get; set; } = string.Empty;
     public string CloudFilesFolderName { get; set; } = string.Empty;
     public string ForeignDevicesFolderName { get; set; } = string.Empty;
-    public string SharedWithMeItemsFolderName { get; set; } = string.Empty;
+    public string SharedWithMeRootFolderName { get; set; } = string.Empty;
 }

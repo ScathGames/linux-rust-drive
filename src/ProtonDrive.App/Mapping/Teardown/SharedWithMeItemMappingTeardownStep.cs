@@ -11,14 +11,20 @@ namespace ProtonDrive.App.Mapping.Teardown;
 
 internal sealed class SharedWithMeItemMappingTeardownStep
 {
-    private readonly IPlaceholderToRegularItemConverter _classicFileSystemConverter;
+    private readonly ILocalSpecialSubfoldersDeletionStep _specialFoldersDeletion;
+    private readonly IReadOnlyFileAttributeRemover _readOnlyFileAttributeRemover;
+    private readonly IPlaceholderToRegularItemConverter _placeholderConverter;
     private readonly ISyncFolderStructureProtector _syncFolderProtector;
 
     public SharedWithMeItemMappingTeardownStep(
-        IPlaceholderToRegularItemConverter classicFileSystemConverter,
+        ILocalSpecialSubfoldersDeletionStep specialFoldersDeletion,
+        IReadOnlyFileAttributeRemover readOnlyFileAttributeRemover,
+        IPlaceholderToRegularItemConverter placeholderConverter,
         ISyncFolderStructureProtector syncFolderProtector)
     {
-        _classicFileSystemConverter = classicFileSystemConverter;
+        _specialFoldersDeletion = specialFoldersDeletion;
+        _readOnlyFileAttributeRemover = readOnlyFileAttributeRemover;
+        _placeholderConverter = placeholderConverter;
         _syncFolderProtector = syncFolderProtector;
     }
 
@@ -29,69 +35,110 @@ internal sealed class SharedWithMeItemMappingTeardownStep
             throw new ArgumentException("Mapping type has unexpected value", nameof(mapping));
         }
 
-        return mapping.Remote.RootLinkType switch
+        return mapping.Remote.RootItemType switch
         {
-            LinkType.Folder => TearDownFolderAsync(mapping, cancellationToken),
-            LinkType.File => TearDownFileAsync(mapping),
-            _ => throw new InvalidEnumArgumentException(nameof(mapping.Remote.RootLinkType), (int)mapping.Remote.RootLinkType, typeof(LinkType)),
+            LinkType.Folder => Task.FromResult(TearDownFolder(mapping, cancellationToken)),
+            LinkType.File => Task.FromResult(TearDownFile(mapping)),
+            _ => throw new InvalidEnumArgumentException(nameof(mapping.Remote.RootItemType), (int)mapping.Remote.RootItemType, typeof(LinkType)),
         };
     }
 
-    private Task<MappingErrorCode> TearDownFileAsync(RemoteToLocalMapping mapping)
+    private MappingErrorCode TearDownFile(RemoteToLocalMapping mapping)
     {
-        if (mapping.Remote.RootFolderName is null)
+        if (mapping.Remote.IsReadOnly)
         {
-            return Task.FromResult(MappingErrorCode.LocalFileSystemAccessFailed);
+            if (!_syncFolderProtector.UnprotectFile(mapping.Local.Path, FileProtectionType.ReadOnly))
+            {
+                return MappingErrorCode.LocalFileSystemAccessFailed;
+            }
+
+            if (!_readOnlyFileAttributeRemover.TryRemoveFileReadOnlyAttribute(mapping.Local.Path))
+            {
+                return MappingErrorCode.LocalFileSystemAccessFailed;
+            }
         }
 
-        var itemPath = Path.Combine(mapping.Local.RootFolderPath, mapping.Remote.RootFolderName);
+        if (!_placeholderConverter.TryConvertToRegularFile(mapping.Local.Path))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
 
-        return Task.FromResult(!_classicFileSystemConverter.TryConvertToRegularFile(itemPath)
-            ? MappingErrorCode.LocalFileSystemAccessFailed
-            : MappingErrorCode.None);
+        return MappingErrorCode.None;
     }
 
-    private Task<MappingErrorCode> TearDownFolderAsync(RemoteToLocalMapping mapping, CancellationToken cancellationToken)
+    private MappingErrorCode TearDownFolder(RemoteToLocalMapping mapping, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
+        if (mapping.Remote.IsReadOnly)
+        {
+            if (!_syncFolderProtector.UnprotectBranch(mapping.Local.Path, FolderProtectionType.ReadOnly, FileProtectionType.ReadOnly))
+            {
+                return MappingErrorCode.LocalFileSystemAccessFailed;
+            }
+
+            if (!_readOnlyFileAttributeRemover.TryRemoveFileReadOnlyAttributeInFolder(mapping.Local.Path))
+            {
+                return MappingErrorCode.LocalFileSystemAccessFailed;
+            }
+        }
 
         TryUnprotectLocalFolder(mapping);
 
         try
         {
-            return Task.FromResult(
-                !_classicFileSystemConverter.TryConvertToRegularFolder(mapping.Local.RootFolderPath)
-                    ? MappingErrorCode.LocalFileSystemAccessFailed
-                    : MappingErrorCode.None);
+            if (!TryConvertToRegularFolder(mapping))
+            {
+                return MappingErrorCode.LocalFileSystemAccessFailed;
+            }
+
+            if (!TryDeleteSpecialSubfolders(mapping))
+            {
+                return MappingErrorCode.LocalFileSystemAccessFailed;
+            }
+
+            return MappingErrorCode.None;
         }
         finally
         {
-            TryProtectSharedWithMeItemsFolder(mapping);
+            TryProtectSharedWithMeRootFolder(mapping);
         }
     }
 
     private void TryUnprotectLocalFolder(RemoteToLocalMapping mapping)
     {
-        var folderPath = mapping.Local.RootFolderPath
+        var folderPath = mapping.Local.Path
             ?? throw new InvalidOperationException("Shared with me item path is not specified");
 
-        var sharedWithMeItemsFolderPath = Path.GetDirectoryName(folderPath)
-            ?? throw new InvalidOperationException("Shared with me items folder path cannot be obtained");
+        var sharedWithMeRootFolderPath = Path.GetDirectoryName(folderPath)
+            ?? throw new InvalidOperationException("Shared with me root folder path cannot be obtained");
 
-        _syncFolderProtector.Unprotect(sharedWithMeItemsFolderPath, FolderProtectionType.AncestorWithFiles);
-        _syncFolderProtector.Unprotect(folderPath, FolderProtectionType.Leaf);
+        _syncFolderProtector.UnprotectFolder(sharedWithMeRootFolderPath, FolderProtectionType.AncestorWithFiles);
+        _syncFolderProtector.UnprotectFolder(folderPath, FolderProtectionType.Leaf);
     }
 
-    private void TryProtectSharedWithMeItemsFolder(RemoteToLocalMapping mapping)
+    private void TryProtectSharedWithMeRootFolder(RemoteToLocalMapping mapping)
     {
-        var folderPath = mapping.Local.RootFolderPath
+        var folderPath = mapping.Local.Path
             ?? throw new InvalidOperationException("Shared with me item path is not specified");
 
-        var sharedWithMeItemsFolderPath = Path.GetDirectoryName(folderPath)
-            ?? throw new InvalidOperationException("Shared with me items folder path cannot be obtained");
+        var sharedWithMeRootFolderPath = Path.GetDirectoryName(folderPath)
+            ?? throw new InvalidOperationException("Shared with me root folder path cannot be obtained");
 
         // Folder might not exist, if mapping was deleted before creating local folder or if the user deleted the folder.
         // We ignore failure to protect parent folder.
-        _syncFolderProtector.Protect(sharedWithMeItemsFolderPath, FolderProtectionType.AncestorWithFiles);
+        _syncFolderProtector.ProtectFolder(sharedWithMeRootFolderPath, FolderProtectionType.AncestorWithFiles);
+    }
+
+    private bool TryDeleteSpecialSubfolders(RemoteToLocalMapping mapping)
+    {
+        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.Path);
+
+        return true;
+    }
+
+    private bool TryConvertToRegularFolder(RemoteToLocalMapping mapping)
+    {
+        return _placeholderConverter.TryConvertToRegularFolder(mapping.Local.Path, skipRoot: false);
     }
 }

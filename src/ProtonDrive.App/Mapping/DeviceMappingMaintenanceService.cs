@@ -10,6 +10,7 @@ using ProtonDrive.App.Devices;
 using ProtonDrive.App.Mapping.Setup;
 using ProtonDrive.App.Services;
 using ProtonDrive.App.Settings;
+using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.Shared.Logging;
 using ProtonDrive.Shared.Threading;
 
@@ -21,6 +22,7 @@ namespace ProtonDrive.App.Mapping;
 internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDeviceServiceStateAware, IDevicesAware, IMappingsAware
 {
     private readonly ISyncFolderPathProvider _syncFolderPathProvider;
+    private readonly ILocalFolderService _localFolderService;
     private readonly IMappingRegistry _mappingRegistry;
     private readonly ILogger<DeviceMappingMaintenanceService> _logger;
     private readonly CoalescingAction _mappingMaintenance;
@@ -32,10 +34,12 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
 
     public DeviceMappingMaintenanceService(
         ISyncFolderPathProvider syncFolderPathProvider,
+        ILocalFolderService localFolderService,
         IMappingRegistry mappingRegistry,
         ILogger<DeviceMappingMaintenanceService> logger)
     {
         _syncFolderPathProvider = syncFolderPathProvider;
+        _localFolderService = localFolderService;
         _mappingRegistry = mappingRegistry;
         _logger = logger;
 
@@ -98,8 +102,12 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
 
     internal Task WaitForCompletionAsync()
     {
-        // Wait for all scheduled tasks to complete
-        return _mappingMaintenance.CurrentTask;
+        return _mappingMaintenance.WaitForCompletionAsync();
+    }
+
+    private static string GetLocalName(RemoteToLocalMapping mapping)
+    {
+        return Path.GetFileName(mapping.Local.Path);
     }
 
     private static RemoteToLocalMapping CreateForeignDeviceMapping(Device device, string localFolderName, string foreignDevicesFolderPath)
@@ -110,14 +118,14 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
             SyncMethod = SyncMethod.OnDemand,
             Local =
             {
-                RootFolderPath = Path.Combine(foreignDevicesFolderPath, localFolderName),
+                Path = Path.Combine(foreignDevicesFolderPath, localFolderName),
             },
             Remote =
             {
                 VolumeId = device.DataItem.VolumeId,
                 ShareId = device.DataItem.ShareId,
                 RootLinkId = device.DataItem.LinkId,
-                RootFolderName = device.DataItem.Name,
+                RootItemName = device.DataItem.Name,
             },
         };
     }
@@ -177,13 +185,9 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
         }
         else if (cloudFilesMapping != null && !string.IsNullOrEmpty(foreignDevicesFolderPath))
         {
-            var uniqueLocalFolderNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var deviceMapping in actualDeviceMappings)
-            {
-                var folderName = Path.GetFileName(deviceMapping.Local.RootFolderPath);
-                uniqueLocalFolderNames.Add(folderName);
-            }
+            var namesInUse = actualDeviceMappings
+                .Select(GetLocalName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             var mappingsToKeep = new List<RemoteToLocalMapping>();
 
@@ -208,7 +212,7 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
                 }
                 else
                 {
-                    var uniqueFolderName = GetUniqueFolderName(device.Name);
+                    var uniqueFolderName = GetUniqueName(device.Name, namesInUse, foreignDevicesFolderPath);
 
                     mappings.Add(CreateForeignDeviceMapping(device, uniqueFolderName, foreignDevicesFolderPath));
                     numberOfAddedMappings++;
@@ -216,15 +220,6 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
             }
 
             deviceMappingsToKeep = mappingsToKeep.AsReadOnly();
-
-            string GetUniqueFolderName(string deviceName)
-            {
-                var nameGenerator = new NumberSuffixedNameGenerator(deviceName, NameType.Folder);
-                var uniqueFolderName = nameGenerator.GenerateNames().First(x => !uniqueLocalFolderNames.Contains(x));
-
-                uniqueLocalFolderNames.Add(uniqueFolderName);
-                return uniqueFolderName;
-            }
         }
 
         foreach (var mapping in previousDeviceMappings.Except(deviceMappingsToKeep))
@@ -248,5 +243,23 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
             "Finished maintaining foreign device mappings: {NumberOfAddedMapping} added, {NumberOfDeletedMappings} deleted",
             numberOfAddedMappings,
             numberOfDeletedMappings);
+    }
+
+    private string GetUniqueName(string name, HashSet<string> namesInUse, string parentPath)
+    {
+        var nameGenerator = new NumberSuffixedNameGenerator(name, NameType.Folder);
+
+        var uniqueName = nameGenerator.GenerateNames().First(
+            candidateName =>
+            {
+                var itemPath = Path.Combine(parentPath, candidateName);
+                return !namesInUse.Contains(candidateName)
+                    && !_localFolderService.FolderExists(itemPath)
+                    && !_localFolderService.FileExists(itemPath);
+            });
+
+        namesInUse.Add(uniqueName);
+
+        return uniqueName;
     }
 }

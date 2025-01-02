@@ -35,7 +35,7 @@ internal sealed record RemoteFile(
         { "application/vnd.proton.doc", ".protondoc" },
     }.AsReadOnly();
 
-    public long SizeOnStorage => Link.Size;
+    public long SizeOnStorage => Link.FileProperties?.ActiveRevision?.Size ?? 0;
     public long? PlainSize => ExtendedAttributes?.Common?.Size;
     public string MediaType => Link.MediaType ?? MediaTypeNames.Application.Octet;
     public ReadOnlyMemory<byte> ContentKeyPacket => Link.FileProperties!.ContentKeyPacket;

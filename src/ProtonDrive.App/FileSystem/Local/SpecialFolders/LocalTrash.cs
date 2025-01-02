@@ -71,8 +71,7 @@ internal sealed class LocalTrash<TId> : SpecialFolder<TId>, ILocalTrash<TId>, ID
 
     internal Task WaitForCompletionAsync()
     {
-        // Wait for all scheduled tasks to complete
-        return _emptyTrash.CurrentTask;
+        return _emptyTrash.WaitForCompletionAsync();
     }
 
     private async Task EmptyTrashInternal(CancellationToken cancellationToken)
@@ -83,8 +82,11 @@ internal sealed class LocalTrash<TId> : SpecialFolder<TId>, ILocalTrash<TId>, ID
 
             await foreach (var child in _fileSystemClient.Enumerate(trashFolder, cancellationToken))
             {
-                // Enumerate does not fill the Path
-                var node = child.Copy().WithPath(Path.Combine(trashFolder.Path, child.Name));
+                var node = child.Copy()
+                    /* Enumerate does not fill the Path */
+                    .WithPath(Path.Combine(trashFolder.Path, child.Name))
+                    /* Read-only attribute indicates to delete read-only files */
+                    .WithAttributes(child.Attributes | FileAttributes.ReadOnly);
 
                 await TryDeleteAsync(node, cancellationToken).ConfigureAwait(false);
             }

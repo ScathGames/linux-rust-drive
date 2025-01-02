@@ -7,6 +7,7 @@ namespace ProtonDrive.Sync.Shared.SyncActivity;
 public sealed record SyncActivityItem<TId>
 {
     public TId? Id { get; init; }
+    public int? RootId { get; init; }
     public Replica Replica { get; init; }
     public SyncActivitySource Source { get; init; }
     public SyncActivityItemStatus Status { get; init; }
@@ -16,6 +17,7 @@ public sealed record SyncActivityItem<TId>
     public string RelativeParentFolderPath { get; init; } = string.Empty;
     public string LocalRootPath { get; init; } = string.Empty;
     public long? Size { get; init; }
+    public SyncActivityStage Stage { get; init; }
     public FileSystemErrorCode ErrorCode { get; init; }
     public string? ErrorMessage { get; init; }
     public Progress Progress { get; init; } = Progress.Zero;

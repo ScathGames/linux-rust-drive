@@ -100,8 +100,8 @@ internal sealed class SyncedDevicesViewModel : PageViewModel, IDeviceServiceStat
         private set => SetProperty(ref _hostDevice, value);
     }
 
-    public ObservableCollection<DeviceViewModel> ForeignDevices { get; } = new();
-    public ObservableCollection<SyncedFolderViewModel> SyncedFolders { get; } = new();
+    public ObservableCollection<DeviceViewModel> ForeignDevices { get; } = [];
+    public ObservableCollection<SyncedFolderViewModel> SyncedFolders { get; } = [];
 
     public ICommand AddFoldersCommand { get; }
     public ICommand EditDeviceNameCommand => _editDeviceNameCommand;

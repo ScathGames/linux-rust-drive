@@ -45,11 +45,22 @@ internal sealed class SessionWorkflowViewModel : ObservableObject, ISessionState
 
     void ISessionStateAware.OnSessionStateChanged(SessionState value)
     {
-        ClearPasswords();
+        if (value.Status is not (SessionStatus.SigningIn or SessionStatus.Starting))
+        {
+            ClearPasswords();
+        }
 
         IsConnecting = value.SigningInStatus == SigningInStatus.Authenticating;
 
-        if (value.Status != SessionStatus.SigningIn)
+        CurrentStepViewModel.LastResponse = value.Response;
+
+        if (value.Status is SessionStatus.Ending)
+        {
+            CurrentStepViewModel = _credentialInputViewModel;
+            return;
+        }
+
+        if (value.Status is not SessionStatus.SigningIn)
         {
             return;
         }
@@ -61,11 +72,9 @@ internal sealed class SessionWorkflowViewModel : ObservableObject, ISessionState
             SigningInStatus.WaitingForDataPassword => _dataPasswordInputViewModel,
             _ => CurrentStepViewModel,
         };
-
-        CurrentStepViewModel.LastResponse = value.Response;
     }
 
-    public void Cancel()
+    public void CancelAuthentication()
     {
         _authenticationService.CancelAuthenticationAsync();
         ClearPasswords();

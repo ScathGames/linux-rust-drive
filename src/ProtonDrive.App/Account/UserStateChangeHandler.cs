@@ -23,9 +23,20 @@ internal sealed class UserStateChangeHandler
             return;
         }
 
-        if (events.User is not null || events.Organization is not null || events.Subscription is not null || events.UsedSpace is not null)
+        if (UpdateRequired())
         {
-            _userService.ApplyUpdate(events.User, events.Organization, events.Subscription, events.UsedSpace);
+            _userService.ApplyUpdate(events.User, events.Organization, events.Subscription, events.UsedSpace, events.DriveUsedSpace);
+        }
+
+        return;
+
+        bool UpdateRequired()
+        {
+            return events.User is not null
+                || events.Organization is not null
+                || events.Subscription is not null
+                || events.UsedSpace is not null
+                || events.DriveUsedSpace is not null;
         }
     }
 }

@@ -16,11 +16,14 @@ public sealed class User
     public string Name { get; set; } = string.Empty;
     public long UsedSpace { get; set; }
 
-    public long UsedDriveSpace
+    [JsonPropertyName("UsedDriveSpace")]
+    public long SplitStorageUsedSpace
     {
         get => _usedDriveSpace ?? UsedSpace;
         set => _usedDriveSpace = value;
     }
+
+    public ProductUsedSpace ProductUsedSpace { get; set; } = ProductUsedSpace.Empty;
 
     public long MaxSpace { get; set; }
 
@@ -53,7 +56,7 @@ public sealed class User
         set => _keys = value;
     }
 
-    public bool HasNoSubscription() => SubscriptionTier == 0; // Free user
-
     public bool IsDelinquent => DelinquentState is DelinquentState.Delinquent or DelinquentState.NotReceived;
+
+    public bool HasNoSubscription() => SubscriptionTier == 0; // Free user
 }

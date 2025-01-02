@@ -14,6 +14,7 @@ public sealed record SharedWithMeItem : IIdentifiable<string>
     public required string VolumeId { get; init; }
     public required bool IsFolder { get; init; }
     public string? InviterEmailAddress { get; init; }
+    public string? InviterDisplayName { get; init; }
     public required DateTime SharingTime { get; init; }
     public bool IsReadOnly { get; init; }
     public string? MemberId { get; init; }

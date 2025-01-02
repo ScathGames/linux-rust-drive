@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using Microsoft.Extensions.Logging;
+using System.Linq;
 using ProtonDrive.Sync.Shared.FileSystem;
 using ProtonDrive.Sync.Windows.FileSystem.Watcher;
 
@@ -12,17 +10,12 @@ namespace ProtonDrive.Sync.Windows.FileSystem.Client;
 
 public class EventLogClient : IRootableEventLogClient<long>
 {
-    private static readonly IReadOnlyCollection<EventLogEntry<long>> SkippedEventLogEntry = [new EventLogEntry<long>(EventLogChangeType.Skipped)];
+    private static readonly IReadOnlyCollection<EventLogEntry<long>> SkippedEventLogEntry = [new(EventLogChangeType.Skipped)];
 
-    private readonly IEventLogClientEntriesFilter _entriesFilter;
     private readonly FileSystemExtendedWatcher _watcher;
-    private readonly ConcurrentQueue<RenamedExtendedEventArgs> _eventArgsBuffer = new();
-    private readonly ILogger<EventLogClient> _logger;
 
-    public EventLogClient(IEventLogClientEntriesFilter entriesFilter, ILogger<EventLogClient> logger)
+    public EventLogClient()
     {
-        _logger = logger;
-        _entriesFilter = entriesFilter;
         _watcher = CreateWatcher();
     }
 
@@ -53,18 +46,6 @@ public class EventLogClient : IRootableEventLogClient<long>
         _watcher.EnableRaisingEvents = false;
     }
 
-    private static EventLogChangeType ToEventLogChangeType(WatcherChangeTypes value)
-    {
-        return value switch
-        {
-            WatcherChangeTypes.Created => EventLogChangeType.CreatedOrMovedTo,
-            WatcherChangeTypes.Changed => EventLogChangeType.Changed,
-            WatcherChangeTypes.Renamed => EventLogChangeType.Moved,
-            WatcherChangeTypes.Deleted => EventLogChangeType.DeletedOrMovedFrom,
-            _ => throw new InvalidEnumArgumentException(nameof(value), (int)value, typeof(WatcherChangeTypes)),
-        };
-    }
-
     private FileSystemExtendedWatcher CreateWatcher()
     {
         var watcher = new FileSystemExtendedWatcher
@@ -89,7 +70,7 @@ public class EventLogClient : IRootableEventLogClient<long>
         return watcher;
     }
 
-    private void Watcher_OnNextEvents(object sender, IReadOnlyCollection<RenamedExtendedEventArgs> eventArgsCollection)
+    private void Watcher_OnNextEvents(object sender, IReadOnlyCollection<RenamedExtendedEventArgs> e)
     {
         /* File or directory is created, changed or deleted in the directory being monitored.
         // File or directory is renamed within the directory being monitored. If file or directory
@@ -116,7 +97,7 @@ public class EventLogClient : IRootableEventLogClient<long>
 
         // On Windows the rename might be reported with null value in OldName or Name.*/
 
-        OnNextEntries(ToEventLogEntries(eventArgsCollection));
+        OnNextEntries(ToEventLogEntries(e));
     }
 
     private void Watcher_OnError(object sender, ErrorExtendedEventArgs e)
@@ -128,37 +109,23 @@ public class EventLogClient : IRootableEventLogClient<long>
         OnNextEntries(SkippedEventLogEntry);
     }
 
-    private ReadOnlyCollection<EventLogEntry<long>> ToEventLogEntries(IReadOnlyCollection<RenamedExtendedEventArgs> eventArgs)
+    private void OnNextEntries(IReadOnlyCollection<EventLogEntry<long>> entries)
     {
-        var result = new List<EventLogEntry<long>>(eventArgs.Count);
+        var eventArgs = new EventLogEntriesReceivedEventArgs<long>(entries);
+        LogEntriesReceived?.Invoke(this, eventArgs);
+    }
 
-        foreach (var entry in eventArgs)
-        {
-            var oldName = Path.GetFileName(entry.OldName);
-            var oldPath = entry.OldName is not null ? Path.Combine(entry.DirectoryPath, entry.OldName) : null;
-
-            if (_entriesFilter.EntryMustBeIgnored(entry.FullPath) && (oldPath is null || _entriesFilter.EntryMustBeIgnored(oldPath)))
-            {
-                continue;
-            }
-
-            result.Add(ToEventLogEntry(entry, oldName, oldPath));
-        }
+    public static IReadOnlyCollection<EventLogEntry<long>> ToEventLogEntries(IReadOnlyCollection<RenamedExtendedEventArgs> e)
+    {
+        var result = new List<EventLogEntry<long>>(e.Count);
+        result.AddRange(e.Select(ToEventLogEntry));
 
         return result.AsReadOnly();
     }
 
-    private EventLogEntry<long> ToEventLogEntry(RenamedExtendedEventArgs e, string? oldName, string? oldPath)
+    public static EventLogEntry<long> ToEventLogEntry(RenamedExtendedEventArgs e)
     {
-        var isFileRename = !e.Attributes.HasFlag(FileAttributes.Directory) && e.ChangeType is WatcherChangeTypes.Renamed;
-
-        var changeType = isFileRename
-            && oldPath is not null
-            && _entriesFilter.TryGetRenameEventReplacementChangeType(e.FullPath, oldPath, out var ct)
-                ? ct.Value
-                : e.ChangeType;
-
-        var result = new EventLogEntry<long>(ToEventLogChangeType(changeType))
+        return new EventLogEntry<long>(ToEventLogChangeType(e.ChangeType))
         {
             Name = Path.GetFileName(e.Name),
             Path = e.Name,
@@ -170,25 +137,17 @@ public class EventLogClient : IRootableEventLogClient<long>
             Size = e.FileSize,
             PlaceholderState = Internal.FileSystem.GetPlaceholderState(e.Attributes, e.ReparseTag),
         };
-
-        if (changeType != e.ChangeType)
-        {
-            _logger.LogDebug("Event replacement: {NewChangeType} (from {OldChangeType}) for file {FileId}", changeType, e.ChangeType, e.FileId);
-
-            result = changeType switch
-            {
-                WatcherChangeTypes.Created => result with { OldPath = default },
-                WatcherChangeTypes.Deleted => result with { Name = oldName, Path = e.OldName, },
-                _ => result,
-            };
-        }
-
-        return result;
     }
 
-    private void OnNextEntries(IReadOnlyCollection<EventLogEntry<long>> entries)
+    private static EventLogChangeType ToEventLogChangeType(WatcherChangeTypes value)
     {
-        var eventArgs = new EventLogEntriesReceivedEventArgs<long>(entries);
-        LogEntriesReceived?.Invoke(this, eventArgs);
+        return value switch
+        {
+            WatcherChangeTypes.Created => EventLogChangeType.CreatedOrMovedTo,
+            WatcherChangeTypes.Changed => EventLogChangeType.Changed,
+            WatcherChangeTypes.Renamed => EventLogChangeType.Moved,
+            WatcherChangeTypes.Deleted => EventLogChangeType.DeletedOrMovedFrom,
+            _ => throw new InvalidEnumArgumentException(nameof(value), (int)value, typeof(WatcherChangeTypes)),
+        };
     }
 }

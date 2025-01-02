@@ -99,7 +99,6 @@ internal sealed class RemoteSpaceCheckingFileSystemClientDecorator : FileSystemC
             {
                 ResponseCode.Timeout => FileSystemErrorCode.TimedOut,
                 ResponseCode.Offline => FileSystemErrorCode.Offline,
-                ResponseCode.RequestTimeout => FileSystemErrorCode.TimedOut,
                 _ => FileSystemErrorCode.Unknown,
             };
 

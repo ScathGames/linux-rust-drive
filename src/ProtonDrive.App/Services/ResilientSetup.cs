@@ -8,6 +8,7 @@ using ProtonDrive.App.Account;
 using ProtonDrive.App.Authentication;
 using ProtonDrive.App.Devices;
 using ProtonDrive.App.Mapping;
+using ProtonDrive.App.Settings.Remote;
 using ProtonDrive.App.Sync;
 using ProtonDrive.App.Volumes;
 using ProtonDrive.Shared;
@@ -20,7 +21,7 @@ using ProtonDrive.Sync.Shared.SyncActivity;
 namespace ProtonDrive.App.Services;
 
 internal class ResilientSetup
-    : ISessionStateAware, IAccountStateAware, IVolumeStateAware, IDeviceServiceStateAware, IMappingsSetupStateAware, ISyncStateAware, IOfflineStateAware,
+    : ISessionStateAware, IRemoteSettingsStateAware, IAccountStateAware, IVolumeStateAware, IDeviceServiceStateAware, IMappingsSetupStateAware, ISyncStateAware, IOfflineStateAware,
         IStoppableService, IDisposable
 {
     private readonly ILogger<ResilientSetup> _logger;
@@ -38,6 +39,7 @@ internal class ResilientSetup
         IScheduler scheduler,
         IClock clock,
         IStatefulSessionService sessionService,
+        IRemoteSettingsService settingsService,
         IAccountService accountService,
         IVolumeService volumeService,
         IDeviceService deviceService,
@@ -58,6 +60,7 @@ internal class ResilientSetup
         _services = new Dictionary<ServiceType, ServiceInfo>
         {
             { ServiceType.Session, new ServiceInfo(ServiceType.Session, () => sessionService.StartSessionAsync(), "Retrying session start") },
+            { ServiceType.RemoteSettings, new ServiceInfo(ServiceType.RemoteSettings, () => settingsService.SetUpAsync(), "Retrying remote settings setup") },
             { ServiceType.Account, new ServiceInfo(ServiceType.Account, () => accountService.SetUpAccountAsync(), "Retrying user account setup") },
             { ServiceType.Volume, new ServiceInfo(ServiceType.Volume, () => volumeService.GetActiveVolumeAsync(), "Retrying volume setup") },
             { ServiceType.Device, new ServiceInfo(ServiceType.Device, () => deviceService.SetUpDevicesAsync(), "Retrying device setup") },
@@ -69,6 +72,7 @@ internal class ResilientSetup
     private enum ServiceType
     {
         Session,
+        RemoteSettings,
         Account,
         Volume,
         Device,
@@ -93,6 +97,18 @@ internal class ResilientSetup
         };
 
         HandleServiceStateChange(ServiceType.Session, serviceStatus);
+    }
+
+    void IRemoteSettingsStateAware.OnRemoteSettingsStateChanged(RemoteSettingsStatus status)
+    {
+        var serviceStatus = status switch
+        {
+            RemoteSettingsStatus.Succeeded => ServiceStatus.Succeeded,
+            RemoteSettingsStatus.Failed => ServiceStatus.Failed,
+            _ => ServiceStatus.Other,
+        };
+
+        HandleServiceStateChange(ServiceType.RemoteSettings, serviceStatus);
     }
 
     void IAccountStateAware.OnAccountStateChanged(AccountState value)
@@ -176,7 +192,7 @@ internal class ResilientSetup
         _stopping = true;
         _handleDelay.Cancel();
 
-        await _handleDelay.CurrentTask.ConfigureAwait(false);
+        await _handleDelay.WaitForCompletionAsync().ConfigureAwait(false);
 
         _timer.Stop();
 

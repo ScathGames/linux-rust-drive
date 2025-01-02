@@ -18,6 +18,7 @@ public sealed class AppConfig
     public string AppDataPath { get; internal set; } = string.Empty;
     public string UserDataPath { get; internal set; } = string.Empty;
     public TimeSpan UserUpdateInterval { get; internal set; }
+    public TimeSpan OffersUpdateInterval { get; internal set; }
     public TimeSpan MinFailedSetupRetryInterval { get; internal set; }
     public TimeSpan MaxFailedSetupRetryInterval { get; internal set; }
     public TimeSpan FailedDataRetrievalRetryInterval { get; internal set; }
@@ -26,8 +27,11 @@ public sealed class AppConfig
     public TimeSpan MaxRemoteFileAccessRetryInterval { get; internal set; }
     public TimeSpan MaxFileRevisionCreationInterval { get; internal set; }
     public TimeSpan MinDelayBeforeFileUpload { get; set; }
+    public TimeSpan ContactsCacheInvalidationInterval { get; set; }
+    public TimeSpan ContactsCacheGraceInterval { get; set; }
 
     public TimeSpan PeriodicTelemetryReportInterval { get; internal set; }
+    public TimeSpan PeriodicObservabilityReportInterval { get; internal set; }
     public TimeSpan ActivityQueryInterval { get; internal set; }
 
     public bool TlsPinningEnabled { get; internal set; } = DefaultTlsPinningEnabled;

@@ -4,11 +4,11 @@ namespace ProtonDrive.Client.Contracts;
 
 public sealed record Plan
 {
-    public PlanType Type { get; init; }
+    public required PlanType Type { get; init; }
 
     [JsonPropertyName("Name")]
-    public string Code { get; init; } = string.Empty;
+    public required string? Code { get; init; }
 
     [JsonPropertyName("Title")]
-    public string DisplayName { get; init; } = string.Empty;
+    public string? DisplayName { get; init; }
 }

@@ -463,12 +463,16 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
                 nodeToMove.PassphraseSessionKey,
                 signatureAddress);
 
-            var (encryptedPassphrase, _, _) = passphraseEncrypter.EncryptShareOrNodeKeyPassphrase(nodeToMove.Passphrase);
+            var (encryptedPassphrase, signature, _) = passphraseEncrypter.EncryptShareOrNodeKeyPassphrase(nodeToMove.Passphrase);
+
+            var isSigningNodePassphraseRequired = nodeToMove.IsNodePassphraseSignedAnonymously;
 
             var parameters = new MoveLinkParameters
             {
                 ParentLinkId = destinationParentFolder.Id,
                 NodePassphrase = encryptedPassphrase,
+                NodePassphraseSignature = isSigningNodePassphraseRequired ? signature : default,
+                SignatureEmailAddress = isSigningNodePassphraseRequired ? signatureAddress.EmailAddress : default,
                 Name = name,
                 NameHash = nameHash,
                 NameSignatureEmailAddress = signatureAddress.EmailAddress,
@@ -506,6 +510,8 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
                 }
             }
         }
+
+        return;
 
         static string GetNodeMediaType(RemoteNode node) => node is RemoteFile file ? file.MediaType : string.Empty;
     }
@@ -628,18 +634,8 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
 
         try
         {
-            var response = await _fileApiClient.DeleteRevisionAsync(_shareId, remoteFile.Id, revisionId, cancellationToken)
+            await _fileApiClient.DeleteRevisionAsync(_shareId, remoteFile.Id, revisionId, cancellationToken)
                 .ThrowOnFailure().ConfigureAwait(false);
-
-            if (response == null)
-            {
-                throw new ApiException(ResponseCode.InvalidValue, "API request returned empty response");
-            }
-
-            if (!response.Succeeded)
-            {
-                throw new ApiException(response.Code, response.Error ?? "API request failed");
-            }
         }
         catch (Exception ex) when (ExceptionMapping.TryMapException(ex, remoteFile.Id, includeObjectId: false, out var mappedException))
         {

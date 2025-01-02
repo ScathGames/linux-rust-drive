@@ -20,8 +20,6 @@ public static class SchedulerExtensions
 
     public static Task<TResult> Schedule<TResult>(this IScheduler scheduler, Func<TResult> function, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         return scheduler.Schedule(() =>
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -33,20 +31,26 @@ public static class SchedulerExtensions
     [DebuggerStepThrough]
     public static Task Schedule(this IScheduler scheduler, Func<Task> action, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         return scheduler.Schedule<Void>(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await action().ConfigureAwait(false);
+            await action.Invoke().ConfigureAwait(false);
+            return default;
+        });
+    }
+
+    public static Task Schedule(this IScheduler scheduler, Func<CancellationToken, Task> action, CancellationToken cancellationToken = default)
+    {
+        return scheduler.Schedule<Void>(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await action.Invoke(cancellationToken).ConfigureAwait(false);
             return default;
         });
     }
 
     public static Task<TResult> Schedule<TResult>(this IScheduler scheduler, Func<Task<TResult>> function, CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         return scheduler.Schedule(() =>
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -54,6 +58,7 @@ public static class SchedulerExtensions
         });
     }
 
+    [DebuggerStepThrough]
     public static Task<IDisposable> LockAsync(this IScheduler scheduler, CancellationToken cancellationToken)
     {
         return AsyncLock.Acquire(scheduler, cancellationToken);

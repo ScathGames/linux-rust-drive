@@ -2,7 +2,7 @@
 
 namespace ProtonDrive.App.Settings;
 
-public class RemoteToLocalMapping
+public sealed class RemoteToLocalMapping
 {
     /// <summary>
     /// Automatically generated unique identity value.

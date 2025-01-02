@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Onboarding;
-using ProtonDrive.App.Windows.Toolkit.Threading;
 using ProtonDrive.App.Windows.Views.Main.Computers;
 
 namespace ProtonDrive.App.Windows.Views.Onboarding;
@@ -16,9 +15,7 @@ internal sealed class SyncFolderSelectionStepViewModel : OnboardingStepViewModel
 
     public SyncFolderSelectionStepViewModel(
         IOnboardingService onboardingService,
-        DispatcherScheduler scheduler,
         AddFoldersViewModel addFoldersViewModel)
-    : base(scheduler)
     {
         _onboardingService = onboardingService;
 
@@ -26,7 +23,6 @@ internal sealed class SyncFolderSelectionStepViewModel : OnboardingStepViewModel
         AddFoldersViewModel.PropertyChanged += OnFolderSelectionChanged;
 
         ContinueCommand = new AsyncRelayCommand(ContinueAsync, CanContinue);
-        ContinueCommand.PropertyChanged += OnAsyncRelayCommandPropertyChanged;
     }
 
     public AddFoldersViewModel AddFoldersViewModel { get; }
@@ -39,25 +35,12 @@ internal sealed class SyncFolderSelectionStepViewModel : OnboardingStepViewModel
         set => SetProperty(ref _isSaving, value);
     }
 
-    protected override void Activate()
+    public override void Activate()
     {
+        base.Activate();
+
         AddFoldersViewModel.InitializeSelection();
-        IsActive = true;
-        IsSaving = false;
         ContinueCommand.NotifyCanExecuteChanged();
-    }
-
-    protected override bool SkipActivation()
-    {
-        return _onboardingService.IsSyncFolderSelectionCompleted();
-    }
-
-    private static void OnAsyncRelayCommandPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (sender is AsyncRelayCommand command && e.PropertyName == nameof(AsyncRelayCommand.IsRunning))
-        {
-            command.NotifyCanExecuteChanged();
-        }
     }
 
     private void OnFolderSelectionChanged(object? sender, PropertyChangedEventArgs e)
@@ -71,7 +54,6 @@ internal sealed class SyncFolderSelectionStepViewModel : OnboardingStepViewModel
     private bool CanContinue()
     {
         return IsActive
-               && !ContinueCommand.IsRunning
                && AddFoldersViewModel.FolderValidationResult is SyncFolderValidationResult.Succeeded;
     }
 
@@ -79,12 +61,17 @@ internal sealed class SyncFolderSelectionStepViewModel : OnboardingStepViewModel
     {
         IsSaving = true;
 
-        AddFoldersViewModel.SaveCommand.Execute(default);
+        try
+        {
+            await DelayBeforeSwitchingStepAsync().ConfigureAwait(true);
 
-        _onboardingService.SetSyncFolderSelectionCompleted();
+            await AddFoldersViewModel.SaveCommand.ExecuteAsync(default).ConfigureAwait(false);
 
-        await Task.Delay(DelayBeforeSwitchingStep).ConfigureAwait(true);
-
-        IsActive = false;
+            _onboardingService.CompleteStep(OnboardingStep.SyncFolderSelection);
+        }
+        finally
+        {
+            IsSaving = false;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using ProtonDrive.Client.Contracts;
 
@@ -33,15 +34,29 @@ public sealed record UserState
     public string? SubscriptionPlanDisplayName { get; init; }
 
     /// <summary>
+    /// Coupon code used for buying subscription plan.
+    /// </summary>
+    public string? SubscriptionPlanCouponCode { get; init; }
+
+    /// <summary>
+    /// Date and time of last subscription cancellation, if any.
+    /// </summary>
+    public DateTime? LatestSubscriptionCancellationTimeUtc { get; init; }
+
+    /// <summary>
     /// Organization name of the managed user account.
     /// <remarks>
-    /// The null value indicates that the account is a unmanaged account.</remarks>
+    /// The null value indicates that the account is an unmanaged account.</remarks>
     /// </summary>
     public string? OrganizationDisplayName { get; init; }
+
+    public bool CanBuySubscription { get; init; }
 
     public bool IsDelinquent { get; init; }
 
     public long UsedSpace { get; init; }
+
+    public long UsedDriveSpace { get; init; }
 
     public long MaxSpace { get; init; }
 

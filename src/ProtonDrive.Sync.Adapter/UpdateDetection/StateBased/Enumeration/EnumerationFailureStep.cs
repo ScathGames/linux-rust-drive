@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Sync.Adapter.Trees.Adapter;
@@ -15,6 +17,10 @@ internal class EnumerationFailureStep<TId, TAltId>
     private readonly ILogger<EnumerationFailureStep<TId, TAltId>> _logger;
     private readonly AdapterTree<TId, TAltId> _adapterTree;
 
+    private readonly IEqualityComparer<FileSystemNodeModel<TId>> _linkEqualityComparer = new FileSystemNodeModelLinkEqualityComparer<TId>();
+    private readonly IEqualityComparer<FileSystemNodeModel<TId>> _attributesEqualityComparer = new FileSystemNodeModelAttributesEqualityComparer<TId>();
+    private readonly AdapterTreeNodeModelMetadataEqualityComparer<TId, TAltId> _metadataEqualityComparer = new();
+
     public EnumerationFailureStep(
         ILogger<EnumerationFailureStep<TId, TAltId>> logger,
         AdapterTree<TId, TAltId> adapterTree)
@@ -23,14 +29,34 @@ internal class EnumerationFailureStep<TId, TAltId>
         _adapterTree = adapterTree;
     }
 
-    public void Execute(Exception exception, AdapterTreeNode<TId, TAltId> node)
+    public void Execute(Exception exception, AdapterTreeNodeModel<TId, TAltId> initialNodeModel)
     {
         if (exception is not FileSystemClientException<TAltId> clientException)
         {
             throw new InvalidOperationException("Unexpected exception", exception);
         }
 
-        EscapeIfDeleted(node);
+        var node = _adapterTree.NodeByIdOrDefault(initialNodeModel.Id);
+        if (node is null)
+        {
+            // Tree node has been deleted
+            Escape();
+        }
+
+        if (node.IsNodeOrBranchDeleted() ||
+            (!node.Model.IsDirtyPlaceholder() && node.IsBranchDirty()))
+        {
+            // Branch has diverged
+            return;
+        }
+
+        if (!_linkEqualityComparer.Equals(node.Model, initialNodeModel) ||
+            !_attributesEqualityComparer.Equals(node.Model, initialNodeModel) ||
+            !_metadataEqualityComparer.FileMetadataEquals(node.Model, initialNodeModel))
+        {
+            // Node has diverged
+            return;
+        }
 
         var id = clientException.ObjectId;
 
@@ -58,7 +84,7 @@ internal class EnumerationFailureStep<TId, TAltId>
                         break;
                     }
 
-                    // Marking grand parent directory with DirtyChildren flag, then the state-based
+                    // Marking grandparent directory with DirtyChildren flag, then the state-based
                     // update detection will enumerate the changes.
                     AppendDirtyFlags(failedNode.Parent!.Parent!, AdapterNodeStatus.DirtyChildren);
 
@@ -120,23 +146,16 @@ internal class EnumerationFailureStep<TId, TAltId>
                         break;
                     }
 
-                    // Marking parent directory with DirtyChildren flag, then the state-based
-                    // update detection will enumerate the changes.
-                    AppendDirtyFlags(failedNode.Parent!, AdapterNodeStatus.DirtyChildren);
+                    // Marking node with DirtyDeleted flag, then the state-based update detection will detect deletion
+                    AppendDirtyFlags(failedNode, AdapterNodeStatus.DirtyDeleted);
+
+                    // Marking parent directory with DirtyAttributes flag, then the state-based
+                    // update detection will check if folder still exists.
+                    AppendDirtyFlags(failedNode.Parent!, AdapterNodeStatus.DirtyAttributes);
 
                     break;
 
-                // The file system object is in use.
-                // On Windows local file systems might be randomly thrown when the file system is under high load.
-                case FileSystemErrorCode.SharingViolation:
-                    /* Nothing to update on the Adapter Tree */
-
-                    break;
-
-                case FileSystemErrorCode.UnauthorizedAccess:
-                    /* Nothing to update on the Adapter Tree */
-
-                    break;
+                /* Nothing to update on the Adapter Tree */
             }
         }
 
@@ -156,15 +175,8 @@ internal class EnumerationFailureStep<TId, TAltId>
         }
     }
 
-    private void EscapeIfDeleted(AdapterTreeNode<TId, TAltId> node)
-    {
-        if (node.IsDeleted)
-        {
-            Escape();
-        }
-    }
-
-    private void Escape()
+    [DoesNotReturn]
+    private static void Escape()
     {
         throw new EscapeException();
     }

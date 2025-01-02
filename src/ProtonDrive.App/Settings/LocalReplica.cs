@@ -1,9 +1,14 @@
-﻿namespace ProtonDrive.App.Settings;
+﻿using System.Text.Json.Serialization;
 
-public class LocalReplica
+namespace ProtonDrive.App.Settings;
+
+public sealed class LocalReplica
 {
     public int VolumeSerialNumber { get; set; }
-    public string RootFolderPath { get; set; } = string.Empty;
+
+    [JsonPropertyName("RootFolderPath")]
+    public string Path { get; set; } = string.Empty;
+
     public long RootFolderId { get; set; }
 
     /// <summary>

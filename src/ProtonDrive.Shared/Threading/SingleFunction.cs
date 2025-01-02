@@ -23,11 +23,9 @@ public class SingleFunction<TResult>
         _function = function;
     }
 
-    public Task<TResult?> CurrentTask => _task;
-
     public virtual Task<TResult?> RunAsync(CancellationToken cancellationToken)
     {
-        var initialCurrentTask = CurrentTask;
+        var initialCurrentTask = _task;
         if (!initialCurrentTask.IsCompleted)
         {
             return initialCurrentTask;
@@ -50,5 +48,21 @@ public class SingleFunction<TResult>
         Task.Run(() => taskCompletion.Wrap(() => _function(cancellationToken)), CancellationToken.None);
 
         return newTask;
+    }
+
+    /// <summary>
+    /// Waits for processing current work to be completed.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> that completes successfully when processing current work completes.</returns>
+    public async Task WaitForCompletionAsync()
+    {
+        try
+        {
+            await _task.ConfigureAwait(false);
+        }
+        catch
+        {
+            // Ignore
+        }
     }
 }

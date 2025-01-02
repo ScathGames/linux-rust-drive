@@ -1,4 +1,6 @@
-﻿namespace ProtonDrive.App.Notifications;
+﻿using System;
+
+namespace ProtonDrive.App.Notifications;
 
 public static class NotificationExtensions
 {
@@ -26,6 +28,27 @@ public static class NotificationExtensions
     public static Notification SetText(this Notification notification, string text)
     {
         notification.Text = text;
+
+        return notification;
+    }
+
+    public static Notification SetLogoImage(this Notification notification, string imageUrl)
+    {
+        notification.LogoImageUrl = imageUrl;
+
+        return notification;
+    }
+
+    public static Notification SetExpirationTime(this Notification notification, DateTimeOffset? expirationTime)
+    {
+        notification.ExpirationTime = expirationTime;
+
+        return notification;
+    }
+
+    public static Notification SuppressPopup(this Notification notification)
+    {
+        notification.SuppressPopup = true;
 
         return notification;
     }

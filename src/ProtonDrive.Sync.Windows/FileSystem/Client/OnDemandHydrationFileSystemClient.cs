@@ -15,7 +15,7 @@ using static Vanara.PInvoke.CldApi;
 
 namespace ProtonDrive.Sync.Windows.FileSystem.Client;
 
-public sealed class OnDemandHydrationFileSystemClient : IFileSystemClient<long>
+public sealed class OnDemandHydrationFileSystemClient : BaseFileSystemClient, IFileSystemClient<long>
 {
     private static readonly EnumerationOptions EnumerationOptions = new()
     {
@@ -187,7 +187,7 @@ public sealed class OnDemandHydrationFileSystemClient : IFileSystemClient<long>
         {
             var result = new OnDemandFileCreationProcess(info, parentDirectory);
 
-            return Task.FromResult((IRevisionCreationProcess<long>)result);
+            return Task.FromResult<IRevisionCreationProcess<long>>(result);
         }
         catch
         {
@@ -239,19 +239,27 @@ public sealed class OnDemandHydrationFileSystemClient : IFileSystemClient<long>
         var backup = info.Attributes.HasFlag(FileAttributes.Archive);
         info = info.Copy().WithAttributes(info.Attributes & ~FileAttributes.Archive);
 
-        // Makes it fail early if the file cannot be opened.
+        // Read-only attribute indicates a request to overwrite a read-only file
+        var overwriteReadOnly = info.Attributes.HasFlag(FileAttributes.ReadOnly);
+
+        // Makes it fail early if the file cannot be opened for writing data.
+        // If overwriting a read-only file, we do not attempt to open file for writing data, as it would fail.
         var file = info.OpenAsFile(
             FileMode.Open,
-            backup ? FileSystemFileAccess.Delete : FileSystemFileAccess.WriteAttributes | FileSystemFileAccess.WriteData,
+            (backup ? FileSystemFileAccess.Delete : FileSystemFileAccess.WriteAttributes) | (overwriteReadOnly ? default : FileSystemFileAccess.WriteData),
             backup ? FileShare.Delete : FileShare.None);
 
         try
         {
             file.ThrowIfMetadataMismatch(info);
 
+            // We preserve original file attributes but also apply requested ones
+            var newAttributes = file.Attributes | info.Attributes;
+
             var newInfo = info.Copy()
                 .WithSize(size)
-                .WithLastWriteTimeUtc(lastWriteTime);
+                .WithLastWriteTimeUtc(lastWriteTime)
+                .WithAttributes(newAttributes);
 
             var placeholderState = file.GetPlaceholderState().ThrowIfInvalid();
 
@@ -266,8 +274,7 @@ public sealed class OnDemandHydrationFileSystemClient : IFileSystemClient<long>
 
             if (isHydrationRequired)
             {
-                var fileAttributes = file.Attributes;
-                var tempInfo = info.Copy().WithAttributes(fileAttributes).ToTempFileInfo(tempFileName);
+                var tempInfo = info.Copy().WithAttributes(newAttributes).ToTempFileInfo(tempFileName);
 
                 var tempFile = tempInfo.CreateTemporaryFile(file);
 
@@ -279,7 +286,7 @@ public sealed class OnDemandHydrationFileSystemClient : IFileSystemClient<long>
                         tempFile,
                         info,
                         fileInfo,
-                        fileInfo.Copy().WithName(info.Name).WithPath(info.Path).WithAttributes(fileAttributes).WithLastWriteTimeUtc(lastWriteTime),
+                        fileInfo.Copy().WithName(info.Name).WithPath(info.Path).WithAttributes(newAttributes).WithLastWriteTimeUtc(lastWriteTime),
                         progressCallback);
 
                     file.Dispose();
@@ -342,36 +349,6 @@ public sealed class OnDemandHydrationFileSystemClient : IFileSystemClient<long>
         return Task.CompletedTask;
     }
 
-    public Task Delete(NodeInfo<long> info, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        // We cancel awaiting to move to the Recycle Bin, but the request continues
-        return Delete(info, (path, ct) => RecycleBin.MoveToRecycleBinAsync(path).WaitAsync(ct), cancellationToken);
-    }
-
-    public Task DeletePermanently(NodeInfo<long> info, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return Delete(
-            info,
-            (path, _) =>
-            {
-                if (info.IsFile())
-                {
-                    File.Delete(path);
-                }
-                else
-                {
-                    Directory.Delete(path, true);
-                }
-
-                return Task.CompletedTask;
-            },
-            cancellationToken);
-    }
-
     public Task DeleteRevision(NodeInfo<long> info, CancellationToken cancellationToken)
     {
         throw new NotSupportedException();
@@ -421,32 +398,6 @@ public sealed class OnDemandHydrationFileSystemClient : IFileSystemClient<long>
             return Task.CompletedTask;
         }
         catch (Exception ex) when (ExceptionMapping.TryMapException(ex, file.ObjectId, includeObjectId: false, out var mappedException))
-        {
-            throw mappedException;
-        }
-    }
-
-    private async Task Delete(
-        NodeInfo<long> info,
-        Func<string, CancellationToken, Task> deletionFunction,
-        CancellationToken cancellationToken)
-    {
-        Ensure.NotNullOrEmpty(info.Path, nameof(info), nameof(info.Path));
-
-        string path;
-        using (var fsObject = info.Open(FileSystemFileAccess.ReadAttributes, FileShare.Read | FileShare.Delete))
-        {
-            fsObject.ThrowIfMetadataMismatch(info);
-            path = fsObject.FullPath;
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        try
-        {
-            await deletionFunction.Invoke(path, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ExceptionMapping.TryMapException(ex, info.Id, out var mappedException))
         {
             throw mappedException;
         }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using ProtonDrive.Shared;
+using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.IO;
 using ProtonDrive.Sync.Shared.FileSystem;
 
@@ -104,10 +105,12 @@ internal class ClassicRevisionCreationProcess : IRevisionCreationProcess<long>
 
             if (_initialInfo != null)
             {
-                // Open and check the original file to ensure it exists and has not diverged metadata
+                var overwritingReadOnly = _finalInfo.Attributes.HasFlag(FileAttributes.ReadOnly);
+
+                // Open and check the original file to ensure it exists, is writable (unless overwriting read-only), and has not diverged metadata
                 using var originalFile = _initialInfo.OpenAsFile(
                     FileMode.Open,
-                    FileSystemFileAccess.ReadAttributes | FileSystemFileAccess.Delete,
+                    FileSystemFileAccess.ReadAttributes | FileSystemFileAccess.WriteAttributes | FileSystemFileAccess.Delete | (overwritingReadOnly ? default : FileSystemFileAccess.WriteData),
                     FileShare.Read | FileShare.Delete);
 
                 originalFile.ThrowIfMetadataMismatch(_initialInfo);
@@ -121,6 +124,11 @@ internal class ClassicRevisionCreationProcess : IRevisionCreationProcess<long>
                     var newName = BackupInfo.GetNameAndThrowIfInvalid();
 
                     originalFile.Rename(newName, includeObjectId: true);
+                }
+                else if (overwritingReadOnly)
+                {
+                    // Remove read-only attribute of the original file, as otherwise replacing the file would fail
+                    originalFile.SetAttributes(_initialInfo.Copy().WithAttributes(originalFile.Attributes & ~FileAttributes.ReadOnly));
                 }
             }
 

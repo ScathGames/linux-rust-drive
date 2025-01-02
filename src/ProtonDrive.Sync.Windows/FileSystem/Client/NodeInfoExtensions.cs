@@ -103,9 +103,39 @@ internal static class NodeInfoExtensions
                 throw;
             }
         }
+        catch (UnauthorizedAccessException) when (IsOpeningExistingFileForWriting() && IsFileReadOnly())
+        {
+            // We provide specific error code when opening the file failed due to the file being read-only
+            throw new FileSystemClientException<long>("File is read-only", FileSystemErrorCode.ReadOnlyFile, info.Id, innerException: null);
+        }
         catch (Exception ex) when (ExceptionMapping.TryMapException(ex, info.Id, out var mappedException))
         {
             throw mappedException;
+        }
+
+        bool IsOpeningExistingFileForWriting()
+        {
+            return
+                mode is FileMode.Open or FileMode.OpenOrCreate or FileMode.Truncate or FileMode.Append &&
+                (access.HasFlag(FileSystemFileAccess.WriteData) ||
+                    access.HasFlag(FileSystemFileAccess.AppendData) ||
+                    access.HasFlag(FileSystemFileAccess.Write));
+        }
+
+        bool IsFileReadOnly()
+        {
+            try
+            {
+                using var file = FileSystemFile.Open(info.Path, mode, FileSystemFileAccess.ReadAttributes, FileShare.ReadWrite | FileShare.Delete);
+
+                file.ThrowIfIdentityMismatch(info.Id);
+
+                return file.Attributes.HasFlag(FileAttributes.ReadOnly);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 

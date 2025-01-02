@@ -7,9 +7,9 @@ namespace ProtonDrive.Client.Contracts;
 public sealed class FileProperties
 {
     [JsonConverter(typeof(Base64JsonConverter))]
-    public ReadOnlyMemory<byte> ContentKeyPacket { get; set; }
+    public ReadOnlyMemory<byte> ContentKeyPacket { get; init; }
 
-    public string? ContentKeyPacketSignature { get; set; }
+    public string? ContentKeyPacketSignature { get; init; }
 
-    public RevisionHeader? ActiveRevision { get; set; }
+    public RevisionHeader? ActiveRevision { get; init; }
 }

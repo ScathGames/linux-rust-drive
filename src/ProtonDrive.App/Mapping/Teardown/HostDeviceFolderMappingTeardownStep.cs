@@ -43,7 +43,7 @@ internal sealed class HostDeviceFolderMappingTeardownStep
 
     private MappingErrorCode? DeleteSpecialSubfolders(RemoteToLocalMapping mapping)
     {
-        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.RootFolderPath);
+        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.Path);
 
         return default;
     }

@@ -67,8 +67,7 @@ internal sealed class SyncedStateHandler<TId, TAltId>
 
     internal Task WaitForCompletionAsync()
     {
-        // Wait for all scheduled tasks to complete
-        return _updatesHandling.CurrentTask;
+        return _updatesHandling.WaitForCompletionAsync();
     }
 
     private Task HandleSyncedUpdatesAsync(CancellationToken cancellationToken)

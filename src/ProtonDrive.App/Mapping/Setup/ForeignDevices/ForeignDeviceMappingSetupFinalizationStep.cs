@@ -43,14 +43,14 @@ internal sealed class ForeignDeviceMappingSetupFinalizationStep
 
     private bool TryProtectLocalFolders(RemoteToLocalMapping mapping)
     {
-        var foreignDeviceFolderPath = mapping.Local.RootFolderPath
+        var foreignDeviceFolderPath = mapping.Local.Path
                                       ?? throw new InvalidOperationException("Foreign device folder path is not specified");
 
         var foreignDevicesFolderPath = Path.GetDirectoryName(foreignDeviceFolderPath)
                                        ?? throw new InvalidOperationException("Foreign devices folder path cannot be obtained");
 
-        return _syncFolderProtector.Protect(foreignDevicesFolderPath, FolderProtectionType.Ancestor) &&
-               _syncFolderProtector.Protect(foreignDeviceFolderPath, FolderProtectionType.Leaf);
+        return _syncFolderProtector.ProtectFolder(foreignDevicesFolderPath, FolderProtectionType.Ancestor) &&
+               _syncFolderProtector.ProtectFolder(foreignDeviceFolderPath, FolderProtectionType.Leaf);
     }
 
     private async Task<bool> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
@@ -60,7 +60,7 @@ internal sealed class ForeignDeviceMappingSetupFinalizationStep
             return true;
         }
 
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.RootFolderPath, RootId: mapping.Id.ToString(), ShellFolderVisibility.Hidden);
+        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Hidden);
 
         return await _onDemandSyncRootRegistry.TryRegisterAsync(root).ConfigureAwait(false);
     }

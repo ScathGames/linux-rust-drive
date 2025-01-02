@@ -64,14 +64,6 @@
 
         <Style.Triggers>
             <DataTrigger
-                Binding="{Binding IsOnboarding}"
-                Value="True">
-                <Setter Property="ResizeMode" Value="NoResize" />
-                <Setter Property="SizeToContent" Value="WidthAndHeight" />
-                <Setter Property="MinWidth" Value="620" />
-            </DataTrigger>
-
-            <DataTrigger
                 Binding="{Binding DetailsPages.CurrentPage, Converter={x:Static converters:ObjectEqualityToBooleanConverter.EqualIsTrue}, ConverterParameter={x:Null}}"
                 Value="False">
                 <Setter Property="TitleBarLeftPartTemplate" Value="{x:Null}" />
@@ -110,5 +102,17 @@
         <Setter Property="ActiveTitleBarBackground" Value="{StaticResource Titlebar.Background}" />
         <Setter Property="ActiveTitleBarForeground" Value="{StaticResource Text.DarkTheme.Brush}" />
         <Setter Property="Background" Value="{StaticResource Titlebar.Background}" />
+    </Style>
+
+    <Style
+        x:Key="OnboardingWindow.DarkTheme.Style"
+        TargetType="{x:Type windows:CustomChromeWindow}"
+        BasedOn="{StaticResource Window.DarkTheme.Style}">
+        <Setter Property="ActiveTitleBarBackground" Value="{StaticResource Titlebar.SignIn.Background}" />
+        <Setter Property="Background" Value="{StaticResource OnboardingWindow.DarkTheme.Background}" />
+        <Setter Property="ResizeMode" Value="NoResize" />
+        <Setter Property="SizeToContent" Value="WidthAndHeight" />
+        <Setter Property="Width" Value="620" />
+        <Setter Property="MinWidth" Value="620" />
     </Style>
 </ResourceDictionary>

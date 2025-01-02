@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -10,12 +11,18 @@ using Microsoft.Extensions.Logging;
 using Proton.Security;
 using ProtonDrive.BlockVerification;
 using ProtonDrive.Client.Authentication;
+using ProtonDrive.Client.Authentication.Sessions;
 using ProtonDrive.Client.BugReport;
+using ProtonDrive.Client.Contacts;
 using ProtonDrive.Client.Core.Events;
 using ProtonDrive.Client.Cryptography;
 using ProtonDrive.Client.Devices;
 using ProtonDrive.Client.Features;
 using ProtonDrive.Client.FileUploading;
+using ProtonDrive.Client.Instrumentation.Observability;
+using ProtonDrive.Client.Instrumentation.Telemetry;
+using ProtonDrive.Client.Notifications;
+using ProtonDrive.Client.Notifications.Contracts;
 using ProtonDrive.Client.Offline;
 using ProtonDrive.Client.RemoteNodes;
 using ProtonDrive.Client.Repository;
@@ -24,10 +31,10 @@ using ProtonDrive.Client.Settings;
 using ProtonDrive.Client.Shares;
 using ProtonDrive.Client.Shares.Events;
 using ProtonDrive.Client.Shares.SharedWithMe;
-using ProtonDrive.Client.Telemetry;
 using ProtonDrive.Client.TlsPinning.Reporting;
 using ProtonDrive.Client.Volumes;
 using ProtonDrive.Client.Volumes.Events;
+using ProtonDrive.Shared.Configuration;
 using ProtonDrive.Shared.Devices;
 using ProtonDrive.Shared.Net.Http.TlsPinning;
 using ProtonDrive.Shared.Offline;
@@ -46,6 +53,7 @@ public static class ApiClientConfigurator
     public static readonly string DriveHttpClientName = "Drive";
     public static readonly string FeatureHttpClientName = "Feature";
     public static readonly string DocsHttpClientName = "Docs";
+    public static readonly string ContactsHttpClientName = "Contacts";
     public static readonly string FileRevisionUpdateHttpClientName = "FileRevisionUpdate";
     public static readonly string BlocksHttpClientName = "Blocks";
     public static readonly string PaymentsHttpClientName = "Payments";
@@ -95,11 +103,13 @@ public static class ApiClientConfigurator
         services.AddSingleton<IScheduler, ThreadPoolScheduler>();
         services.AddSingleton<CookieContainer>();
 
-        services.AddSingleton<SessionService>();
-        services.AddSingleton<ISessionService>(sp => sp.GetRequiredService<SessionService>());
-        services.AddSingleton<ISessionProvider>(sp => sp.GetRequiredService<SessionService>());
-        services.AddSingleton(sp => new Lazy<ISessionService>(sp.GetRequiredService<ISessionService>));
+        services.AddSingleton<AuthenticationService>();
+        services.AddSingleton<IAuthenticationService>(sp => sp.GetRequiredService<AuthenticationService>());
+        services.AddSingleton<ISessionProvider>(sp => sp.GetRequiredService<AuthenticationService>());
+        services.AddSingleton(sp => new Lazy<IAuthenticationService>(sp.GetRequiredService<IAuthenticationService>));
         services.AddSingleton(sp => new Lazy<ISessionProvider>(sp.GetRequiredService<ISessionProvider>));
+
+        services.AddSingleton<ISessionClient, SessionClient>();
 
         services.AddSingleton<ServerTimeCache>();
         services.AddSingleton<IServerTimeProvider>(sp => sp.GetRequiredService<ServerTimeCache>());
@@ -143,10 +153,12 @@ public static class ApiClientConfigurator
         services.AddSingleton<IVolumeClient, VolumeClient>();
         services.AddSingleton<IDeviceCreationParametersFactory, DeviceCreationParametersFactory>();
         services.AddSingleton<IDeviceClient, DeviceClient>();
+        services.AddSingleton<IContactService, ContactService>();
         services.AddSingleton<ISharedWithMeClient, SharedWithMeClient>();
 
         services.AddApiHttpClients(AuthHttpClientName, locale, GetAuthBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
             .AddApiClient<IAuthenticationApiClient>()
+            .AddApiClient<IAuthenticationSessionApiClient>()
             ;
 
         services.AddApiHttpClients(PaymentsHttpClientName, locale, GetPaymentsBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
@@ -209,6 +221,16 @@ public static class ApiClientConfigurator
             ;
 
         services.AddApiHttpClients(
+                ContactsHttpClientName + NonCriticalHttpClientNameSuffix,
+                locale,
+                GetContactsBaseAddress,
+                numberOfRetriesSelector: _ => 0,
+                GetDefaultTimeout,
+                useOfflinePolicy: false)
+            .AddApiClient<IContactApiClient>()
+            ;
+
+        services.AddApiHttpClients(
                 DataHttpClientName + NonCriticalHttpClientNameSuffix,
                 locale,
                 GetDataBaseAddress,
@@ -216,6 +238,7 @@ public static class ApiClientConfigurator
                 GetDefaultTimeout,
                 useOfflinePolicy: false)
             .AddApiClient<ITelemetryApiClient>()
+            .AddApiClient<IObservabilityApiClient>()
             ;
 
         services.AddSingleton<IAddressKeyProvider, AddressKeyProvider>();
@@ -236,11 +259,24 @@ public static class ApiClientConfigurator
         services.AddSingleton<ShareEventClient>();
         services.AddSingleton<IShareEventClient>(provider => provider.GetRequiredService<ShareEventClient>());
 
+        services.AddSingleton(
+            provider =>
+            {
+                var appConfig = provider.GetRequiredService<AppConfig>();
+                var filePath = Path.Combine(appConfig.AppFolderPath, "Resources\\Notifications", "Notifications.json");
+
+                return provider.GetRequiredService<IRepositoryFactory>()
+                    .GetCachingCollectionRepository<Notification>(filePath);
+            });
+
+        services.AddSingleton<INotificationClient, NotificationClient>();
+
         return services;
 
         static Uri GetAuthBaseAddress(DriveApiConfig config) => EnsureEndsWithSlash(config.AuthBaseUrl, "Missing Auth base URL.");
         static Uri GetCoreBaseAddress(DriveApiConfig config) => EnsureEndsWithSlash(config.CoreBaseUrl, "Missing Core base URL.");
         static Uri GetFeatureBaseAddress(DriveApiConfig config) => EnsureEndsWithSlash(config.FeatureBaseUrl, "Missing Feature base URL.");
+        static Uri GetContactsBaseAddress(DriveApiConfig config) => EnsureEndsWithSlash(config.ContactsBaseUrl, "Missing Contacts base URL.");
         static Uri GetDataBaseAddress(DriveApiConfig config) => EnsureEndsWithSlash(config.DataBaseUrl, "Missing Data base URL.");
         static Uri GetDriveBaseAddress(DriveApiConfig config) => EnsureEndsWithSlash(config.DriveBaseUrl, "Missing Drive base URL.");
         static Uri GetPaymentsBaseAddress(DriveApiConfig config) => EnsureEndsWithSlash(config.PaymentsBaseUrl, "Missing Payments base URL.");

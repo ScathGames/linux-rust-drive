@@ -38,6 +38,7 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
     private bool _isInitializingForTheFirstTime;
     private bool _isNewSession;
     private bool _isDisplayingDetails;
+    private int _latestSyncPassNumber;
 
     public SyncStateViewModel(
         ISyncService syncService,
@@ -127,6 +128,17 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
                 _isNewSession = false;
                 _syncActivityItems.Clear();
             }
+
+            switch (value.Status)
+            {
+                case SyncStatus.Synchronizing:
+                    ++_latestSyncPassNumber;
+                    break;
+
+                case SyncStatus.Idle:
+                    RemoveOutdatedFailedItems();
+                    break;
+            }
         });
     }
 
@@ -134,11 +146,12 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
     {
         _scheduler.Schedule(() =>
         {
-            var itemViewModel = _syncActivityItems.FirstOrDefault(x => x.DataItem.Id == item.Id);
+            var itemViewModel = _syncActivityItems.FirstOrDefault(
+                x => x.DataItem.Id == item.Id && x.DataItem.Replica == item.Replica && x.DataItem.Source == item.Source);
 
             if (itemViewModel is null)
             {
-                InsertNewItem();
+                AddNewItem();
             }
             else
             {
@@ -148,14 +161,14 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
 
         return;
 
-        void InsertNewItem()
+        void AddNewItem()
         {
             if (item.Status is not SyncActivityItemStatus.InProgress)
             {
                 return;
             }
 
-            var itemViewModel = new SyncActivityItemViewModel(item, _fileSystemDisplayNameAndIconProvider, _localFolderService);
+            var itemViewModel = new SyncActivityItemViewModel(item, _fileSystemDisplayNameAndIconProvider, _localFolderService, _latestSyncPassNumber);
 
             _syncActivityItems.Add(itemViewModel);
 
@@ -167,23 +180,39 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
 
         void UpdateExistingItem(SyncActivityItemViewModel itemViewModel)
         {
+            itemViewModel.LastSyncPassNumber = _latestSyncPassNumber;
+
+            // Skipped sync activity item does not carry all property values, it cannot be used for displaying purposes
+            if (item.Status is SyncActivityItemStatus.Skipped)
+            {
+                return;
+            }
+
+            // Success sync activity item might not carry all property values, when state-based update detection reports success.
+            // We assume properties have not changed.
+            if (item.Status is SyncActivityItemStatus.Succeeded &&
+                string.IsNullOrEmpty(item.Name) &&
+                string.IsNullOrEmpty(item.LocalRootPath))
+            {
+                item = itemViewModel.DataItem with
+                {
+                    ErrorCode = default,
+                    ErrorMessage = default,
+                    Status = SyncActivityItemStatus.Succeeded,
+                };
+            }
+
             itemViewModel.DataItem = item;
 
             if (item.Status is SyncActivityItemStatus.InProgress)
             {
                 itemViewModel.SynchronizedAt = default;
             }
-
-            if (item.Status is not SyncActivityItemStatus.InProgress && itemViewModel.SynchronizedAt == default)
+            else if (itemViewModel.SynchronizedAt == default)
             {
                 itemViewModel.SynchronizedAt = DateTime.UtcNow;
             }
         }
-    }
-
-    private static bool ItemIsNotSkipped(object item)
-    {
-        return item is not SyncActivityItemViewModel { Status: SyncActivityItemStatus.Skipped };
     }
 
     private static bool ItemSyncHasFailed(object item)
@@ -191,13 +220,23 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
         return item is SyncActivityItemViewModel { Status: SyncActivityItemStatus.Failed or SyncActivityItemStatus.Warning };
     }
 
+    private void RemoveOutdatedFailedItems()
+    {
+        for (int index = _syncActivityItems.Count - 1; index >= 0; --index)
+        {
+            var item = _syncActivityItems[index];
+
+            if (item.LastSyncPassNumber < _latestSyncPassNumber && (item.Status is SyncActivityItemStatus.Cancelled || ItemSyncHasFailed(item)))
+            {
+                _syncActivityItems.RemoveAt(index);
+            }
+        }
+    }
+
     private ListCollectionView GetItems()
     {
         return new ListCollectionView(_syncActivityItems)
         {
-            LiveFilteringProperties = { nameof(SyncActivityItemViewModel.Status) },
-            IsLiveFiltering = true,
-            Filter = ItemIsNotSkipped,
             LiveSortingProperties = { nameof(SyncActivityItemViewModel.Status), nameof(SyncActivityItemViewModel.SynchronizedAt) },
             IsLiveSorting = true,
             CustomSort = new SyncActivityItemComparer(),

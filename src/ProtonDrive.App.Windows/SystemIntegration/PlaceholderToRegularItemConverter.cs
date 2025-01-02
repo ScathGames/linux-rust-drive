@@ -26,7 +26,7 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
         _logger = logger;
     }
 
-    public bool TryConvertToRegularFolder(string path)
+    public bool TryConvertToRegularFolder(string path, bool skipRoot)
     {
         if (!Directory.Exists(path))
         {
@@ -35,7 +35,7 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
 
         try
         {
-            TryConvertFolder(path, out _);
+            TryConvertFolder(path, skipRoot, out _);
 
             return true;
         }
@@ -88,6 +88,8 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
 
         if (IsPartial(file))
         {
+            RemoveReadOnlyAttribute(file);
+
             file.Delete();
             deleted = true;
 
@@ -104,7 +106,15 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
         file.SetPinState(CF_PIN_STATE.CF_PIN_STATE_EXCLUDED, CF_SET_PIN_FLAGS.CF_SET_PIN_FLAG_NONE);
     }
 
-    private void TryConvertFolder(string folderPath, out bool deleted)
+    private static void RemoveReadOnlyAttribute(FileSystemFile file)
+    {
+        if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
+        {
+            file.Attributes &= ~FileAttributes.ReadOnly;
+        }
+    }
+
+    private void TryConvertFolder(string folderPath, bool skipRoot, out bool deleted)
     {
         using var folder = FileSystemDirectory.Open(folderPath, FileSystemFileAccess.Read | FileSystemFileAccess.Delete);
 
@@ -120,7 +130,7 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
 
             if (entry.Attributes.HasFlag(FileAttributes.Directory))
             {
-                TryConvertFolder(entryFullPath, out entryDeleted);
+                TryConvertFolder(entryFullPath, skipRoot: false, out entryDeleted);
             }
             else
             {
@@ -130,6 +140,13 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
             folderIsEmpty &= entryDeleted;
         }
 
+        deleted = false;
+
+        if (skipRoot)
+        {
+            return;
+        }
+
         if (folderIsEmpty)
         {
             folder.Delete(recursive: false);
@@ -137,8 +154,6 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
 
             return;
         }
-
-        deleted = false;
 
         if (IsPlaceholder(folder))
         {

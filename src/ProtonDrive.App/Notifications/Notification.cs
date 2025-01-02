@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ProtonDrive.App.Notifications;
 
 public sealed class Notification
 {
-    public string Id { get; set; } = string.Empty;
-    public string GroupId { get; set; } = string.Empty;
-    public string HeaderText { get; set; } = string.Empty;
-    public string Text { get; set; } = string.Empty;
+    public string? Id { get; set; }
+    public string? GroupId { get; set; }
+    public string? HeaderText { get; set; }
+    public string? Text { get; set; }
+    public string? LogoImageUrl { get; set; }
+    public DateTimeOffset? ExpirationTime { get; set; }
+    public bool SuppressPopup { get; set; }
     public IList<NotificationButton> Buttons { get; } = new List<NotificationButton>();
 }

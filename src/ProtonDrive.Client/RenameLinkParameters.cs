@@ -4,17 +4,20 @@ namespace ProtonDrive.Client;
 
 public sealed class RenameLinkParameters
 {
-    public string? Name { get; set; }
+    public required string Name { get; init; }
 
     [JsonPropertyName("Hash")]
-    public string? NameHash { get; set; }
+    public required string NameHash { get; init; }
 
     [JsonPropertyName("NameSignatureEmail")]
-    public string? NameSignatureEmailAddress { get; set; }
+    public required string NameSignatureEmailAddress { get; init; }
 
+    /// <summary>
+    /// Media type of the file content. Null if node is a folder.
+    /// </summary>
     [JsonPropertyName("MIMEType")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string? MediaType { get; set; }
+    public string? MediaType { get; init; }
 
     /// <summary>
     /// Current name hash before move operation. Used to prevent race conditions.

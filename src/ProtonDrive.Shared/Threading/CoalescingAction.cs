@@ -43,8 +43,6 @@ public class CoalescingAction
 
     public bool Running { get; private set; }
 
-    public Task CurrentTask => _currentTask;
-
     public Task Run()
     {
         if (Interlocked.Exchange(ref _workRequested, 1) != 0)
@@ -54,7 +52,7 @@ public class CoalescingAction
 
         Running = true;
 
-        var taskCompletion = new TaskCompletionSource<Void>();
+        var taskCompletion = new TaskCompletionSource();
         var newTask = taskCompletion.Task;
         var cancellationToken = _cancellationHandle.Token;
 
@@ -83,9 +81,30 @@ public class CoalescingAction
         _workRequested = 0;
     }
 
+    /// <summary>
+    /// Waits for processing all recent work to be completed.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> that completes successfully when processing all recent work is completed.</returns>
+    public async Task WaitForCompletionAsync()
+    {
+        do
+        {
+            try
+            {
+                await _currentTask.ConfigureAwait(false);
+            }
+            catch
+            {
+                // Ignore
+            }
+        }
+        while (_workRequested != 0);
+    }
+
     private Task Run(CancellationToken cancellationToken)
     {
         Running = true;
+
         if (Interlocked.Exchange(ref _workRequested, 0) == 0)
         {
             return Task.CompletedTask;
@@ -94,12 +113,10 @@ public class CoalescingAction
         return _action(cancellationToken);
     }
 
-    private void OnCompleted(Task task, TaskCompletionSource<Void> taskCompletion)
+    private void OnCompleted(Task task, TaskCompletionSource taskCompletion)
     {
         Running = _workRequested != 0;
         Completed?.Invoke(this, new TaskCompletedEventArgs(task));
-        taskCompletion.SetResult(default);
+        taskCompletion.SetResult();
     }
-
-    private struct Void { }
 }

@@ -146,10 +146,61 @@ public enum FileSystemErrorCode
     TransferAbortedDueToFileChange,
 
     /// <summary>
-    /// Indicates that the file content has been modified recently.
+    /// The file content has been modified recently.
     /// </summary>
     /// <remarks>
     /// This member is set when the difference between the current time and the file's last modified time is less than the configured threshold.
     /// </remarks>
     LastWriteTimeTooRecent,
+
+    /// <summary>
+    /// A local file that was individually shared with the user is missing from its expected location.
+    /// </summary>
+    /// <remarks>
+    /// Applies to roots representing files shared with me. For example, if a local file has been renamed, moved, or deleted,
+    /// it syncs as a remote deletion, resulting in this error.
+    /// </remarks>
+    MissingIndividuallySharedFile,
+
+    /// <summary>
+    /// The file system root is read-only.
+    /// </summary>
+    /// <remarks>
+    /// Applies to remote roots representing files and folders shared with me with viewer permissions.
+    /// </remarks>
+    ReadOnlyRoot,
+
+    /// <summary>
+    /// The file is read-only.
+    /// </summary>
+    ReadOnlyFile,
+
+    /// <summary>
+    /// Failure due to rate limiting on the API side.
+    /// </summary>
+    RateLimited,
+
+    /// <summary>
+    /// Network error that is purely on the client side.
+    /// For example, client is offline.
+    /// </summary>
+    NetworkError,
+
+    /// <summary>
+    /// Network errors that might be blamed on our server.
+    /// For example, timeout, API not reachable but otherwise client has connection, API responding with non-JSON output.
+    /// </summary>
+    ServerError,
+
+    /// <summary>
+    /// The file cannot be read because the file is not hydrated and the cloud file provider (i.e. OneDrive) is not running.
+    /// </summary>
+    CloudFileProviderNotRunning,
+
+    /// <summary>
+    /// This error can occur in the following scenarios:
+    /// - Reading from or writing to a corrupted file or accessing external storage (e.g., USB drives, CDs/DVDs) with data integrity issues.
+    /// - Working with a FileStream, MemoryMappedFile, or another I/O stream that relies on corrupted or invalid data.
+    /// </summary>
+    CyclicRedundancyCheck,
 }

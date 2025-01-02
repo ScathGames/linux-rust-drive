@@ -42,8 +42,8 @@ internal sealed class UpdateNotificationService : IStartableService
         _notificationService = notificationService;
         _appPages = appPages;
 
-        _updateService.StateChanged += UpdateServiceOnStateChanged;
-        _notificationService.NotificationActivated += NotificationServiceOnNotificationActivated;
+        _updateService.StateChanged += OnUpdateServiceStateChanged;
+        _notificationService.NotificationActivated += OnNotificationServiceNotificationActivated;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -51,7 +51,7 @@ internal sealed class UpdateNotificationService : IStartableService
         return Task.CompletedTask;
     }
 
-    private void UpdateServiceOnStateChanged(object? sender, UpdateState state)
+    private void OnUpdateServiceStateChanged(object? sender, UpdateState state)
     {
         _updateReady = state.IsReady;
 
@@ -110,9 +110,9 @@ internal sealed class UpdateNotificationService : IStartableService
     {
         var notification = type switch
         {
-            UpdateNotificationType.UpdateReady => UpdateNotification(),
-            UpdateNotificationType.UpdateRequired => UpdateRequiredNotification(),
-            UpdateNotificationType.UpdateRequiredAndReady => UpdateRequiredAndReadyNotification(),
+            UpdateNotificationType.UpdateReady => GetUpdateNotification(),
+            UpdateNotificationType.UpdateRequired => GetUpdateRequiredNotification(),
+            UpdateNotificationType.UpdateRequiredAndReady => GetUpdateRequiredAndReadyNotification(),
             _ => throw new ArgumentOutOfRangeException(nameof(type)),
         };
 
@@ -122,7 +122,7 @@ internal sealed class UpdateNotificationService : IStartableService
         _lastNotificationType = type;
     }
 
-    private Notification UpdateNotification()
+    private Notification GetUpdateNotification()
     {
         return new Notification()
             .SetGroup(NotificationGroupId)
@@ -133,19 +133,19 @@ internal sealed class UpdateNotificationService : IStartableService
             .AddButton("Remind me later", RemindLaterActionName);
     }
 
-    private Notification UpdateRequiredNotification()
+    private Notification GetUpdateRequiredNotification()
     {
-        return BaseUpdateRequiredNotification()
+        return GetBaseUpdateRequiredNotification()
             .AddButton("Download and install update", DownloadUpdateActionName);
     }
 
-    private Notification UpdateRequiredAndReadyNotification()
+    private Notification GetUpdateRequiredAndReadyNotification()
     {
-        return BaseUpdateRequiredNotification()
+        return GetBaseUpdateRequiredNotification()
             .AddButton("Update", UpdateActionName);
     }
 
-    private Notification BaseUpdateRequiredNotification()
+    private Notification GetBaseUpdateRequiredNotification()
     {
         return new Notification()
             .SetGroup(NotificationGroupId)
@@ -154,7 +154,7 @@ internal sealed class UpdateNotificationService : IStartableService
             .SetText("To keep using Proton Drive, you’ll need to update to the latest version.");
     }
 
-    private void NotificationServiceOnNotificationActivated(object? sender, NotificationActivatedEventArgs e)
+    private void OnNotificationServiceNotificationActivated(object? sender, NotificationActivatedEventArgs e)
     {
         if (e.GroupId != NotificationGroupId)
         {

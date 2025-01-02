@@ -263,15 +263,6 @@ internal sealed class AccountService : IAccountService, IStoppableService, ISess
             return Task.CompletedTask;
         }
 
-        var cancellationToken = _cancellationHandle.Token;
-
-        return _scheduler.Schedule(
-            () =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                return action(cancellationToken);
-            },
-            cancellationToken);
+        return _scheduler.Schedule(action, _cancellationHandle.Token);
     }
 }

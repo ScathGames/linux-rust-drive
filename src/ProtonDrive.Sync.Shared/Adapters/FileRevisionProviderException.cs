@@ -5,7 +5,7 @@ using ProtonDrive.Sync.Shared.FileSystem;
 
 namespace ProtonDrive.Sync.Shared.Adapters;
 
-public class FileRevisionProviderException : Exception, IErrorCodeProvider
+public class FileRevisionProviderException : Exception, IFormattedErrorCodeProvider, IFileSystemErrorCodeProvider
 {
     public FileRevisionProviderException()
     {
@@ -14,6 +14,12 @@ public class FileRevisionProviderException : Exception, IErrorCodeProvider
     public FileRevisionProviderException(string message)
         : base(message)
     {
+    }
+
+    public FileRevisionProviderException(string message, FileRevisionProviderErrorCode providerErrorCode)
+        : base(message)
+    {
+        ProviderErrorCode = providerErrorCode;
     }
 
     public FileRevisionProviderException(string message, Exception? innerException)
@@ -29,9 +35,11 @@ public class FileRevisionProviderException : Exception, IErrorCodeProvider
 
     public FileSystemErrorCode ErrorCode { get; }
 
+    public FileRevisionProviderErrorCode? ProviderErrorCode { get; }
+
     public bool TryGetRelevantFormattedErrorCode([MaybeNullWhen(false)] out string formattedErrorCode)
     {
-        formattedErrorCode = ErrorCode.ToString();
+        formattedErrorCode = ProviderErrorCode is null ? ErrorCode.ToString() : $"{ErrorCode}/{ProviderErrorCode}";
 
         return true;
     }

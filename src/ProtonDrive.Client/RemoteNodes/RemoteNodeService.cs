@@ -282,7 +282,7 @@ internal sealed class RemoteNodeService : IRemoteNodeService
         string linkId,
         ReadOnlyMemory<byte> contentKeyPacket,
         string? signature,
-        string signatureAddress,
+        string? signatureAddress,
         PrivatePgpKey nodeKey,
         CancellationToken cancellationToken)
     {

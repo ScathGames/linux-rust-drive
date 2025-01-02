@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Mapping.SyncFolders;
@@ -21,22 +22,26 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
     private readonly IFileSystemDisplayNameAndIconProvider _fileSystemDisplayNameAndIconProvider;
     private readonly ISyncFolderService _syncFolderService;
     private readonly AddedFolderValidationResultMessageBuilder _messageBuilder;
-    private readonly IAsyncRelayCommand _saveCommand;
-    private readonly IRelayCommand _selectArbitraryFolderCommand;
+    private readonly ILogger<AddFoldersViewModel> _logger;
+    private readonly AsyncRelayCommand _saveCommand;
+    private readonly RelayCommand _selectArbitraryFolderCommand;
 
     private bool _syncFoldersSaved;
     private bool _isSaving;
     private SyncFolderValidationResult _folderValidationResult;
     private string? _errorMessage;
+    private bool _newFolderSelected;
 
     public AddFoldersViewModel(
         IFileSystemDisplayNameAndIconProvider fileSystemDisplayNameAndIconProvider,
         ISyncFolderService syncFolderService,
-        AddedFolderValidationResultMessageBuilder messageBuilder)
+        AddedFolderValidationResultMessageBuilder messageBuilder,
+        ILogger<AddFoldersViewModel> logger)
     {
         _fileSystemDisplayNameAndIconProvider = fileSystemDisplayNameAndIconProvider;
         _syncFolderService = syncFolderService;
         _messageBuilder = messageBuilder;
+        _logger = logger;
 
         foreach (var knownFolder in KnownFolders.IdsByPath)
         {
@@ -90,9 +95,21 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
 
     public ICommand SelectArbitraryFolderCommand => _selectArbitraryFolderCommand;
 
-    public ICommand SaveCommand => _saveCommand;
+    public IAsyncRelayCommand SaveCommand => _saveCommand;
 
-    public ObservableCollection<SelectableFolderViewModel> SyncFolders { get; } = new();
+    public ObservableCollection<SelectableFolderViewModel> SyncFolders { get; } = [];
+
+    private bool NewFolderSelected
+    {
+        get => _newFolderSelected;
+        set
+        {
+            if (SetProperty(ref _newFolderSelected, value))
+            {
+                _saveCommand.NotifyCanExecuteChanged();
+            }
+        }
+    }
 
     public void InitializeSelection()
     {
@@ -118,14 +135,13 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
 
     public void RefreshSyncedFolders(HashSet<string> syncedFolderPaths)
     {
-        foreach (var folder in SyncFolders)
+        foreach (var folder in SyncFolders.Where(x => syncedFolderPaths.Contains(x.Path)))
         {
-            if (syncedFolderPaths.Contains(folder.Path))
-            {
-                folder.IsChecked = true;
-                folder.IsDisabled = true;
-            }
+            folder.IsChecked = true;
+            folder.IsDisabled = true;
         }
+
+        NewFolderSelected = false;
     }
 
     private bool CanSelectArbitraryFolder() => !IsSaving;
@@ -182,16 +198,21 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
         return true;
     }
 
-    private bool CanSave() => !IsSaving && FolderValidationResult == SyncFolderValidationResult.Succeeded;
+    private bool CanSave() => !IsSaving && FolderValidationResult == SyncFolderValidationResult.Succeeded && NewFolderSelected;
 
     private async Task SaveAsync(CancellationToken cancellationToken)
     {
         IsSaving = true;
 
-        var paths = SyncFolders.Where(x => x.IsChecked && !x.IsDisabled).Select(x => x.Path).ToList();
-        await _syncFolderService.AddHostDeviceFoldersAsync(paths, cancellationToken).ConfigureAwait(true);
+        var paths = SyncFolders.Where(x => x is { IsChecked: true, IsDisabled: false }).Select(x => x.Path).ToList();
+
+        if (paths.Count > 0)
+        {
+            await _syncFolderService.AddHostDeviceFoldersAsync(paths, cancellationToken).ConfigureAwait(true);
+        }
 
         SyncFoldersSaved = true;
+        NewFolderSelected = false;
         IsSaving = false;
     }
 
@@ -202,6 +223,8 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
 
     private SyncFolderValidationResult ValidateFolderSelection()
     {
+        NewFolderSelected = SyncFolders.Any(x => x is { IsChecked: true, IsDisabled: false });
+
         var selectedFolders = SyncFolders.Where(x => x.IsChecked).ToList();
 
         var result = SyncFolderValidationResult.Succeeded;
@@ -219,6 +242,11 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
         }
 
         ErrorMessage = _messageBuilder.BuildErrorMessage(SyncFolders);
+
+        if (result is not SyncFolderValidationResult.Succeeded)
+        {
+            _logger.LogWarning("Folder selection validation failed due to {ErrorType}: {Message}", result, ErrorMessage);
+        }
 
         return result;
     }

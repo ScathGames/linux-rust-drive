@@ -5,7 +5,7 @@ using ProtonDrive.Shared.Extensions;
 
 namespace ProtonDrive.Client;
 
-public class ApiException : Exception, IErrorCodeProvider
+public class ApiException : Exception, IFormattedErrorCodeProvider
 {
     public ApiException()
         : this(string.Empty)

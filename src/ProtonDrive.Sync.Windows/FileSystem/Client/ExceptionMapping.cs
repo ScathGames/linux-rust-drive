@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using ProtonDrive.Sync.Shared.FileSystem;
+using ProtonDrive.Sync.Windows.Interop;
 using Vanara.PInvoke;
 
 namespace ProtonDrive.Sync.Windows.FileSystem.Client;
@@ -14,7 +15,7 @@ internal static class ExceptionMapping
     public static bool TryMapException(Exception exception, long id, bool includeObjectId, [MaybeNullWhen(false)] out Exception mappedException)
     {
         /* The original exception message might contain the file system object path,
-           that we assume is a sensitive information of the user. To avoid logging it,
+           that we assume is user sensitive information. To avoid logging it,
            we do not set inner exception. */
 
         mappedException = exception switch
@@ -55,10 +56,17 @@ internal static class ExceptionMapping
 
             return hr.Code switch
             {
-                Interop.Errors.ERROR_ALREADY_EXISTS or Interop.Errors.ERROR_FILE_EXISTS
+                Errors.ERROR_ALREADY_EXISTS or Errors.ERROR_FILE_EXISTS
                     => CreateFileSystemClientException(FileSystemErrorCode.DuplicateName, innerException: default),
-                Interop.Errors.ERROR_SHARING_VIOLATION
+                Errors.ERROR_SHARING_VIOLATION or Errors.ERROR_LOCK_VIOLATION
                     => CreateFileSystemClientException(FileSystemErrorCode.SharingViolation, innerException: default),
+                Errors.ERROR_CRC
+                    => CreateFileSystemClientException(FileSystemErrorCode.CyclicRedundancyCheck, innerException: default),
+                Errors.ERROR_CLOUD_FILE_PROVIDER_NOT_RUNNING
+                    or Errors.ERROR_CLOUD_FILE_ACCESS_DENIED
+                    or Errors.ERROR_NOT_COMPLETED_CLOUD_OPERATION
+                    or Errors.ERROR_UNSUCCESSFUL_CLOUD_OPERATION
+                    => CreateFileSystemClientException(FileSystemErrorCode.CloudFileProviderNotRunning, innerException: ex),
                 _
                     => CreateFileSystemClientException(FileSystemErrorCode.Unknown, innerException: ex),
             };

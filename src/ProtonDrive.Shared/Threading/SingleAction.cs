@@ -31,11 +31,18 @@ public class SingleAction
             });
     }
 
-    public Task CurrentTask => _origin.CurrentTask;
-
     public Task RunAsync() => _origin.RunAsync(CancellationToken.None);
 
     public void Cancel() => _origin.Cancel();
 
-    private struct Void { }
+    /// <summary>
+    /// Waits for processing current work to be completed.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> that completes successfully when processing current work completes.</returns>
+    public Task WaitForCompletionAsync()
+    {
+        return _origin.WaitForCompletionAsync();
+    }
+
+    private struct Void;
 }

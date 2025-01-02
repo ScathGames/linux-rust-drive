@@ -86,7 +86,7 @@ internal sealed class SyncFolderService : ISyncFolderService, IMappingsAware, IM
             SyncMethod = SyncMethod.OnDemand,
             Local =
             {
-                RootFolderPath = cloudFilesFolderPath,
+                Path = cloudFilesFolderPath,
             },
         };
 
@@ -106,7 +106,7 @@ internal sealed class SyncFolderService : ISyncFolderService, IMappingsAware, IM
             var pathToLog = _logger.GetSensitiveValueForLogging(localPath);
             _logger.LogInformation("Requested to add host device sync folder \"{Path}\"", pathToLog);
 
-            if (activeMappings.Any(x => x.Type == MappingType.HostDeviceFolder && x.Local.RootFolderPath.Equals(localPath)))
+            if (activeMappings.Any(x => x.Type == MappingType.HostDeviceFolder && x.Local.Path.Equals(localPath)))
             {
                 _logger.LogWarning("Ignored sync folder \"{Path}\", since it is already mapped", pathToLog);
 
@@ -119,7 +119,7 @@ internal sealed class SyncFolderService : ISyncFolderService, IMappingsAware, IM
                 SyncMethod = SyncMethod.Classic,
                 Local =
                 {
-                    RootFolderPath = localPath,
+                    Path = localPath,
                 },
             };
 

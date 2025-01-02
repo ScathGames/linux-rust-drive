@@ -15,7 +15,7 @@
 
     <SetProperty Id="CreatesDesktopShortcut" Condition="(NOT NODESKTOPSHORTCUT) AND ((NOT WIX_UPGRADE_DETECTED) OR DESKTOPSHORTCUTEXISTS)" Value="1" Before="LaunchConditions" />
 
-    <Component Id="DesktopShortcut" Directory="DesktopFolder" Condition="CreatesDesktopShortcut = 1" Guid="209DC5A1-87A8-468D-8663-C4CE029CC030">
+    <Component Id="DesktopShortcut" Directory="DesktopFolder" Condition="CreatesDesktopShortcut = 1">
       <Shortcut Name="!(bind.Property.ProductName)" Target="[INSTALLFOLDER]ProtonDrive.exe">
         <ShortcutProperty Key="System.AppUserModel.ID" Value="Proton.ProtonDrive" />
       </Shortcut>

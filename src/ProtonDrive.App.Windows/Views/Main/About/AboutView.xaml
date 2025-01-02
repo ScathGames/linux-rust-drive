@@ -42,8 +42,8 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock
-                            Text="{Binding Version}"
                             AutomationProperties.HeadingLevel="Level3"
+                            Text="{Binding Version}"
                             FontSize="16"
                             FontWeight="SemiBold"
                             Foreground="{StaticResource Text.DarkTheme.Brush}" />
@@ -206,9 +206,9 @@
 
                         <Button
                             AutomationProperties.AutomationId="UpdateNowButton"
+                            AutomationProperties.HelpText="A new version of Proton Drive is available, please update it now."
                             Content="_Update now"
                             Command="{Binding UpdateCommand}"
-                            AutomationProperties.HelpText="A new version of Proton Drive is available, please update it now."
                             Style="{StaticResource PrimaryButtonStyle}"
                             VerticalAlignment="Center"
                             Margin="20,0,0,0" />

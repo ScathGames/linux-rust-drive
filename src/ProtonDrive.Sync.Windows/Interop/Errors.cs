@@ -23,6 +23,7 @@ public static class Errors
     internal const int ERROR_NO_MORE_FILES = 0x12;
     internal const int ERROR_NOT_READY = 0x15;
     internal const int ERROR_BAD_COMMAND = 0x16;
+    internal const int ERROR_CRC = 0x017; // Data error (cyclic redundancy check)
     internal const int ERROR_BAD_LENGTH = 0x18;
     internal const int ERROR_SHARING_VIOLATION = 0x20;
     internal const int ERROR_LOCK_VIOLATION = 0x21;
@@ -57,6 +58,12 @@ public static class Errors
     internal const int ERROR_NOT_OWNER = 0x120;
     internal const int ERROR_TOO_MANY_POSTS = 0x12A;
     internal const int ERROR_PARTIAL_COPY = 0x12B;
+
+    internal const int ERROR_CLOUD_FILE_PROVIDER_NOT_RUNNING = 0x16A;
+    internal const int ERROR_UNSUCCESSFUL_CLOUD_OPERATION = 0x185;
+    internal const int ERROR_CLOUD_FILE_ACCESS_DENIED = 0x18B;
+    internal const int ERROR_NOT_COMPLETED_CLOUD_OPERATION = 0x1AA;
+
     internal const int ERROR_ARITHMETIC_OVERFLOW = 0x216;
     internal const int ERROR_PIPE_CONNECTED = 0x217;
     internal const int ERROR_PIPE_LISTENING = 0x218;

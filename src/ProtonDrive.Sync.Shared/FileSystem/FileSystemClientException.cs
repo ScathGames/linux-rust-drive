@@ -4,7 +4,7 @@ using ProtonDrive.Shared.Extensions;
 
 namespace ProtonDrive.Sync.Shared.FileSystem;
 
-public class FileSystemClientException : Exception, IErrorCodeProvider
+public class FileSystemClientException : Exception, IFormattedErrorCodeProvider, IFileSystemErrorCodeProvider
 {
     public FileSystemClientException()
     {

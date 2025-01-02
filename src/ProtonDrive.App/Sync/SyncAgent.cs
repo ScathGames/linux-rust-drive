@@ -54,6 +54,7 @@ internal class SyncAgent : IDisposable
     private TickCount _updatesToSynchronizeDetectedAt;
     private TickCount _updateDetectionCompletedAt;
     private TickCount _synchronizationCompletedAt;
+    private Task _syncEngineTask = Task.CompletedTask;
 
     public SyncAgent(
         GenericAdapter<long, string> remoteAdapter,
@@ -232,9 +233,10 @@ internal class SyncAgent : IDisposable
 
         _synchronizationTimer.Stop();
         _synchronization.Cancel();
-        var syncTask = _synchronization.CurrentTask;
 
         Status = SyncStatus.Terminating;
+
+        await WaitSyncEngineToFinishSynchronizingAsync().ConfigureAwait(false);
 
         try
         {
@@ -252,7 +254,12 @@ internal class SyncAgent : IDisposable
             return false;
         }
 
-        await syncTask.ConfigureAwait(false);
+        await _synchronization.WaitForCompletionAsync().ConfigureAwait(false);
+
+        // When disconnecting an adapter, it calls Sync Engine for acknowledging consumed Synced Tree changes.
+        // As a result, the Sync Engine schedules database transaction for persisting data. We must wait for
+        // the scheduled tasks to complete before closing databases.
+        await _syncEngine.WaitForCompletionAsync().ConfigureAwait(false);
 
         _syncEngineDatabase.Faulted -= OnDatabaseFaulted;
         _remoteAdapterDatabase.Faulted -= OnDatabaseFaulted;
@@ -272,13 +279,13 @@ internal class SyncAgent : IDisposable
         return true;
     }
 
-    public async Task<LooseCompoundAltIdentity<string>?> GetRemoteIdFromAltIdOrDefaultAsync(
-        LooseCompoundAltIdentity<long> altId,
+    public async Task<LooseCompoundAltIdentity<string>?> GetRemoteIdFromLocalIdOrDefaultAsync(
+        LooseCompoundAltIdentity<long> localAltId,
         CancellationToken cancellationToken)
     {
         try
         {
-            var localNodeId = await _localAdapter.GetNodeIdByAltIdOrDefaultAsync(altId, cancellationToken).ConfigureAwait(false);
+            var localNodeId = await _localAdapter.GetNodeIdByAltIdOrDefaultAsync(localAltId, cancellationToken).ConfigureAwait(false);
             if (localNodeId is null)
             {
                 return null;
@@ -404,7 +411,8 @@ internal class SyncAgent : IDisposable
 
         Status = SyncStatus.Synchronizing;
 
-        await _syncEngine.SynchronizeAsync(cancellationToken).ConfigureAwait(false);
+        _syncEngineTask = _syncEngine.SynchronizeAsync(cancellationToken);
+        await _syncEngineTask.ConfigureAwait(false);
 
         _synchronizationCompletedAt = _clock.TickCount;
     }
@@ -421,6 +429,18 @@ internal class SyncAgent : IDisposable
         await Task.Delay(SynchronizationDelayInterval, cancellationToken).ConfigureAwait(false);
 
         return true;
+    }
+
+    private async Task WaitSyncEngineToFinishSynchronizingAsync()
+    {
+        try
+        {
+            await _syncEngineTask.ConfigureAwait(false);
+        }
+        catch
+        {
+            // Same Task is awaited in the SynchronizeAsync method, which handles exceptions
+        }
     }
 
     private void OnSynchronizationTimerTick(object? sender, EventArgs e)

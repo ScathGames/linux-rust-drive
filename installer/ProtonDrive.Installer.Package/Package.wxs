@@ -41,12 +41,28 @@
       <RegistrySearch Id="WindowsBuildNumberSearch" Root="HKLM" Key="SOFTWARE\Microsoft\Windows NT\CurrentVersion" Name="CurrentBuildNumber" Type="raw"/>
     </Property>
 
-    <!-- This will set the WIX_NATIVE_MACHINE property, for which we want the value 34404 which means x64 -->
+    <!--
+    This will set the WIX_NATIVE_MACHINE property, for which:
+    34404 = 0x8664 = IMAGE_FILE_MACHINE_AMD64
+    43620 = 0xAA64 = IMAGE_FILE_MACHINE_ARM64
+    -->
     <util:QueryNativeMachine />
 
+    <?if $(AppPlatform) ~= "x64" ?>
     <Launch
-      Condition="Installed OR (VersionNT64 >= 603 AND WINDOWSBUILDNUMBER >= 17763 AND WIX_NATIVE_MACHINE = 34404)"
-      Message="This application requires an x64 edition of Windows 10 or Windows Server 2016 v1809 or later." />
+      Condition="WIX_NATIVE_MACHINE = 34404"
+      Message="This application requires Windows for x64 processors." />
+    <?endif ?>
+
+    <?if $(AppPlatform) ~= "arm64" ?>
+    <Launch
+      Condition="WIX_NATIVE_MACHINE = 43620"
+      Message="This application requires Windows for Arm64 processors." />
+    <?endif ?>
+
+    <Launch
+      Condition="Installed OR ((VersionNT64 >= 603) AND (WINDOWSBUILDNUMBER >= 17763))"
+      Message="This application requires a version of Windows equal to or newer than Windows 10 or Windows Server 2016 v1809." />
 
     <util:CloseApplication Target="ProtonDrive.exe" EndSessionMessage="yes" RebootPrompt="no" />
 
@@ -57,6 +73,7 @@
       <ComponentRef Id="RunOnStartupRegistryEntry" />
       <ComponentRef Id="DesktopShortcut" />
       <ComponentRef Id="LocalAppData" />
+      <ComponentRef Id="InstallationInitiatorRegistryEntry" />
     </Feature>
 
     <UIRef Id="WixUI_Minimal_WithoutEULA" />

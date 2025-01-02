@@ -12,21 +12,27 @@ namespace ProtonDrive.App.Mapping.Teardown;
 internal sealed class CloudFilesMappingTeardownStep
 {
     private readonly AppConfig _appConfig;
+    private readonly ILocalFolderService _localFolderService;
     private readonly ILocalSpecialSubfoldersDeletionStep _specialFoldersDeletion;
     private readonly ISyncFolderStructureProtector _syncFolderProtector;
+    private readonly IPlaceholderToRegularItemConverter _placeholderConverter;
     private readonly IShellSyncFolderRegistry _shellSyncFolderRegistry;
     private readonly IOnDemandSyncRootRegistry _onDemandSyncRootRegistry;
 
     public CloudFilesMappingTeardownStep(
         AppConfig appConfig,
+        ILocalFolderService localFolderService,
         ILocalSpecialSubfoldersDeletionStep specialFoldersDeletion,
         ISyncFolderStructureProtector syncFolderProtector,
+        IPlaceholderToRegularItemConverter placeholderConverter,
         IShellSyncFolderRegistry shellSyncFolderRegistry,
         IOnDemandSyncRootRegistry onDemandSyncRootRegistry)
     {
         _appConfig = appConfig;
+        _localFolderService = localFolderService;
         _specialFoldersDeletion = specialFoldersDeletion;
         _syncFolderProtector = syncFolderProtector;
+        _placeholderConverter = placeholderConverter;
         _shellSyncFolderRegistry = shellSyncFolderRegistry;
         _onDemandSyncRootRegistry = onDemandSyncRootRegistry;
     }
@@ -42,18 +48,30 @@ internal sealed class CloudFilesMappingTeardownStep
 
         TryUnprotectLocalFolders(mapping);
 
-        if (TryDeleteSpecialSubfolders(mapping) &&
-            await TryRemoveShellFolderAsync(mapping).ConfigureAwait(false))
+        if (!TryConvertToRegularFolder(mapping))
         {
-            return MappingErrorCode.None;
+            return MappingErrorCode.LocalFileSystemAccessFailed;
         }
 
-        return MappingErrorCode.LocalFileSystemAccessFailed;
+        if (!TryDeleteSpecialSubfolders(mapping))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
+
+        if (!await TryRemoveShellFolderAsync(mapping).ConfigureAwait(false))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
+
+        TryDeleteFolderIfEmpty(mapping);
+        TryDeleteForeignDevicesFolderIfEmpty(mapping);
+
+        return MappingErrorCode.None;
     }
 
     private bool TryUnprotectLocalFolders(RemoteToLocalMapping mapping)
     {
-        var cloudFilesFolderPath = mapping.Local.RootFolderPath;
+        var cloudFilesFolderPath = mapping.Local.Path;
         if (string.IsNullOrEmpty(cloudFilesFolderPath))
         {
             return true;
@@ -68,14 +86,26 @@ internal sealed class CloudFilesMappingTeardownStep
         // therefore, it is unprotected here.
         var foreignDevicesFolderPath = Path.Combine(accountRootFolderPath, _appConfig.FolderNames.ForeignDevicesFolderName);
 
-        return _syncFolderProtector.Unprotect(cloudFilesFolderPath, FolderProtectionType.Leaf) &&
-               _syncFolderProtector.Unprotect(accountRootFolderPath, FolderProtectionType.Ancestor) &&
-               _syncFolderProtector.Unprotect(foreignDevicesFolderPath, FolderProtectionType.Ancestor);
+        return _syncFolderProtector.UnprotectFolder(cloudFilesFolderPath, FolderProtectionType.Leaf) &&
+               _syncFolderProtector.UnprotectFolder(accountRootFolderPath, FolderProtectionType.Ancestor) &&
+               _syncFolderProtector.UnprotectFolder(foreignDevicesFolderPath, FolderProtectionType.Ancestor);
+    }
+
+    private bool TryConvertToRegularFolder(RemoteToLocalMapping mapping)
+    {
+        if (mapping.SyncMethod is not SyncMethod.OnDemand)
+        {
+            return true;
+        }
+
+        // The folder is on-demand sync root. Deleting the folder or converting it to regular one would automatically unregister
+        // on-demand sync root, so that subsequent un-registration attempt fails. Also, it might make the folder inaccessible.
+        return _placeholderConverter.TryConvertToRegularFolder(mapping.Local.Path, skipRoot: true);
     }
 
     private bool TryDeleteSpecialSubfolders(RemoteToLocalMapping mapping)
     {
-        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.RootFolderPath);
+        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.Path);
 
         return true;
     }
@@ -103,8 +133,27 @@ internal sealed class CloudFilesMappingTeardownStep
 
     private Task<bool> TryRemoveOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.RootFolderPath, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
+        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
 
         return _onDemandSyncRootRegistry.TryUnregisterAsync(root);
+    }
+
+    private void TryDeleteFolderIfEmpty(RemoteToLocalMapping mapping)
+    {
+        _localFolderService.TryDeleteEmptyFolder(mapping.Local.Path);
+    }
+
+    private void TryDeleteForeignDevicesFolderIfEmpty(RemoteToLocalMapping cloudFilesMapping)
+    {
+        if (!cloudFilesMapping.TryGetAccountRootFolderPath(out var accountRootFolderPath))
+        {
+            throw new InvalidOperationException($"Unable to obtain account root folder path from mapping with Id={cloudFilesMapping.Id}");
+        }
+
+        // The foreign devices folder ("Other computers") is not deleted as part of tearing down the foreign device mappings,
+        // therefore, it is deleted here, if empty.
+        var foreignDevicesFolderPath = Path.Combine(accountRootFolderPath, _appConfig.FolderNames.ForeignDevicesFolderName);
+
+        _localFolderService.TryDeleteEmptyFolder(foreignDevicesFolderPath);
     }
 }

@@ -6,7 +6,7 @@ namespace ProtonDrive.App.FileSystem.Local;
 internal class LocalRootDirectory : IRootDirectory<long>
 {
     public LocalRootDirectory(LocalReplica settings)
-        : this(settings.RootFolderPath, settings.RootFolderId)
+        : this(settings.Path, settings.RootFolderId)
     {
     }
 

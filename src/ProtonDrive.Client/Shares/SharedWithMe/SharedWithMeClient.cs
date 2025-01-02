@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using ProtonDrive.Client.Contacts;
 using ProtonDrive.Client.Contracts;
 using ProtonDrive.Client.RemoteNodes;
 using ProtonDrive.Shared.Telemetry;
@@ -12,21 +13,24 @@ namespace ProtonDrive.Client.Shares.SharedWithMe;
 
 internal sealed class SharedWithMeClient : ISharedWithMeClient
 {
-    private const int MaxNumberOfParallelism = 5; // Max number of shared with me items that can be created at a time
+    private const int MaxDegreeOfParallelism = 5; // Max number of shared with me items that can be created at a time
 
     private readonly ILinkApiClient _linkApiClient;
     private readonly IShareApiClient _shareApiClient;
+    private readonly IContactService _contactService;
     private readonly IRemoteNodeService _remoteNodeService;
     private readonly SharedWithMeItemCounters _sharedWithMeItemCounters;
 
     public SharedWithMeClient(
         ILinkApiClient linkApiClient,
         IShareApiClient shareApiClient,
+        IContactService contactService,
         IRemoteNodeService remoteNodeService,
         SharedWithMeItemCounters sharedWithMeItemCounters)
     {
         _linkApiClient = linkApiClient;
         _shareApiClient = shareApiClient;
+        _contactService = contactService;
         _remoteNodeService = remoteNodeService;
         _sharedWithMeItemCounters = sharedWithMeItemCounters;
     }
@@ -59,7 +63,7 @@ internal sealed class SharedWithMeClient : ISharedWithMeClient
                         return null;
                     }
                 },
-                new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = MaxNumberOfParallelism, CancellationToken = cancellationToken });
+                new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = MaxDegreeOfParallelism, CancellationToken = cancellationToken });
 
             getItemsBlock.LinkTo(transformItemsBlock, new DataflowLinkOptions { PropagateCompletion = true });
             getItemsBlock.Post(response);
@@ -112,6 +116,10 @@ internal sealed class SharedWithMeClient : ISharedWithMeClient
 
         var membership = share.Memberships[0];
 
+        var inviterDisplayName = membership.InviterEmailAddress is not null
+            ? await _contactService.GetDisplayNameByEmailAddressAsync(membership.InviterEmailAddress, cancellationToken).ConfigureAwait(false)
+            : default;
+
         return new SharedWithMeItem
         {
             Id = share.Id,
@@ -123,6 +131,7 @@ internal sealed class SharedWithMeClient : ISharedWithMeClient
             MemberId = membership.MemberId,
             SharingTime = DateTimeOffset.FromUnixTimeSeconds(membership.CreationTime).UtcDateTime,
             InviterEmailAddress = membership.InviterEmailAddress,
+            InviterDisplayName = inviterDisplayName,
         };
     }
 }

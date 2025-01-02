@@ -19,8 +19,8 @@
   <ItemGroup>
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
-    <PackageReference Include="Vanara.PInvoke.CldApi" Version="4.0.2" />
-    <PackageReference Include="Vanara.PInvoke.Shell32" Version="4.0.2" />
+    <PackageReference Include="Vanara.PInvoke.CldApi" Version="4.0.4" />
+    <PackageReference Include="Vanara.PInvoke.Shell32" Version="4.0.4" />
   </ItemGroup>
 
   <ItemGroup>

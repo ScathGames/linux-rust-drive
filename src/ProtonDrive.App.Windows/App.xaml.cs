@@ -8,30 +8,55 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Authentication;
+using ProtonDrive.App.Onboarding;
 using ProtonDrive.App.Reporting;
 using ProtonDrive.App.Windows.Dialogs;
 using ProtonDrive.App.Windows.Services;
 using ProtonDrive.App.Windows.Views;
-using ProtonDrive.App.Windows.Views.Main;
+using ProtonDrive.App.Windows.Views.Onboarding;
 using ProtonDrive.App.Windows.Views.SignIn;
-using ProtonDrive.Shared;
+using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Windows;
 
-internal partial class App : IApp, ISessionStateAware, IDialogService
+internal partial class App : IApp, IDialogService, ISessionStateAware, IOnboardingStateAware
 {
+    private readonly AppArguments _appArguments;
     private readonly IHost _host;
     private readonly IErrorReporting _errorReporting;
+    private readonly AppLifecycleService _appLifecycleService;
+    private readonly IScheduler _scheduler;
     private readonly ILogger<App> _logger;
-    private readonly AppLaunchMode _launchMode;
 
     private Window? _signInWindow;
-    private SessionStatus? _previousSessionStatus;
-    private bool _crashOnMainWindowActivation;
+    private Window? _onboardingWindow;
+    private bool _hasAttemptedToCrash;
 
     static App()
     {
         WpfLanguage.InitializeToCurrentCulture();
+    }
+
+    public App(
+        AppArguments appArguments,
+        IHost host,
+        IErrorReporting errorReporting,
+        AppLifecycleService appLifecycleService,
+        [FromKeyedServices("Dispatcher")] IScheduler scheduler,
+        ILogger<App> logger)
+    {
+        _appArguments = appArguments;
+        _host = host;
+        _errorReporting = errorReporting;
+        _appLifecycleService = appLifecycleService;
+        _scheduler = scheduler;
+        _logger = logger;
+
+        _appLifecycleService.StateChanged += OnAppLifecycleStateChanged;
+
+        AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnTaskSchedulerUnobservedTaskException;
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
     }
 
     private App()
@@ -39,38 +64,9 @@ internal partial class App : IApp, ISessionStateAware, IDialogService
         throw new NotSupportedException("This constructor only exists to satisfy WPF code generation");
     }
 
-    public App(IHost host, IErrorReporting errorReporting, ILogger<App> logger, AppLaunchMode launchMode, bool crashOnMainWindowActivation)
-    {
-        _host = host;
-        _errorReporting = errorReporting;
-        _logger = logger;
-        _launchMode = launchMode;
-        _crashOnMainWindowActivation = crashOnMainWindowActivation;
-
-        AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
-        TaskScheduler.UnobservedTaskException += OnTaskSchedulerUnobservedTaskException;
-        DispatcherUnhandledException += OnDispatcherUnhandledException;
-    }
-
     public Task<IntPtr> ActivateAsync()
     {
-        return Dispatcher.InvokeAsync(() =>
-            {
-                if (IsUserSignedOut())
-                {
-                    _host.Services.GetRequiredService<IStatefulSessionService>().StartSessionAsync();
-
-                    // The Sign in window will be created as a reaction to the session state change.
-                    // Therefore, as the Sign in window does not exist yet, we return IntPtr.Zero.
-                    return GetWindowHandle(_signInWindow);
-                }
-
-                var window = _signInWindow?.Visibility == Visibility.Visible ? _signInWindow : MainWindow;
-                ShowWindow(window);
-
-                return GetWindowHandle(window);
-            })
-            .Task;
+        return Schedule(Activate);
     }
 
     public ConfirmationResult ShowConfirmationDialog(ConfirmationDialogViewModelBase dataContext)
@@ -116,61 +112,23 @@ internal partial class App : IApp, ISessionStateAware, IDialogService
     public async Task ExitAsync()
     {
         // Shutdown can be called only from the thread that created the Application object.
-        await Dispatcher.InvokeAsync(Shutdown);
+        await Schedule(() =>
+            {
+                RemoveSignInWindow();
+                RemoveOnboardingWindow();
+                Shutdown();
+            })
+            .ConfigureAwait(true);
     }
 
     void ISessionStateAware.OnSessionStateChanged(SessionState value)
     {
-        Dispatcher.InvokeAsync(() =>
-        {
-            switch (value.Status)
-            {
-                case SessionStatus.SigningIn:
-                    CloseWindow(MainWindow);
+        Schedule(() => _appLifecycleService.SetSessionState(value));
+    }
 
-                    if (value.IsFirstSessionStart && _launchMode == AppLaunchMode.Quiet)
-                    {
-                        CancelSignIn();
-                    }
-                    else
-                    {
-                        CreateAndShowSignInWindow();
-                    }
-
-                    break;
-
-                case SessionStatus.Started:
-                    if (value.SigningInStatus is not SigningInStatus.None)
-                    {
-                        break;
-                    }
-
-                    CloseSignInWindow();
-
-                    if (UserSignedInInteractively() || UserIsBeingOnboarded() || SessionStartIsFirstInNonQuietMode())
-                    {
-                        ShowWindow(MainWindow);
-                    }
-
-                    break;
-
-                case SessionStatus.NotStarted:
-                    CloseWindow(MainWindow);
-                    break;
-
-                default:
-                    CloseSignInWindow();
-                    break;
-            }
-
-            _previousSessionStatus = value.Status;
-        });
-
-        return;
-
-        bool UserSignedInInteractively() => _previousSessionStatus is SessionStatus.SigningIn or SessionStatus.Started;
-        bool UserIsBeingOnboarded() => MainWindow?.DataContext is MainWindowViewModel { IsOnboarding: true };
-        bool SessionStartIsFirstInNonQuietMode() => value.IsFirstSessionStart && _launchMode != AppLaunchMode.Quiet;
+    void IOnboardingStateAware.OnboardingStateChanged(OnboardingState value)
+    {
+        Schedule(() => _appLifecycleService.SetOnboardingState(value));
     }
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
@@ -190,13 +148,67 @@ internal partial class App : IApp, ISessionStateAware, IDialogService
         return window != null ? new WindowInteropHelper(window).EnsureHandle() : IntPtr.Zero;
     }
 
-    private void ShowWindow(Window? window)
+    private IntPtr Activate()
     {
-        if (window == null)
-        {
-            return;
-        }
+        _logger.LogInformation("Activating app");
 
+        _appLifecycleService.Activate();
+
+        var window = _signInWindow ?? _onboardingWindow ?? MainWindow;
+
+        return window is null ? IntPtr.Zero : GetWindowHandle(window);
+    }
+
+    private void OnAppLifecycleStateChanged(object? sender, AppLifecycleState appLifecycleState)
+    {
+        var window = appLifecycleState.CurrentWindow;
+
+        _logger.LogInformation("Showing {Window} window", window);
+
+        ShowWindow(window);
+    }
+
+    private void ShowWindow(AppWindow window)
+    {
+        switch (window)
+        {
+            case AppWindow.SignIn:
+                CloseWindow(MainWindow);
+                RemoveOnboardingWindow();
+                ShowSignInWindow();
+                break;
+
+            case AppWindow.Onboarding:
+                CloseWindow(MainWindow);
+                RemoveSignInWindow();
+                ShowOnboardingWindow();
+                break;
+
+            case AppWindow.Main:
+                RemoveSignInWindow();
+                RemoveOnboardingWindow();
+
+                if (MainWindow is null)
+                {
+                    return;
+                }
+
+                ShowWindow(MainWindow);
+                break;
+
+            case AppWindow.None:
+                RemoveSignInWindow();
+                RemoveOnboardingWindow();
+                CloseWindow(MainWindow);
+                break;
+
+            default:
+                throw new InvalidEnumArgumentException(nameof(window), (int)window, typeof(AppWindow));
+        }
+    }
+
+    private void ShowWindow(Window window)
+    {
         if (!window.IsVisible)
         {
             window.Show();
@@ -212,17 +224,11 @@ internal partial class App : IApp, ISessionStateAware, IDialogService
         window.Topmost = false;
         window.Focus();
 
-        if (_crashOnMainWindowActivation && window == MainWindow)
+        if (_appArguments.CrashMode is AppCrashMode.OnMainWindowActivation && _hasAttemptedToCrash && window == MainWindow)
         {
-            _crashOnMainWindowActivation = false;
+            _hasAttemptedToCrash = true;
             throw new IntentionalCrashException();
         }
-    }
-
-    private void CancelSignIn()
-    {
-        var session = _host.Services.GetRequiredService<SessionWorkflowViewModel>();
-        session.Cancel();
     }
 
     private void OnAppDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -251,45 +257,69 @@ internal partial class App : IApp, ISessionStateAware, IDialogService
         _errorReporting.CaptureException(e.Exception);
     }
 
-    private void CreateAndShowSignInWindow()
+    private void ShowSignInWindow()
     {
-        if (_signInWindow != null)
-        {
-            ShowWindow(_signInWindow);
-            return;
-        }
+        _signInWindow ??= CreateSignInWindow();
 
+        ShowWindow(_signInWindow);
+    }
+
+    private Window CreateSignInWindow()
+    {
         var dialogViewModel = _host.Services.GetRequiredService<SessionWorkflowViewModel>();
 
-        var signInWindow = new DialogWindow
+        _signInWindow = new DialogWindow
         {
             DataContext = dialogViewModel,
         };
 
-        _signInWindow = signInWindow;
-        signInWindow.Closing += OnSignInWindowClosing;
-        signInWindow.Show();
+        _signInWindow.Closing += OnUserClosingSignInWindow;
+
+        return _signInWindow;
     }
 
-    private void CloseSignInWindow()
+    private void ShowOnboardingWindow()
     {
-        var signInWindow = _signInWindow;
+        if (_onboardingWindow is null)
+        {
+            var viewModel = _host.Services.GetRequiredService<OnboardingViewModel>();
 
-        if (signInWindow == null)
+            _onboardingWindow = new OnboardingWindow
+            {
+                DataContext = viewModel,
+            };
+        }
+
+        ShowWindow(_onboardingWindow);
+    }
+
+    private void RemoveSignInWindow(bool isClosing = false)
+    {
+        if (_signInWindow == null)
         {
             return;
         }
 
+        _signInWindow.Closing -= OnUserClosingSignInWindow;
+
+        if (!isClosing)
+        {
+            _signInWindow.Close();
+        }
+
         _signInWindow = null;
-        signInWindow.Closing -= OnSignInWindowClosing;
-        signInWindow.Close();
     }
 
-    private void OnSignInWindowClosing(object? sender, CancelEventArgs e)
+    private void RemoveOnboardingWindow()
+    {
+        _onboardingWindow?.Close();
+        _onboardingWindow = null;
+    }
+
+    private void OnUserClosingSignInWindow(object? sender, CancelEventArgs e)
     {
         // ReSharper disable once LocalizableElement
         var signInWindow = sender as Window ?? throw new ArgumentException("This should not have happened", nameof(sender));
-        signInWindow.Closing -= OnSignInWindowClosing;
 
         if (_signInWindow != signInWindow)
         {
@@ -297,14 +327,18 @@ internal partial class App : IApp, ISessionStateAware, IDialogService
         }
 
         var sessionWorkflowViewModel = (SessionWorkflowViewModel)signInWindow.DataContext;
-        sessionWorkflowViewModel.Cancel();
+        sessionWorkflowViewModel.CancelAuthentication();
 
-        _signInWindow = null;
+        RemoveSignInWindow(isClosing: true);
     }
 
-    private bool IsUserSignedOut()
+    private Task Schedule(Action action)
     {
-        return (_previousSessionStatus is SessionStatus.NotStarted or SessionStatus.Ending)
-               || (_previousSessionStatus is SessionStatus.SigningIn && _signInWindow == null);
+        return _scheduler.Schedule(action);
+    }
+
+    private Task<TResult> Schedule<TResult>(Func<TResult> function)
+    {
+        return _scheduler.Schedule(function);
     }
 }

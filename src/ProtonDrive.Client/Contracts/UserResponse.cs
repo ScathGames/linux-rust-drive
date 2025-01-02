@@ -2,11 +2,11 @@
 
 public sealed record UserResponse : ApiResponse
 {
-    private User? _user;
+    private readonly User? _user;
 
-    public User User
+    public required User User
     {
-        get => _user ??= new User();
+        get => _user ?? throw new ApiException("User is not set");
         init => _user = value;
     }
 }

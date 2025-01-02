@@ -430,6 +430,24 @@ namespace ProtonDrive.App.Windows.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please ensure that your cloud storage provider (e.g., OneDrive) is running and connected..
+        /// </summary>
+        internal static string FileSystemErrorCode_val_CloudFileProviderNotRunning {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_CloudFileProviderNotRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data error (cyclic redundancy check). Please, check your drive (USB, disk etc...) for file system errors and bad sectors..
+        /// </summary>
+        internal static string FileSystemErrorCode_val_CyclicRedundancyCheck {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_CyclicRedundancyCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find a part of the path.
         /// </summary>
         internal static string FileSystemErrorCode_val_DirectoryNotFound {
@@ -475,7 +493,7 @@ namespace ProtonDrive.App.Windows.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Name is not valid.
+        ///   Looks up a localized string similar to The name contains characters not supported by Windows. Please remove the following characters to allow syncing: \ / : * ? &quot; &lt; &gt; |.
         /// </summary>
         internal static string FileSystemErrorCode_val_InvalidName {
             get {
@@ -498,6 +516,25 @@ namespace ProtonDrive.App.Windows.Resources {
         internal static string FileSystemErrorCode_val_MetadataMismatch {
             get {
                 return ResourceManager.GetString("FileSystemErrorCode_val_MetadataMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The original file shared with you has been deleted, moved or renamed.
+        ///Toggle its sync off and on again to restore it and clear this error..
+        /// </summary>
+        internal static string FileSystemErrorCode_val_MissingIndividuallySharedFile {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_MissingIndividuallySharedFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t connect to Proton Drive. Try checking your internet connection..
+        /// </summary>
+        internal static string FileSystemErrorCode_val_NetworkError {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_NetworkError", resourceCulture);
             }
         }
         
@@ -534,6 +571,42 @@ namespace ProtonDrive.App.Windows.Resources {
         internal static string FileSystemErrorCode_val_PathNotFound {
             get {
                 return ResourceManager.GetString("FileSystemErrorCode_val_PathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something went wrong.
+        /// </summary>
+        internal static string FileSystemErrorCode_val_RateLimited {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_RateLimited", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File is read-only.
+        /// </summary>
+        internal static string FileSystemErrorCode_val_ReadOnlyFile {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_ReadOnlyFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View-only files and folders can&apos;t be modified. Turn sync off and on under &quot;Shared with me&quot; to resolve..
+        /// </summary>
+        internal static string FileSystemErrorCode_val_ReadOnlyRoot {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_ReadOnlyRoot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something went wrong.
+        /// </summary>
+        internal static string FileSystemErrorCode_val_ServerError {
+            get {
+                return ResourceManager.GetString("FileSystemErrorCode_val_ServerError", resourceCulture);
             }
         }
         
@@ -637,7 +710,7 @@ namespace ProtonDrive.App.Windows.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Free up space or deselect the checkbox..
+        ///   Looks up a localized string similar to Free up space or deselect the checkbox.
         /// </summary>
         internal static string MappingErrorCode_val_InsufficientLocalFreeSpace {
             get {
@@ -651,15 +724,6 @@ namespace ProtonDrive.App.Windows.Resources {
         internal static string MappingErrorCode_val_LocalAndRemoteFoldersNotEmpty {
             get {
                 return ResourceManager.GetString("MappingErrorCode_val_LocalAndRemoteFoldersNotEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sync file not found. It may have been deleted, renamed, or moved. Restore it or set it up again..
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFileDoesNotExist {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFileDoesNotExist", resourceCulture);
             }
         }
         
@@ -741,6 +805,24 @@ namespace ProtonDrive.App.Windows.Resources {
         internal static string MappingErrorCode_val_None {
             get {
                 return ResourceManager.GetString("MappingErrorCode_val_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can’t access shared Proton Drive file or folder. Check if it is still shared with you..
+        /// </summary>
+        internal static string MappingErrorCode_val_RemoteShareWithMeItemDoesNotExist {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_val_RemoteShareWithMeItemDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions of shared Proton Drive file or folder have changed. Toggle its sync off and on again to resolve..
+        /// </summary>
+        internal static string MappingErrorCode_val_RemoteShareWithMeItemPermissionsDiverged {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_val_RemoteShareWithMeItemPermissionsDiverged", resourceCulture);
             }
         }
         
@@ -912,15 +994,6 @@ namespace ProtonDrive.App.Windows.Resources {
         internal static string SyncFolderValidationResult_val_InsufficientLocalFreeSpace {
             get {
                 return ResourceManager.GetString("SyncFolderValidationResult_val_InsufficientLocalFreeSpace", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The file cannot be found.
-        /// </summary>
-        internal static string SyncFolderValidationResult_val_LocalFileDoesNotExist {
-            get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_LocalFileDoesNotExist", resourceCulture);
             }
         }
         

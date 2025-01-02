@@ -8,6 +8,7 @@ using ProtonDrive.Shared.Logging;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Adapter.Shared;
 using ProtonDrive.Sync.Adapter.Trees.Adapter;
+using ProtonDrive.Sync.Adapter.UpdateDetection.StateBased.Enumeration;
 using ProtonDrive.Sync.Shared.Adapters;
 using ProtonDrive.Sync.Shared.FileSystem;
 using ProtonDrive.Sync.Shared.Trees.FileSystem;
@@ -23,6 +24,7 @@ internal sealed class FileRevisionProvider<TId, TAltId> : IFileRevisionProvider<
     private readonly AdapterTree<TId, TAltId> _adapterTree;
     private readonly IFileSystemClient<TAltId> _fileSystemClient;
     private readonly IReadOnlyDictionary<TId, RootInfo<TAltId>> _syncRoots;
+    private readonly EnumerationFailureStep<TId, TAltId> _failureStep;
     private readonly TimeSpan _minDelayBeforeFileUpload;
 
     public FileRevisionProvider(
@@ -30,6 +32,7 @@ internal sealed class FileRevisionProvider<TId, TAltId> : IFileRevisionProvider<
         AdapterTree<TId, TAltId> adapterTree,
         IFileSystemClient<TAltId> fileSystemClient,
         IReadOnlyDictionary<TId, RootInfo<TAltId>> syncRoots,
+        EnumerationFailureStep<TId, TAltId> failureStep,
         TimeSpan minDelayBeforeFileUpload,
         ILogger<FileRevisionProvider<TId, TAltId>> logger)
     {
@@ -38,12 +41,13 @@ internal sealed class FileRevisionProvider<TId, TAltId> : IFileRevisionProvider<
         _adapterTree = adapterTree;
         _fileSystemClient = fileSystemClient;
         _syncRoots = syncRoots;
+        _failureStep = failureStep;
         _minDelayBeforeFileUpload = minDelayBeforeFileUpload;
     }
 
     public async Task<IRevision> OpenFileForReadingAsync(TId id, long contentVersion, CancellationToken cancellationToken)
     {
-        var fileInfo = await Schedule(() => Prepare(id, contentVersion)).ConfigureAwait(false);
+        var (fileInfo, initialNodeModel) = await Schedule(() => Prepare(id, contentVersion), cancellationToken).ConfigureAwait(false);
 
         var pathToLog = _logger.GetSensitiveValueForLogging(fileInfo.Path);
         _logger.LogInformation(
@@ -60,6 +64,8 @@ internal sealed class FileRevisionProvider<TId, TAltId> : IFileRevisionProvider<
         }
         catch (FileSystemClientException ex)
         {
+            await Schedule(() => HandleFailure(ex, initialNodeModel), cancellationToken).ConfigureAwait(false);
+
             throw new FileRevisionProviderException(
                 $"Reading the file \"{fileInfo.Root?.Id}\"/{id} {fileInfo.GetCompoundId()} failed: {ex.CombinedMessage()}",
                 ex.ErrorCode,
@@ -67,32 +73,32 @@ internal sealed class FileRevisionProvider<TId, TAltId> : IFileRevisionProvider<
         }
     }
 
-    private NodeInfo<TAltId> Prepare(TId nodeId, long requestedVersion)
+    private (NodeInfo<TAltId> NodeInfo, AdapterTreeNodeModel<TId, TAltId> NodeModel) Prepare(TId nodeId, long requestedVersion)
     {
-        var node = NodeById(nodeId);
+        var node = _adapterTree.NodeByIdOrDefault(nodeId) ?? throw new FileRevisionProviderException(
+            $"Adapter Tree node with Id={nodeId} does not exist",
+            FileSystemErrorCode.ObjectNotFound);
 
         ValidatePreconditions(node, requestedVersion);
 
-        return ToNodeInfo(node);
-    }
-
-    private AdapterTreeNode<TId, TAltId> NodeById(TId nodeId)
-    {
-        return _adapterTree.NodeByIdOrDefault(nodeId)
-               ?? throw new FileRevisionProviderException($"Adapter Tree node with Id={nodeId} does not exist", FileSystemErrorCode.ObjectNotFound);
+        return (ToNodeInfo(node), node.Model);
     }
 
     private void ValidatePreconditions(AdapterTreeNode<TId, TAltId> node, long contentVersion)
     {
         if (node.Type != NodeType.File)
         {
-            throw new FileRevisionProviderException($"Adapter Tree node with Id={node.Id} is not a file");
+            throw new FileRevisionProviderException(
+                $"Adapter Tree node with Id={node.Id} is not a file",
+                FileRevisionProviderErrorCode.NotAFile);
         }
 
         var syncRoot = _syncRoots[node.GetSyncRoot().Id];
         if (!syncRoot.IsEnabled)
         {
-            throw new FileRevisionProviderException($"Adapter Tree node with Id={node.Id} is in a disabled root with Id={syncRoot.Id}");
+            throw new FileRevisionProviderException(
+                $"Adapter Tree node with Id={node.Id} is in a disabled root with Id={syncRoot.Id}",
+                FileRevisionProviderErrorCode.RootDisabled);
         }
 
         if (node.Model.IsDirtyPlaceholder())
@@ -102,13 +108,16 @@ internal sealed class FileRevisionProvider<TId, TAltId> : IFileRevisionProvider<
 
         if (node.IsNodeOrBranchDeleted())
         {
-            throw new FileRevisionProviderException($"Adapter Tree node with Id={node.Id} or branch is deleted");
+            throw new FileRevisionProviderException(
+                $"Adapter Tree node with Id={node.Id} or branch is deleted",
+                FileRevisionProviderErrorCode.NodeOrBranchDeleted);
         }
 
         if (node.Model.ContentVersion != contentVersion)
         {
             throw new FileRevisionProviderException(
-                $"File with Id={node.Id} content version has diverged from expected {contentVersion} to {node.Model.ContentVersion}");
+                $"File with Id={node.Id} content version has diverged from expected {contentVersion} to {node.Model.ContentVersion}",
+                FileRevisionProviderErrorCode.ContentVersionDiverged);
         }
 
         if (node.Model.ContentHasChangedRecently(_minDelayBeforeFileUpload))
@@ -119,13 +128,29 @@ internal sealed class FileRevisionProvider<TId, TAltId> : IFileRevisionProvider<
         }
     }
 
+    private void HandleFailure(Exception exception, AdapterTreeNodeModel<TId, TAltId> initialNodeModel)
+    {
+        _failureStep.Execute(exception, initialNodeModel);
+    }
+
     private NodeInfo<TAltId> ToNodeInfo(AdapterTreeNode<TId, TAltId> node)
     {
         return node.ToNodeInfo(_syncRoots);
     }
 
-    private Task<T> Schedule<T>(Func<T> origin)
+    private async Task Schedule(Action origin, CancellationToken cancellationToken)
     {
-        return _syncScheduler.Schedule(origin);
+        using (await _syncScheduler.LockAsync(cancellationToken).ConfigureAwait(false))
+        {
+            origin.Invoke();
+        }
+    }
+
+    private async Task<T> Schedule<T>(Func<T> origin, CancellationToken cancellationToken)
+    {
+        using (await _syncScheduler.LockAsync(cancellationToken).ConfigureAwait(false))
+        {
+            return origin.Invoke();
+        }
     }
 }

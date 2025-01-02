@@ -52,6 +52,7 @@ internal sealed class SyncAgentFactory
     private readonly ILocalVolumeInfoProvider _localVolumeInfoProvider;
     private readonly IThumbnailGenerator _thumbnailGenerator;
     private readonly IRootDeletionHandler _syncRootDeletionHandler;
+    private readonly ISyncFolderStructureProtector _folderStructureProtector;
     private readonly IScheduler _scheduler;
     private readonly IClock _clock;
     private readonly ILoggerFactory _loggerFactory;
@@ -66,6 +67,7 @@ internal sealed class SyncAgentFactory
         ILocalVolumeInfoProvider localVolumeInfoProvider,
         IThumbnailGenerator thumbnailGenerator,
         IRootDeletionHandler syncRootDeletionHandler,
+        ISyncFolderStructureProtector folderStructureProtector,
         IScheduler scheduler,
         IClock clock,
         ILoggerFactory loggerFactory,
@@ -79,6 +81,7 @@ internal sealed class SyncAgentFactory
         _localVolumeInfoProvider = localVolumeInfoProvider;
         _thumbnailGenerator = thumbnailGenerator;
         _syncRootDeletionHandler = syncRootDeletionHandler;
+        _folderStructureProtector = folderStructureProtector;
         _scheduler = scheduler;
         _clock = clock;
         _loggerFactory = loggerFactory;
@@ -146,13 +149,14 @@ internal sealed class SyncAgentFactory
                 _loggerFactory,
                 () => new ClassicFileSystemClient(_thumbnailGenerator),
                 () => new OnDemandHydrationFileSystemClient(_thumbnailGenerator, _loggerFactory),
-                fileUploadAbortionStrategy)
+                fileUploadAbortionStrategy,
+                _folderStructureProtector)
             .GetClient(mappings, localAdapterSettings);
 
         var localEventLogClient =
             new LocalDecoratedEventLogClientFactory(
                     _loggerFactory,
-                    entriesFilter => new EventLogClient(entriesFilter, _loggerFactory.CreateLogger<EventLogClient>()),
+                    () => new EventLogClient(),
                     _localSyncRootMapForDeletionDetectionFactory,
                     fileUploadAbortionStrategy,
                     _syncRootDeletionHandler)

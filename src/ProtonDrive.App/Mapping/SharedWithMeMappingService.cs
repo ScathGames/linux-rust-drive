@@ -40,7 +40,8 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
         _mappingRegistry = mappingRegistry;
         _logger = logger;
 
-        _mappingMaintenance = _logger.GetCoalescingActionWithExceptionsLoggingAndCancellationHandling(MaintainMappingsAsync, nameof(SharedWithMeMappingService));
+        _mappingMaintenance =
+            _logger.GetCoalescingActionWithExceptionsLoggingAndCancellationHandling(MaintainMappingsAsync, nameof(SharedWithMeMappingService));
     }
 
     Task IStoppableService.StopAsync(CancellationToken cancellationToken)
@@ -65,14 +66,13 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
 
     public async Task AddSharedWithMeItemAsync(SharedWithMeItem item, CancellationToken cancellationToken)
     {
-        Ensure.IsFalse(item.IsReadOnly, "Must be non read-only", nameof(item));
         Ensure.NotNullOrEmpty(item.Id, nameof(item), nameof(item.Id));
         Ensure.NotNullOrEmpty(item.LinkId, nameof(item), nameof(item.LinkId));
         Ensure.NotNullOrEmpty(item.VolumeId, nameof(item), nameof(item.VolumeId));
         Ensure.NotNullOrEmpty(item.Name, nameof(item), nameof(item.Name));
 
         var nameToLog = _logger.GetSensitiveValueForLogging(item.Name);
-        _logger.LogInformation("Requested to add shared with me folder \"{Name}\"", nameToLog);
+        _logger.LogInformation("Requested to add shared with me {Type} \"{Name}\"", GetItemTypeName(item), nameToLog);
 
         using var mappings = await _mappingRegistry.GetMappingsAsync(cancellationToken).ConfigureAwait(false);
 
@@ -80,21 +80,21 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
 
         if (activeMappings.Any(m => IsMappingOfSharedWithMeItem(m, item)))
         {
-            _logger.LogInformation("Ignored shared with me folder \"{Name}\", since it is already mapped", nameToLog);
+            _logger.LogWarning("Ignored shared with me {Type} \"{Name}\", since it is already mapped", GetItemTypeName(item), nameToLog);
         }
 
-        var itemsPath = _syncFolderPathProvider.GetSharedWithMeItemsFolderPath();
+        var sharedWithMeRootPath = _syncFolderPathProvider.GetSharedWithMeRootFolderPath();
 
-        if (string.IsNullOrEmpty(itemsPath))
+        if (string.IsNullOrEmpty(sharedWithMeRootPath))
         {
-            _logger.LogWarning("Cannot obtain shared with me items path, possibly due to account root folder is not defined");
+            _logger.LogWarning("Cannot obtain shared with me root folder path, possibly due to account root folder not being defined");
 
             return;
         }
 
-        if (!activeMappings.Any(IsSharedWithMeItemsFolderMapping))
+        if (!activeMappings.Any(IsSharedWithMeRootFolderMapping))
         {
-            mappings.Add(CreateSharedWithMeItemsFolderMapping(itemsPath));
+            mappings.Add(CreateSharedWithMeRootFolderMapping(sharedWithMeRootPath));
         }
 
         var namesInUse = activeMappings
@@ -102,9 +102,9 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
             .Select(GetLocalName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var uniqueName = GetUniqueName(item.Name, namesInUse, itemsPath, item.IsFolder);
+        var uniqueName = GetUniqueName(item.Name, namesInUse, sharedWithMeRootPath, item.IsFolder);
 
-        mappings.Add(CreateSharedWithMeItemMapping(item, uniqueName, itemsPath));
+        mappings.Add(CreateSharedWithMeItemMapping(item, uniqueName, sharedWithMeRootPath));
 
         Save(mappings);
     }
@@ -115,7 +115,8 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
 
         var nameToLog = _logger.GetSensitiveValueForLogging(item.Name);
         _logger.LogInformation(
-            "Requested to remove shared with me folder \"{Name}\" (remote volume ID={VolumeId}, link ID={LinkId}, share ID={ShareId})",
+            "Requested to remove shared with me {Type} \"{Name}\" (remote volume ID={VolumeId}, link ID={LinkId}, share ID={ShareId})",
+            GetItemTypeName(item),
             nameToLog,
             item.VolumeId,
             item.LinkId,
@@ -125,25 +126,24 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
 
         if (mapping is null)
         {
-            _logger.LogWarning("Unable to find mapping for shared with me sync folder \"{Name}\"", nameToLog);
+            _logger.LogWarning("Unable to find mapping for shared with me sync {Type} \"{Name}\"", GetItemTypeName(item), nameToLog);
 
             return;
         }
 
         mappings.Delete(mapping);
 
-        TryDeleteSharedWithMeItemsFolderMapping(mappings);
+        TryDeleteSharedWithMeRootFolderMapping(mappings);
 
         Save(mappings);
     }
 
     internal Task WaitForCompletionAsync()
     {
-        // Wait for all scheduled tasks to complete
-        return _mappingMaintenance.CurrentTask;
+        return _mappingMaintenance.WaitForCompletionAsync();
     }
 
-    private static RemoteToLocalMapping CreateSharedWithMeItemsFolderMapping(string folderPath)
+    private static RemoteToLocalMapping CreateSharedWithMeRootFolderMapping(string folderPath)
     {
         return new RemoteToLocalMapping
         {
@@ -151,12 +151,12 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
             SyncMethod = SyncMethod.OnDemand,
             Local =
             {
-                RootFolderPath = folderPath,
+                Path = folderPath,
             },
         };
     }
 
-    private static RemoteToLocalMapping CreateSharedWithMeItemMapping(SharedWithMeItem item, string localFolderName, string sharedWithMeRootPath)
+    private static RemoteToLocalMapping CreateSharedWithMeItemMapping(SharedWithMeItem item, string localItemName, string sharedWithMeRootPath)
     {
         return new RemoteToLocalMapping
         {
@@ -164,20 +164,21 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
             SyncMethod = SyncMethod.OnDemand,
             Local =
             {
-                RootFolderPath = item.IsFolder ? Path.Combine(sharedWithMeRootPath, localFolderName) : sharedWithMeRootPath,
+                Path = Path.Combine(sharedWithMeRootPath, localItemName),
             },
             Remote =
             {
                 ShareId = item.Id,
                 RootLinkId = item.LinkId,
                 VolumeId = item.VolumeId,
-                RootFolderName = localFolderName,
-                RootLinkType = item.IsFolder ? LinkType.Folder : LinkType.File,
+                RootItemName = item.Name,
+                IsReadOnly = item.IsReadOnly,
+                RootItemType = item.IsFolder ? LinkType.Folder : LinkType.File,
             },
         };
     }
 
-    private static RemoteToLocalMapping CreateSharedWithMeItemMapping(RemoteToLocalMapping mapping, string uniqueName, string sharedWithMeRootPath)
+    private static RemoteToLocalMapping CreateSharedWithMeItemMapping(RemoteToLocalMapping mapping, string localItemName, string sharedWithMeRootPath)
     {
         return new RemoteToLocalMapping
         {
@@ -185,38 +186,40 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
             SyncMethod = SyncMethod.OnDemand,
             Local =
             {
-                RootFolderPath = Path.Combine(sharedWithMeRootPath, uniqueName),
+                Path = Path.Combine(sharedWithMeRootPath, localItemName),
             },
-            Remote = new RemoteReplica
+            Remote =
             {
                 RootLinkId = mapping.Remote.RootLinkId,
                 ShareId = mapping.Remote.ShareId,
                 VolumeId = mapping.Remote.VolumeId,
-                RootFolderName = mapping.Remote.RootFolderName,
+                RootItemName = mapping.Remote.RootItemName,
                 IsReadOnly = mapping.Remote.IsReadOnly,
-                RootLinkType = mapping.Remote.RootLinkType,
+                RootItemType = mapping.Remote.RootItemType,
             },
         };
     }
 
     private static bool IsMappingOfSharedWithMeItem(RemoteToLocalMapping mapping, SharedWithMeItem item)
     {
-        return IsSharedWithMeItemMapping(mapping) &&
-            ((mapping.Remote.RootLinkId == item.LinkId &&
-                    mapping.Remote.VolumeId == item.VolumeId) ||
-                (mapping.Remote.ShareId == item.Id));
+        return IsSharedWithMeItemMapping(mapping)
+            && ((mapping.Remote.RootLinkId == item.LinkId
+                    && mapping.Remote.VolumeId == item.VolumeId)
+                || (mapping.Remote.ShareId == item.Id));
     }
 
-    private static bool IsSharedWithMeMapping(RemoteToLocalMapping mapping) => IsSharedWithMeItemsFolderMapping(mapping) || IsSharedWithMeItemMapping(mapping);
-    private static bool IsSharedWithMeItemsFolderMapping(RemoteToLocalMapping mapping) => mapping.Type is MappingType.SharedWithMeRootFolder;
+    private static bool IsSharedWithMeMapping(RemoteToLocalMapping mapping) => IsSharedWithMeRootFolderMapping(mapping) || IsSharedWithMeItemMapping(mapping);
+    private static bool IsSharedWithMeRootFolderMapping(RemoteToLocalMapping mapping) => mapping.Type is MappingType.SharedWithMeRootFolder;
     private static bool IsSharedWithMeItemMapping(RemoteToLocalMapping mapping) => mapping.Type is MappingType.SharedWithMeItem;
 
     private static string GetLocalName(RemoteToLocalMapping mapping)
     {
-        return Path.GetFileName(mapping.Local.RootFolderPath);
+        return Path.GetFileName(mapping.Local.Path);
     }
 
-    private string GetUniqueName(string name, ISet<string> namesInUse, string parentPath, bool isFolder)
+    private static string GetItemTypeName(SharedWithMeItem item) => item.IsFolder ? "folder" : "file";
+
+    private string GetUniqueName(string name, HashSet<string> namesInUse, string parentPath, bool isFolder)
     {
         var nameGenerator = new NumberSuffixedNameGenerator(name, isFolder ? NameType.Folder : NameType.File);
 
@@ -224,9 +227,9 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
             candidateName =>
             {
                 var itemPath = Path.Combine(parentPath, candidateName);
-                return !namesInUse.Contains(candidateName) &&
-                       !_localFolderService.FolderExists(itemPath) &&
-                       !_localFolderService.FileExists(itemPath);
+                return !namesInUse.Contains(candidateName)
+                    && !_localFolderService.FolderExists(itemPath)
+                    && !_localFolderService.FileExists(itemPath);
             });
 
         namesInUse.Add(uniqueName);
@@ -254,9 +257,9 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
         var activeMappings = mappings.GetActive();
 
         var cloudFilesMapping = activeMappings.FirstOrDefault(m => m.Type is MappingType.CloudFiles);
-        var sharedWithMeItemsFolderPath = _syncFolderPathProvider.GetSharedWithMeItemsFolderPath();
+        var sharedWithMeRootFolderPath = _syncFolderPathProvider.GetSharedWithMeRootFolderPath();
 
-        if (cloudFilesMapping == null || string.IsNullOrEmpty(sharedWithMeItemsFolderPath))
+        if (cloudFilesMapping == null || string.IsNullOrEmpty(sharedWithMeRootFolderPath))
         {
             return;
         }
@@ -291,20 +294,20 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
         {
             if (mapping.Type is MappingType.SharedWithMeRootFolder)
             {
-                return CreateSharedWithMeItemsFolderMapping(sharedWithMeItemsFolderPath);
+                return CreateSharedWithMeRootFolderMapping(sharedWithMeRootFolderPath);
             }
 
             var uniqueName = GetUniqueName(
-                mapping.Remote.RootFolderName ?? string.Empty,
+                mapping.Remote.RootItemName ?? string.Empty,
                 namesInUse,
-                sharedWithMeItemsFolderPath,
-                mapping.Type is MappingType.SharedWithMeItem);
+                sharedWithMeRootFolderPath,
+                mapping.Remote.RootItemType is LinkType.Folder);
 
-            return CreateSharedWithMeItemMapping(mapping, uniqueName, sharedWithMeItemsFolderPath);
+            return CreateSharedWithMeItemMapping(mapping, uniqueName, sharedWithMeRootFolderPath);
         }
     }
 
-    private void TryDeleteSharedWithMeItemsFolderMapping(IUpdatableMappings mappings)
+    private void TryDeleteSharedWithMeRootFolderMapping(IUpdatableMappings mappings)
     {
         var activeMappings = mappings.GetActive();
 
@@ -313,11 +316,11 @@ internal sealed class SharedWithMeMappingService : ISharedWithMeMappingService, 
             return;
         }
 
-        var itemsMapping = activeMappings.FirstOrDefault(IsSharedWithMeItemsFolderMapping);
+        var itemsMapping = activeMappings.FirstOrDefault(IsSharedWithMeRootFolderMapping);
 
         if (itemsMapping == null)
         {
-            _logger.LogWarning("Unable to find mapping for shared with me items folder");
+            _logger.LogWarning("Unable to find mapping for shared with me root folder");
 
             return;
         }

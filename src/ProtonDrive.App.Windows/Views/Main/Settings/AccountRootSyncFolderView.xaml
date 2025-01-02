@@ -15,14 +15,14 @@
     d:DataContext="{d:DesignInstance settings:AccountRootSyncFolderViewModel}">
     <StackPanel>
         <TextBlock
-            Text="Your Proton Drive folder:"
             AutomationProperties.HeadingLevel="Level2"
+            Text="Your Proton Drive folder:"
             FontWeight="SemiBold" />
 
         <Button
             AutomationProperties.AutomationId="SelectFolderButton"
-            Command="{Binding SelectFolderCommand}"
             AutomationProperties.HelpText="Change your Proton Drive root folder."
+            Command="{Binding SelectFolderCommand}"
             Foreground="{StaticResource GrayBrush}"
             Style="{StaticResource SectionButtonStyle}"
             Margin="0,15,0,0">

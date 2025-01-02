@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+    <Property Id="EXISTINGINITIATORVALUE">
+      <RegistrySearch Id="ReadRegistryValue" Root="HKCU" Key="SOFTWARE\Proton\Drive" Name="InstallationInitiator" Type="raw" />
+    </Property>
+    
+    <SetProperty Action="SetEffectiveInitiatorFromArgument" Id="EffectiveInitiator" Condition="NOT EXISTINGINITIATORVALUE" Value="[INITIATOR]" Before="AppSearch" Sequence="execute" />
+    <SetProperty Action="SetEffectiveInitiatorFromExisting" Id="EffectiveInitiator" Condition="EXISTINGINITIATORVALUE" Value="[EXISTINGINITIATORVALUE]" Before="AppSearch" Sequence="execute" />
+
+    <Component Id="InstallationInitiatorRegistryEntry">
+      <RegistryValue Root="HKCU" Key="Software\Proton\Drive" Name="InstallationInitiator" Type="string" Value="[EffectiveInitiator]" KeyPath="yes" />
+    </Component>
+  </Fragment>
+</Wix>

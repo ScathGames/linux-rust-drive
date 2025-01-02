@@ -13,4 +13,8 @@ public interface IPaymentsApiClient
     [Get("/v4/subscription")]
     [BearerAuthorizationHeader]
     Task<SubscriptionResponse> GetSubscriptionAsync(CancellationToken cancellationToken);
+
+    [Get("/v4/subscription/latest")]
+    [BearerAuthorizationHeader]
+    Task<LatestSubscriptionResponse> GetLatestSubscriptionAsync(CancellationToken cancellationToken);
 }

@@ -345,6 +345,9 @@ public sealed class GenericAdapter<TId, TAltId> : ISyncAdapter<TId>, IManagedAda
                     FileSystemTree,
                     fileSystemClient,
                     syncRoots,
+                    new EnumerationFailureStep<TId, TAltId>(
+                        loggerFactory.CreateLogger<EnumerationFailureStep<TId, TAltId>>(),
+                        FileSystemTree),
                     minDelayBeforeFileUpload,
                     loggerFactory.CreateLogger<FileRevisionProvider<TId, TAltId>>()));
 

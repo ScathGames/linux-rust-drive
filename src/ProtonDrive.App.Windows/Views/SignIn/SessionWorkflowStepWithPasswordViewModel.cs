@@ -30,8 +30,6 @@ internal abstract class SessionWorkflowStepWithPasswordViewModel : SessionWorkfl
         });
     }
 
-    protected abstract void OnPasswordChanged();
-
     [DeferredValidation]
     public SecureString? Password
     {
@@ -74,6 +72,8 @@ internal abstract class SessionWorkflowStepWithPasswordViewModel : SessionWorkfl
 
     public ICommand DisplayPlainPasswordCommand { get; }
     public ICommand HidePlainPasswordCommand { get; }
+
+    protected abstract void OnPasswordChanged();
 
     protected void HidePlainPassword()
     {

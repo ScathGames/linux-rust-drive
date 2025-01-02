@@ -1,8 +1,10 @@
 ﻿namespace ProtonDrive.App.Settings;
 
-public class OnboardingSettings
+public sealed record OnboardingSettings
 {
-    public bool IsSyncFolderSelectionCompleted { get; set; }
-    public bool IsAccountRootFolderSelectionCompleted { get; set; }
-    public bool IsUpgradeStorageStepCompleted { get; set; }
+    public bool IsSyncFolderSelectionCompleted { get; init; }
+    public bool IsAccountRootFolderSelectionCompleted { get; init; }
+    public bool IsUpgradeStorageStepCompleted { get; init; }
+    public bool IsOnboardingCompleted { get; init; }
+    public bool IsSharedWithMeOnboardingCompleted { get; init; }
 }

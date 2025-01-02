@@ -56,8 +56,7 @@
             AutomationProperties.AutomationId="SharedWithMeMenuItem"
             AutomationProperties.HelpText="Menu item: Shared with me"
             IsChecked="{Binding CurrentMenuItem, ConverterParameter={x:Static main:ApplicationPage.SharedWithMe}, Converter={x:Static conv:ObjectEqualityToBooleanConverter.EqualIsTrue}}"
-            Style="{StaticResource MenuToggleButtonWithIndicatorStyle}"
-            Visibility="{Binding IsSharedWithMePageVisible, Converter={x:Static conv:BooleanToVisibilityConverter.FalseIsCollapsed}}">
+            Style="{StaticResource MenuToggleButtonWithIndicatorStyle}">
             <StackPanel Orientation="Horizontal">
                 <Image
                     Source="{StaticResource Icon.NavigationMenu.Users}"
@@ -66,6 +65,7 @@
 
                 <TextBlock
                     Text="Shared with me"
+                    VerticalAlignment="Center"
                     Margin="10,0,0,0" />
 
                 <ContentControl
@@ -74,6 +74,13 @@
                     Visibility="{Binding SharedWithMeNotificationBadge, Converter={x:Static conv:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={x:Null}}"
                     VerticalAlignment="Center"
                     Margin="8,2,0,0" />
+
+                <ContentControl
+                    Content="{Binding SharedWithMeOnboardingBadge}"
+                    ContentTemplate="{StaticResource SharedWithMeOnboardingBadgeTemplate}"
+                    Visibility="{Binding SharedWithMeOnboardingBadge, Converter={x:Static conv:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={x:Null}}"
+                    VerticalAlignment="Center"
+                    Margin="8,0,0,0" />
             </StackPanel>
         </RadioButton>
 

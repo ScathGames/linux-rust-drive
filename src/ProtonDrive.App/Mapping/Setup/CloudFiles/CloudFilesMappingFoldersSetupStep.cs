@@ -58,7 +58,7 @@ internal sealed class CloudFilesMappingFoldersSetupStep
 
         var result =
             await SetUpRemoteFolderAsync(mapping.Remote, cancellationToken).ConfigureAwait(false) ??
-            SetUpLocalFolder(mapping.Local, mapping.Remote.RootLinkType, cancellationToken) ??
+            SetUpLocalFolder(mapping.Local, mapping.Remote.RootItemType, cancellationToken) ??
             await ValidateBothFoldersAsync(mapping, cancellationToken).ConfigureAwait(false);
 
         return result ?? MappingErrorCode.None;
@@ -98,12 +98,12 @@ internal sealed class CloudFilesMappingFoldersSetupStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!TryCreateLocalFolder(replica.RootFolderPath))
+        if (!TryCreateLocalFolder(replica.Path))
         {
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
 
-        if (!_localFolderService.TryGetFolderInfo(replica.RootFolderPath, FileShare.ReadWrite, out var rootFolder))
+        if (!_localFolderService.TryGetFolderInfo(replica.Path, FileShare.ReadWrite, out var rootFolder))
         {
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
@@ -131,7 +131,7 @@ internal sealed class CloudFilesMappingFoldersSetupStep
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_localFolderService.TryGetFolderInfo(mapping.Local.RootFolderPath, FileShare.ReadWrite, out var rootFolder))
+        if (!_localFolderService.TryGetFolderInfo(mapping.Local.Path, FileShare.ReadWrite, out var rootFolder))
         {
             return MappingErrorCode.LocalFileSystemAccessFailed;
         }
@@ -148,7 +148,7 @@ internal sealed class CloudFilesMappingFoldersSetupStep
             return MappingErrorCode.LocalFolderDiverged;
         }
 
-        if (_localFolderService.EmptyFolderExists(mapping.Local.RootFolderPath, _specialFolders))
+        if (_localFolderService.EmptyFolderExists(mapping.Local.Path, _specialFolders))
         {
             return default;
         }

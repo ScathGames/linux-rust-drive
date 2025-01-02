@@ -1,8 +1,6 @@
 ﻿namespace ProtonDrive.App.Onboarding;
 
-public enum OnboardingState
+public sealed record OnboardingState(OnboardingStatus Status, OnboardingStep Step)
 {
-    NotStarted,
-    InProgress,
-    Completed,
+    public static OnboardingState Initial { get; } = new(default, default);
 }

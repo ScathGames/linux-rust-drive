@@ -5,12 +5,13 @@ namespace ProtonDrive.Client.Contracts;
 public sealed record Link
 {
     [JsonPropertyName("LinkID")]
-    public string Id { get; init; } = string.Empty;
+    public required string Id { get; init; }
 
     [JsonPropertyName("ParentLinkID")]
     public string? ParentId { get; init; }
 
     public LinkType Type { get; init; }
+
     public string Name { get; init; } = string.Empty;
 
     [JsonPropertyName("NameSignatureEmail")]
@@ -20,8 +21,6 @@ public sealed record Link
     public string? NameHash { get; init; }
 
     public LinkState State { get; init; }
-    public long? ExpirationTime { get; init; }
-    public long Size { get; init; }
 
     [JsonPropertyName("MIMEType")]
     public string? MediaType { get; init; }
@@ -32,7 +31,7 @@ public sealed record Link
     public string NodePassphraseSignature { get; init; } = string.Empty;
 
     [JsonPropertyName("SignatureEmail")]
-    public string SignatureEmailAddress { get; init; } = string.Empty;
+    public string? SignatureEmailAddress { get; init; }
 
     [JsonPropertyName("CreateTime")]
     public long CreationTime { get; init; }

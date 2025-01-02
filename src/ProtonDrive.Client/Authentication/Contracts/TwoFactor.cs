@@ -1,6 +1,6 @@
 ﻿namespace ProtonDrive.Client.Authentication.Contracts;
 
-public sealed record TwoFactor
+internal sealed record TwoFactor
 {
     public int Enabled { get; init; }
 }

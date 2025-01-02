@@ -50,13 +50,13 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
             return Task.FromResult(MappingErrorCode.None);
         }
 
-        if (string.IsNullOrEmpty(mapping.Local.RootFolderPath))
+        if (string.IsNullOrEmpty(mapping.Local.Path))
         {
             throw new ArgumentException("Local folder path must be specified");
         }
 
         var result =
-            ValidateFolder(mapping.Local.RootFolderPath, otherLocalSyncFolders)
+            ValidateFolder(mapping.Local.Path, otherLocalSyncFolders)
             ?? ValidateFolderIdentity(mapping);
 
         return Task.FromResult(result ?? MappingErrorCode.None);
@@ -91,7 +91,7 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
             return MappingErrorCode.LocalFolderDoesNotExist;
         }
 
-        if (!TryGetLocalFolderInfo(replica.RootFolderPath, out var rootFolderInfo))
+        if (!TryGetLocalFolderInfo(replica.Path, out var rootFolderInfo))
         {
             _logger.LogWarning("Failed to access local sync folder");
             return MappingErrorCode.LocalFileSystemAccessFailed;
@@ -103,7 +103,7 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
             return MappingErrorCode.LocalFolderDoesNotExist;
         }
 
-        if (_localFolderIdentityValidator.ValidateFolderIdentity(rootFolderInfo, replica, mapping.Remote.RootLinkType) is { } result)
+        if (_localFolderIdentityValidator.ValidateFolderIdentity(rootFolderInfo, replica, mapping.Remote.RootItemType) is { } result)
         {
             return result;
         }

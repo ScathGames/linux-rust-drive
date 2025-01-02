@@ -53,16 +53,24 @@ internal sealed class MappingClearingService : IMappingsAware, IAccountSwitching
     {
         using var mappings = await _mappingRegistry.GetMappingsAsync(cancellationToken).ConfigureAwait(false);
 
-        mappings.GetActive().ForEach(mappings.Delete);
+        mappings.GetActive().OrderDescending(HierarchicalMappingComparer.Instance).ForEach(mappings.Delete);
     }
 
     private async Task TearDownLocalFoldersAsync(CancellationToken cancellationToken)
     {
-        foreach (var mapping in _deletedMappings.Where(x => x.Status is not MappingStatus.TornDown))
+        var mappingsToTearDown = _deletedMappings
+            .Where(x => x.Status is not MappingStatus.TornDown)
+            .OrderDescending(HierarchicalMappingComparer.Instance);
+
+        foreach (var mapping in mappingsToTearDown)
         {
-            // Remote folder cannot be torn down, because current user account
-            // is not owner of the remote folder.
-            mapping.Remote = new RemoteReplica();
+            // Remote folder cannot be torn down, because after user account switching,
+            // current user account is not the owner of remote folder.
+            mapping.Remote = new RemoteReplica
+            {
+                RootItemType = mapping.Remote.RootItemType,
+                IsReadOnly = mapping.Remote.IsReadOnly,
+            };
 
             await _mappingTeardown.TearDownAsync(mapping, cancellationToken).ConfigureAwait(false);
         }

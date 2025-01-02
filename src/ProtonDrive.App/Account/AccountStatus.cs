@@ -13,6 +13,9 @@ public enum AccountStatus
     /// <summary>
     /// Setting up user account
     /// </summary>
+    /// <remarks>
+    /// Account switching is performed as part of account setup.
+    /// </remarks>
     SettingUp,
 
     /// <summary>

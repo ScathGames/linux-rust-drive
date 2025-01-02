@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.Logging;
 using ProtonDrive.Shared.Threading;
+using ProtonDrive.Sync.Adapter.Shared;
 using ProtonDrive.Sync.Adapter.Trees.Adapter;
 using ProtonDrive.Sync.Adapter.UpdateDetection;
 using ProtonDrive.Sync.Shared;
@@ -157,18 +158,18 @@ internal sealed class FileSizeCorrectionPipeline<TId, TAltId> : IFileSizeCorrect
             "Corrected size of file \"{FileName}\" with Id={Id} ({ExternalId}), ContentVersion={ContentVersion}",
             nameToLog,
             operation.Model.Id,
-            nodeInfo.Id,
+            nodeInfo.GetCompoundId(),
             operation.Model.ContentVersion);
     }
 
     private void LogFailure(ExecutableOperation<TId> operation, NodeInfo<TAltId> nodeInfo, Exception exception)
     {
         var nameToLog = _logger.GetSensitiveValueForLogging(nodeInfo.Name);
-        _logger.LogInformation(
+        _logger.LogWarning(
             "Failed to correct size of file \"{FileName}\" with Id={Id} ({ExternalId}), ContentVersion={ContentVersion}: {ErrorMessage}",
             nameToLog,
             operation.Model.Id,
-            nodeInfo.Id,
+            nodeInfo.GetCompoundId(),
             operation.Model.ContentVersion,
             exception.CombinedMessage());
     }

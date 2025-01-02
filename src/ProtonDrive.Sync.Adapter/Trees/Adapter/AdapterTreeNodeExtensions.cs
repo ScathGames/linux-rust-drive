@@ -37,6 +37,17 @@ internal static class AdapterTreeNodeExtensions
         return node.FromNodeToRoot().Any(n => n.Model.Status.HasFlag(AdapterNodeStatus.DirtyDeleted));
     }
 
+    public static bool IsBranchDirty<TId, TAltId>(this AdapterTreeNode<TId, TAltId> node)
+        where TId : IEquatable<TId>
+        where TAltId : IEquatable<TAltId>
+    {
+        return
+            /* The node flagged DirtyPlaceholder cannot contain children, it is a root of dirty branch.*/
+            node.Model.IsDirtyPlaceholder() ||
+            /* The ancestor flagged DirtyDescendants is a root of dirty branch.*/
+            node.FromParentToRoot().Any(parent => parent.Model.HasDirtyDescendantsFlag());
+    }
+
     public static IEnumerable<AdapterTreeNode<TId, TAltId>> FromParentToRoot<TId, TAltId>(this AdapterTreeNode<TId, TAltId> node)
         where TId : IEquatable<TId>
         where TAltId : IEquatable<TAltId>

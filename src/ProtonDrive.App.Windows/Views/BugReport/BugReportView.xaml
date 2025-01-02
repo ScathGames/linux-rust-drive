@@ -53,9 +53,9 @@
 
         <TextBox
             Name="EmailTextBox"
+            AutomationProperties.HelpText="Email (mandatory field)"
             Grid.Row="1"
             Text="{Binding EmailAddress, UpdateSourceTrigger=PropertyChanged}"
-            AutomationProperties.HelpText="Email (mandatory field)"
             Margin="0,10,0,0" />
 
         <Label
@@ -66,10 +66,10 @@
 
         <TextBox
             Name="TitleTextBox"
+            AutomationProperties.HelpText="Issue title (mandatory field)"
             Grid.Row="3"
             Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
             AcceptsReturn="True"
-            AutomationProperties.HelpText="Issue title (mandatory field)"
             TextWrapping="Wrap"
             VerticalScrollBarVisibility="Visible"
             Height="50"
@@ -103,11 +103,11 @@
 
         <TextBox
             Name="DescriptionTextBox"
+            AutomationProperties.HelpText="Description. What went wrong? What are the exact steps you performed? (10 characters minimum)"
+            AutomationProperties.LabeledBy="{x:Reference DescriptionLabel}"
             Grid.Row="5"
             Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
             AcceptsReturn="True"
-            AutomationProperties.HelpText="Description. What went wrong? What are the exact steps you performed? (10 characters minimum)"
-            AutomationProperties.LabeledBy="{x:Reference DescriptionLabel}"
             TextWrapping="Wrap"
             VerticalScrollBarVisibility="Visible"
             Height="120"
@@ -185,17 +185,17 @@
                 Margin="0,0,20,0" />
 
             <Button
+                AutomationProperties.HelpText="Send your report"
                 Grid.Column="1"
                 Content="_Report"
                 Command="{Binding ReportBugCommand}"
-                AutomationProperties.HelpText="Send your report"
                 Style="{StaticResource PrimaryButtonStyle}" />
 
             <Button
+                AutomationProperties.HelpText="Cancel your report"
                 Grid.Column="2"
                 Content="_Cancel"
                 Command="SystemCommands.CloseWindowCommand"
-                AutomationProperties.HelpText="Cancel your report"
                 IsCancel="True"
                 Margin="20,0,0,0" />
         </Grid>

@@ -107,6 +107,31 @@ public class CustomActions
         }
     }
 
+    [CustomAction]
+    public static ActionResult RemoveProtonDriveRegistryKey(Session session)
+    {
+        try
+        {
+            Registry.CurrentUser.DeleteSubKeyTree(@"Software\Proton\Drive", throwOnMissingSubKey: false);
+
+            try
+            {
+                Registry.CurrentUser.DeleteSubKey(@"Software\Proton", throwOnMissingSubKey: false);
+            }
+            catch
+            {
+                // Do nothing
+            }
+
+            return ActionResult.Success;
+        }
+        catch (Exception ex)
+        {
+            session.Log("Ignoring error while removing Drive registry: {0}", ex);
+            return ActionResult.NotExecuted;
+        }
+    }
+
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
     private static extern int SHGetKnownFolderPath(in Guid rfid, KnownFolderFlags dwFlags, IntPtr hToken, out IntPtr pszPath);
 }

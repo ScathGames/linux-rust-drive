@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Toolkit.Uwp.Notifications;
 using ProtonDrive.App.Notifications;
 using ProtonDrive.Shared.Configuration;
+using ProtonDrive.Shared.Threading;
 using Windows.UI.Notifications;
 using Notification = ProtonDrive.App.Notifications.Notification;
 
@@ -14,15 +15,16 @@ internal sealed class SystemToastNotificationService : INotificationService
     private const string IdKey = "Id";
     private const string GroupKey = "Group";
     private const string ActionKey = "Action";
-    private const string ReadyToBePastedNotificationId = "ReadyToBePastedNotificationId";
 
     private readonly AppConfig _appConfig;
+
+    private readonly IScheduler _scheduler = new SerialScheduler();
 
     public SystemToastNotificationService(AppConfig appConfig)
     {
         _appConfig = appConfig;
 
-        ToastNotificationManagerCompat.OnActivated += ToastNotificationManagerCompatOnActivated;
+        ToastNotificationManagerCompat.OnActivated += OnToastNotificationManagerCompatActivated;
     }
 
     public event EventHandler<NotificationActivatedEventArgs>? NotificationActivated;
@@ -38,30 +40,17 @@ internal sealed class SystemToastNotificationService : INotificationService
 
     public void ShowNotification(Notification notification)
     {
-        Safe(() => UnsafeShowNotification(notification));
-    }
-
-    public void ShowReadyToBePastedNotification(string headerText, string text)
-    {
-        var notification = new Notification
-        {
-            HeaderText = headerText,
-            GroupId = ReadyToBePastedNotificationId,
-            Id = ReadyToBePastedNotificationId,
-            Text = text,
-        };
-
-        ShowNotification(notification);
+        Schedule(() => Safe(() => UnsafeShowNotification(notification)));
     }
 
     public void RemoveNotificationGroup(string groupId)
     {
-        Safe(() => ToastNotificationManager.History.RemoveGroup(groupId, _appConfig.ApplicationId));
+        Schedule(() => Safe(() => ToastNotificationManager.History.RemoveGroup(groupId, _appConfig.ApplicationId)));
     }
 
     public void RemoveNotification(string groupId, string id)
     {
-        Safe(() => ToastNotificationManager.History.Remove(id, groupId, _appConfig.ApplicationId));
+        Schedule(() => Safe(() => ToastNotificationManager.History.Remove(id, groupId, _appConfig.ApplicationId)));
     }
 
     private static void Safe(Action action)
@@ -70,13 +59,13 @@ internal sealed class SystemToastNotificationService : INotificationService
         {
             action.Invoke();
         }
-        catch (COMException)
+        catch (Exception ex) when (ex is COMException or UriFormatException)
         {
             // Ignore
         }
     }
 
-    private void ToastNotificationManagerCompatOnActivated(ToastNotificationActivatedEventArgsCompat e)
+    private void OnToastNotificationManagerCompatActivated(ToastNotificationActivatedEventArgsCompat e)
     {
         // Obtain arguments from the notification as a list of key-value pairs
         ToastArguments args = ToastArguments.Parse(e.Argument);
@@ -108,14 +97,18 @@ internal sealed class SystemToastNotificationService : INotificationService
             builder.AddArgument(GroupKey, notification.GroupId);
         }
 
-        builder.AddText(notification.HeaderText, hintWrap: true);
+        builder.AddText(notification.HeaderText ?? string.Empty, hintWrap: true);
 
         if (!string.IsNullOrEmpty(notification.Text))
         {
             builder.AddText(notification.Text);
         }
 
-        builder.AddAppLogoOverride(new Uri(Path.Combine(_appConfig.AppFolderPath, "Logo.png")));
+        var logoUri = !string.IsNullOrEmpty(notification.LogoImageUrl)
+            ? new Uri(notification.LogoImageUrl)
+            : new Uri(Path.Combine(_appConfig.AppFolderPath, "Logo.png"));
+
+        builder.AddAppLogoOverride(logoUri);
 
         foreach (var button in notification.Buttons)
         {
@@ -141,6 +134,14 @@ internal sealed class SystemToastNotificationService : INotificationService
                 {
                     toast.Group = notification.GroupId;
                 }
+
+                toast.ExpirationTime = notification.ExpirationTime;
+                toast.SuppressPopup = notification.SuppressPopup;
             });
+    }
+
+    private void Schedule(Action action)
+    {
+        _scheduler.Schedule(action);
     }
 }

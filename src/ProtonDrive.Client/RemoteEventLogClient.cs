@@ -94,8 +94,7 @@ internal sealed class RemoteEventLogClient : IEventLogClient<string>, IDisposabl
 
     internal Task WaitForCompletionAsync()
     {
-        // Wait for the scheduled task to complete
-        return _getEvents.CurrentTask;
+        return _getEvents.WaitForCompletionAsync();
     }
 
     private static EventLogEntry<string> ToEventLogEntry(EventType eventType, RemoteNode remoteNode)
@@ -164,8 +163,8 @@ internal sealed class RemoteEventLogClient : IEventLogClient<string>, IDisposabl
                 "Failed to retrieve remote events on {VolumeOrShare} with ID={VolumeOrShareId}: {ErrorCode} {ErrorMessage}",
                 _volumeOrShare,
                 _volumeOrShareId,
-                ex is ApiException apiException ? apiException.ResponseCode : null,
-                ex.Message);
+                ex.GetRelevantFormattedErrorCode(),
+                ex.CombinedMessage());
 
             return false;
         }

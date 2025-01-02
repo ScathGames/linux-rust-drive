@@ -20,9 +20,17 @@
       Execute="immediate"
       Directory="INSTALLFOLDER"
       ExeCommand='"[#ProtonDrive.exe]" -uninstall' />
+    
+    <CustomAction
+      Id="RemoveProtonDriveRegistryKey"
+      BinaryRef="ProtonExtensions"
+      DllEntry="RemoveProtonDriveRegistryKey"
+      Execute="immediate"
+      Return="ignore" />
 
     <InstallExecuteSequence>
       <Custom Action="CleanUpFromApp" After="InstallValidate" Condition="REMOVE AND (NOT UPGRADINGPRODUCTCODE) AND CLEANSUPAPPDATAONUNINSTALL = 1" />
+      <Custom Action="RemoveProtonDriveRegistryKey" Before="InstallValidate" Condition="REMOVE AND (NOT UPGRADINGPRODUCTCODE) AND CLEANSUPAPPDATAONUNINSTALL = 1" />
     </InstallExecuteSequence>
   </Fragment>
 </Wix>

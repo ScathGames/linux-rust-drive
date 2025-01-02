@@ -8,7 +8,7 @@ public enum ResponseCode
 
     Unauthorized = HttpStatusCode.Unauthorized,
     Forbidden = HttpStatusCode.Forbidden,
-    RequestTimeout = HttpStatusCode.RequestTimeout,
+    TooManyRequests = HttpStatusCode.TooManyRequests,
 
     Success = 1000,
     MultipleResponses = 1001,
@@ -48,6 +48,14 @@ public enum ResponseCode
     /// </summary>
     NoActiveSubscription = 22110,
 
+    AddressInvalid = 33101,
+    AddressMissing = 33102,
+    AddressDomainExternal = 33103,
+    AddressInvalidKeyTransparency = 33104,
+
+    InsufficientQuota = 200001,
+    InsufficientSpace = 200002,
+
     /// <summary>
     /// Max allowed number of folder children is reached. Adding new children is not allowed.
     /// </summary>
@@ -62,7 +70,19 @@ public enum ResponseCode
     InvalidVerificationToken = 200501,
 
     CustomCode = 10000000,
-    SocketError = CustomCode + 1,
+
+    /// <summary>
+    /// Network error that is purely on the client side.
+    /// For example, client is offline.
+    /// </summary>
+    NetworkError = CustomCode + 1,
+
+    /// <summary>
+    /// Network errors that might be blamed on our server.
+    /// For example, timeout, API not reachable but otherwise client has connection, API responding with non-JSON output.
+    /// </summary>
+    ServerError = CustomCode + 2,
+
     SessionRefreshFailed = CustomCode + 3,
     SrpError = CustomCode + 4,
 }

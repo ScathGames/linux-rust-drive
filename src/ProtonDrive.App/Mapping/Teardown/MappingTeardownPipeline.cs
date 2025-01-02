@@ -12,7 +12,7 @@ internal sealed class MappingTeardownPipeline : IMappingTeardownPipeline
     private readonly HostDeviceFolderMappingTeardownStep _hostDeviceFolderMappingStep;
     private readonly ForeignDeviceMappingTeardownStep _foreignDeviceMappingStep;
     private readonly SharedWithMeItemMappingTeardownStep _sharedWithMeItemMappingStep;
-    private readonly SharedWithMeItemsFolderMappingTeardownStep _sharedWithMeItemsFolderMappingStep;
+    private readonly SharedWithMeRootFolderMappingTeardownStep _sharedWithMeRootFolderMappingStep;
     private readonly ILogger<MappingTeardownPipeline> _logger;
 
     public MappingTeardownPipeline(
@@ -20,14 +20,14 @@ internal sealed class MappingTeardownPipeline : IMappingTeardownPipeline
         HostDeviceFolderMappingTeardownStep hostDeviceFolderMappingStep,
         ForeignDeviceMappingTeardownStep foreignDeviceMappingStep,
         SharedWithMeItemMappingTeardownStep sharedWithMeItemMappingStep,
-        SharedWithMeItemsFolderMappingTeardownStep sharedWithMeItemsFolderMappingStep,
+        SharedWithMeRootFolderMappingTeardownStep sharedWithMeRootFolderMappingStep,
         ILogger<MappingTeardownPipeline> logger)
     {
         _cloudFilesMappingStep = cloudFilesMappingStep;
         _hostDeviceFolderMappingStep = hostDeviceFolderMappingStep;
         _foreignDeviceMappingStep = foreignDeviceMappingStep;
         _sharedWithMeItemMappingStep = sharedWithMeItemMappingStep;
-        _sharedWithMeItemsFolderMappingStep = sharedWithMeItemsFolderMappingStep;
+        _sharedWithMeRootFolderMappingStep = sharedWithMeRootFolderMappingStep;
         _logger = logger;
     }
 
@@ -58,7 +58,7 @@ internal sealed class MappingTeardownPipeline : IMappingTeardownPipeline
             MappingType.CloudFiles => _cloudFilesMappingStep.TearDownAsync(mapping, cancellationToken),
             MappingType.HostDeviceFolder => _hostDeviceFolderMappingStep.TearDownAsync(mapping, cancellationToken),
             MappingType.ForeignDevice => _foreignDeviceMappingStep.TearDownAsync(mapping, cancellationToken),
-            MappingType.SharedWithMeRootFolder => _sharedWithMeItemsFolderMappingStep.TearDownAsync(mapping, cancellationToken),
+            MappingType.SharedWithMeRootFolder => _sharedWithMeRootFolderMappingStep.TearDownAsync(mapping, cancellationToken),
             MappingType.SharedWithMeItem => _sharedWithMeItemMappingStep.TearDownAsync(mapping, cancellationToken),
             _ => throw new InvalidEnumArgumentException(nameof(mapping.Type), (int)mapping.Type, typeof(MappingType)),
         };

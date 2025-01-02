@@ -2,7 +2,7 @@
 
 namespace ProtonDrive.Client.Authentication.Contracts;
 
-public record AuthInfo : ApiResponse
+internal record AuthInfo : ApiResponse
 {
     public string? Modulus { get; init; }
     public string? ServerEphemeral { get; init; }

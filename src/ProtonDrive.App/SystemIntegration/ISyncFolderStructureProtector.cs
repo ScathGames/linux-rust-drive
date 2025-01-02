@@ -2,6 +2,9 @@
 
 public interface ISyncFolderStructureProtector
 {
-    public bool Protect(string folderPath, FolderProtectionType protectionType);
-    public bool Unprotect(string folderPath, FolderProtectionType protectionType);
+    bool ProtectFolder(string folderPath, FolderProtectionType protectionType);
+    bool UnprotectFolder(string folderPath, FolderProtectionType protectionType);
+    bool ProtectFile(string filePath, FileProtectionType protectionType);
+    bool UnprotectFile(string filerPath, FileProtectionType protectionType);
+    bool UnprotectBranch(string folderPath, FolderProtectionType folderProtectionType, FileProtectionType fileProtectionType);
 }

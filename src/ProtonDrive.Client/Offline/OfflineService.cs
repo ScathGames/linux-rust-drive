@@ -111,6 +111,14 @@ internal sealed class OfflineService : IOfflineService, IOfflinePolicyProvider, 
         return message.StatusCode is >= HttpStatusCode.BadRequest and <= HttpStatusCode.InternalServerError;
     }
 
+    private static bool IsAppUpdateRequired(ApiResponse? apiResponse)
+    {
+        return apiResponse is
+        {
+            Code: ResponseCode.InvalidApp or ResponseCode.OutdatedApp,
+        };
+    }
+
     private async Task<HttpResponseMessage> FallbackAction(DelegateResult<HttpResponseMessage> result, Context context, CancellationToken cancellationToken)
     {
         var response = result.Result;
@@ -122,14 +130,6 @@ internal sealed class OfflineService : IOfflineService, IOfflinePolicyProvider, 
         }
 
         return response;
-    }
-
-    private static bool IsAppUpdateRequired(ApiResponse? apiResponse)
-    {
-        return apiResponse is
-        {
-            Code: ResponseCode.InvalidApp or ResponseCode.OutdatedApp,
-        };
     }
 
     private void OnBreak(DelegateResult<HttpResponseMessage> arg1, TimeSpan arg2)

@@ -246,6 +246,11 @@ public class SyncEngine<TId> : IInitializable, IExecutionStatisticsProvider
         }
     }
 
+    public Task WaitForCompletionAsync()
+    {
+        return _syncScheduler.Schedule(() => { });
+    }
+
     public Task<TId?> GetMappedNodeIdOrDefaultAsync(Replica replica, TId id, CancellationToken cancellationToken)
     {
         return replica switch

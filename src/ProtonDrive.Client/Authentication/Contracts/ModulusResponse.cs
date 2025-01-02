@@ -2,7 +2,7 @@
 
 namespace ProtonDrive.Client.Authentication.Contracts;
 
-public sealed record ModulusResponse : ApiResponse
+internal sealed record ModulusResponse : ApiResponse
 {
     public string Modulus { get; set; } = string.Empty;
 

@@ -376,8 +376,22 @@
                                     <DataTrigger
                                         Binding="{Binding IsInitializingForTheFirstTime}"
                                         Value="true">
-                                        <Setter Property="Text" Value="Initializing..." />
+                                        <Setter Property="Text">
+                                            <Setter.Value>
+                                                <MultiBinding StringFormat="{}Setting up... ({0} items prepared for sync)">
+                                                    <Binding Path="NumberOfInitializedItems" />
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
                                     </DataTrigger>
+
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsInitializingForTheFirstTime}" Value="True" />
+                                            <Condition Binding="{Binding NumberOfInitializedItems}" Value="{x:Null}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="Setting up..." />
+                                    </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBlock.Style>
@@ -535,7 +549,7 @@
 
                 <TextBlock
                     AutomationProperties.HelpText="Synchronization is getting initialized"
-                    Text="Initializing sync"
+                    Text="Setting up your drive..."
                     Style="{StaticResource Subtitle.DarkTheme.Style}"
                     HorizontalAlignment="Center"
                     Margin="0,20,0,0" />

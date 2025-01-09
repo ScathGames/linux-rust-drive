@@ -206,7 +206,6 @@ public sealed class GenericAdapter<TId, TAltId> : ISyncAdapter<TId>, IManagedAda
             FileSystemTree,
             fileSystemEnumeration,
             new RootEnumerationSuccessStep<TId, TAltId>(
-                loggerFactory.CreateLogger<RootEnumerationSuccessStep<TId, TAltId>>(),
                 FileSystemTree,
                 _dirtyNodes,
                 idSource,
@@ -216,7 +215,8 @@ public sealed class GenericAdapter<TId, TAltId> : ISyncAdapter<TId>, IManagedAda
                 exclusionFilter,
                 new RootMigrationStep<TId, TAltId>(
                     loggerFactory.CreateLogger<RootMigrationStep<TId, TAltId>>(),
-                    FileSystemTree)),
+                    FileSystemTree),
+                loggerFactory.CreateLogger<RootEnumerationSuccessStep<TId, TAltId>>()),
             new RootEnumerationCompletionStep<TId, TAltId>(
                 nodeUpdateDetection));
 
@@ -374,7 +374,8 @@ public sealed class GenericAdapter<TId, TAltId> : ISyncAdapter<TId>, IManagedAda
             FileSystemTree,
             _externalFileRevisionProvider,
             _mappedNodeIdProvider,
-            fileSizeCorrector);
+            fileSizeCorrector,
+            _syncActivity);
     }
 
     public event EventHandler<SyncActivityChangedEventArgs<TId>> SyncActivityChanged

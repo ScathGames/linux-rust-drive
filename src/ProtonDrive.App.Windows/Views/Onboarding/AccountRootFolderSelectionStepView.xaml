@@ -36,8 +36,8 @@
 
         <Button
             AutomationProperties.AutomationId="OnboardingChangeSyncFolderButton"
-            Command="{Binding ChangeSyncFolderCommand}"
             AutomationProperties.HelpText="Change your Proton Drive root folder."
+            Command="{Binding ChangeSyncFolderCommand}"
             Foreground="{StaticResource GrayBrush}"
             Style="{StaticResource SectionButtonStyle}"
             VerticalAlignment="Center"
@@ -110,6 +110,7 @@
                         VerticalAlignment="Center" />
 
                     <TextBlock
+                        AutomationProperties.AutomationId="ErrorTitleText"
                         Grid.Column="1"
                         Grid.Row="0"
                         Text="{Binding ValidationResult, Converter={x:Static converters:EnumToDisplayTitleTextConverter.Instance}, FallbackValue='Invalid sync folder'}"
@@ -118,6 +119,7 @@
                         Margin="15,-1,0,0" />
 
                     <TextBlock
+                        AutomationProperties.AutomationId="ErrorDescriptionText"
                         Grid.Column="1"
                         Grid.Row="1"
                         Text="{Binding ValidationResult, Converter={x:Static converters:EnumToDisplayTextConverter.Instance}}"

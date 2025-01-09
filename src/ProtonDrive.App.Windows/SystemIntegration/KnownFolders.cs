@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Windows.Interop;
 using ProtonDrive.Shared.Extensions;
 
 namespace ProtonDrive.App.Windows.SystemIntegration;
 
-internal static class KnownFolders
+internal sealed class KnownFolders : IKnownFolders
 {
     private const string DocumentsGuidString = "FDD39AD0-238F-46AF-ADB4-6C85480369C7";
     private const string PicturesGuidString = "33E28130-4E1E-4676-835A-98395C3BC3BB";
@@ -15,7 +16,7 @@ internal static class KnownFolders
     private const string DownloadsGuidString = "374DE290-123F-4565-9164-39C4925E467B";
     private const string DesktopGuidString = "B4BFCC3A-DB2C-424C-B029-7FE99A87C641";
 
-    static KnownFolders()
+    public KnownFolders()
     {
         Desktop = Guid.Parse(DesktopGuidString);
         Documents = Guid.Parse(DocumentsGuidString);
@@ -32,14 +33,14 @@ internal static class KnownFolders
             .ToLookup(folder => folder.Path!, folder => folder.Id);
     }
 
-    public static Guid Documents { get; }
-    public static Guid Pictures { get; }
-    public static Guid Videos { get; }
-    public static Guid Music { get; }
-    public static Guid Downloads { get; }
-    public static Guid Desktop { get; }
+    public Guid Documents { get; }
+    public Guid Pictures { get; }
+    public Guid Videos { get; }
+    public Guid Music { get; }
+    public Guid Downloads { get; }
+    public Guid Desktop { get; }
 
-    public static ILookup<string, Guid> IdsByPath { get; }
+    public ILookup<string, Guid> IdsByPath { get; }
 
     private static string? GetPath(Guid knownFolderGuid)
     {

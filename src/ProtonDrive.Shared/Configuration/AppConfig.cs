@@ -31,6 +31,7 @@ public sealed class AppConfig
     public TimeSpan ContactsCacheGraceInterval { get; set; }
 
     public TimeSpan PeriodicTelemetryReportInterval { get; internal set; }
+    public TimeSpan DelayBeforeDisplayingSyncInitializationProgress { get; internal set; }
     public TimeSpan PeriodicObservabilityReportInterval { get; internal set; }
     public TimeSpan ActivityQueryInterval { get; internal set; }
 

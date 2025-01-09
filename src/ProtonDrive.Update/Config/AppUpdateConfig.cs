@@ -1,4 +1,5 @@
 ﻿using System;
+using ProtonDrive.Shared;
 
 namespace ProtonDrive.Update.Config;
 
@@ -9,6 +10,7 @@ namespace ProtonDrive.Update.Config;
 public class AppUpdateConfig
 {
     public AppUpdateConfig(
+        AppLaunchMode appLaunchMode,
         string checkForUpdateHttpClientName,
         string downloadUpdateHttpClientName,
         Uri feedUri,
@@ -19,6 +21,7 @@ public class AppUpdateConfig
         TimeSpan minProgressDuration,
         TimeSpan cleanupDelay)
     {
+        AppLaunchMode = appLaunchMode;
         CheckForUpdateHttpClientName = checkForUpdateHttpClientName;
         DownloadUpdateHttpClientName = downloadUpdateHttpClientName;
         FeedUri = feedUri;
@@ -30,6 +33,7 @@ public class AppUpdateConfig
         CleanupDelay = cleanupDelay;
     }
 
+    public AppLaunchMode AppLaunchMode { get; }
     public string CheckForUpdateHttpClientName { get; }
     public string DownloadUpdateHttpClientName { get; }
     public Uri FeedUri { get; }

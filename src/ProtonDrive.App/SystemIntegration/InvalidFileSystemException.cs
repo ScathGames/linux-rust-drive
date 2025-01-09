@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ProtonDrive.Shared.Volume;
+namespace ProtonDrive.App.SystemIntegration;
 
 public class InvalidFileSystemException : Exception
 {

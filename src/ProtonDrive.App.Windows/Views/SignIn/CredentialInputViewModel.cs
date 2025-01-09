@@ -88,7 +88,12 @@ internal sealed class CredentialInputViewModel : SessionWorkflowStepWithPassword
 
         if (LastResponse is not null && LastResponse.Code != ResponseCode.Success)
         {
-            result = new ValidationResult(LastResponse.Error ?? "Something went wrong");
+            result = new ValidationResult(
+                LastResponse.Code switch
+                {
+                    ResponseCode.InvalidRefreshToken => "Your session has expired. Sign in to continue.",
+                    _ => LastResponse.Error ?? "Something went wrong",
+                });
         }
         else
         {

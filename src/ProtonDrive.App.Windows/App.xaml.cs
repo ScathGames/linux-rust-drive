@@ -15,6 +15,7 @@ using ProtonDrive.App.Windows.Services;
 using ProtonDrive.App.Windows.Views;
 using ProtonDrive.App.Windows.Views.Onboarding;
 using ProtonDrive.App.Windows.Views.SignIn;
+using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Windows;

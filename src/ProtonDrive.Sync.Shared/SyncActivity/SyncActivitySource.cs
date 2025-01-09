@@ -4,4 +4,5 @@ public enum SyncActivitySource
 {
     OperationExecution,
     UpdateDetection,
+    OnDemandFileHydration,
 }

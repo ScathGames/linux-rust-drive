@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Instrumentation.Telemetry.Synchronization;
-using ProtonDrive.App.Reporting;
 using ProtonDrive.App.Settings;
 using ProtonDrive.App.Sync;
 using ProtonDrive.Client.Sanitization;
 using ProtonDrive.DataAccess.Databases;
 using ProtonDrive.Shared.Configuration;
+using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Shared.Telemetry;
 using ProtonDrive.Sync.Shared.SyncActivity;
 

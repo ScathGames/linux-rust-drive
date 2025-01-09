@@ -55,7 +55,7 @@ internal sealed class RootEnumeration<TId, TAltId>
     {
         Ensure.NotNull(nodeInfo.Root, nameof(nodeInfo), nameof(nodeInfo.Root));
 
-        if (nodeInfo.Root.Id == default)
+        if (nodeInfo.Root.Id == 0)
         {
             throw new ArgumentException("Root Id cannot have default value");
         }
@@ -94,9 +94,7 @@ internal sealed class RootEnumeration<TId, TAltId>
         RootInfo<TAltId> rootInfo,
         IDictionary<TId, AdapterTreeNode<TId, TAltId>> unprocessedSyncRootNodes)
     {
-        var rootNode = _adapterTree.Root;
-
-        _success.Execute(rootNode, rootInfo, unprocessedSyncRootNodes);
+        _success.Execute(rootInfo, unprocessedSyncRootNodes);
     }
 
     private void Complete(

@@ -76,7 +76,7 @@ internal class DirtyNodeUpdateDetection<TId, TAltId>
             }
 
             var syncActivity = result.Value is not null
-                ? node.GetSyncActivityItem(result.Value)
+                ? node.GetSyncActivityItemForUpdateDetection(result.Value)
                 : node.GetSyncActivityItem(SyncActivityType.FetchUpdates);
 
             _syncActivity.OnSucceeded(syncActivity);
@@ -93,7 +93,7 @@ internal class DirtyNodeUpdateDetection<TId, TAltId>
         {
             _executionStatistics.Failed.Increment();
 
-            var syncActivity = node.GetSyncActivityItem(result.Value!);
+            var syncActivity = node.GetSyncActivityItemForUpdateDetection(result.Value!);
             var (errorCode, errorMessage) = result.Exception!.GetErrorInfo();
             _syncActivity.OnChanged(syncActivity, SyncActivityItemStatus.InProgress);
 

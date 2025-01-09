@@ -274,7 +274,7 @@
     <value>Offline</value>
   </data>
   <data name="SyncStatus_val_Initializing" xml:space="preserve">
-    <value>Initializing...</value>
+    <value>Setting up...</value>
   </data>
   <data name="SyncStatus_val_Paused" xml:space="preserve">
     <value>Paused</value>

@@ -173,6 +173,13 @@ internal sealed class AddressKeyProvider : IAddressKeyProvider
 
                 foreach (var address in addresses.OrderBy(x => x.Order))
                 {
+                    _logger.LogInformation(
+                        "User address, {Status}, active keys: {NumberOfActiveKeys}, inactive keys: {NumberOfInactiveKeys}, ID={Id}",
+                        address.Status,
+                        address.Keys.Count(k => k.IsActive),
+                        address.Keys.Count(k => !k.IsActive),
+                        address.Id);
+
                     int? primaryKeyIndex = null;
 
                     var addressKeys = new List<AddressKey>(address.Keys.Count);
@@ -207,7 +214,7 @@ internal sealed class AddressKeyProvider : IAddressKeyProvider
 
                     if (primaryKeyIndex is null)
                     {
-                        _logger.LogError("Address of ID {AddressID} has no primary key", address.Id);
+                        _logger.LogError("Address with ID {AddressID} has no primary key", address.Id);
                         continue;
                     }
 

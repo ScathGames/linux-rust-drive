@@ -11,7 +11,7 @@ namespace ProtonDrive.Sync.Adapter.Shared;
 
 public static class SyncActivityExtensions
 {
-    public static SyncActivityItem<TId> GetSyncActivityItem<TId, TAltId>(this IIdentifiable<TId> node, NodeInfo<TAltId> nodeInfo)
+    public static SyncActivityItem<TId> GetSyncActivityItemForUpdateDetection<TId, TAltId>(this IIdentifiable<TId> node, NodeInfo<TAltId> nodeInfo)
         where TId : IEquatable<TId>
         where TAltId : IEquatable<TAltId>
     {
@@ -26,6 +26,24 @@ public static class SyncActivityExtensions
             RelativeParentFolderPath = nodeInfo.GetParentFolderPath() ?? string.Empty,
             LocalRootPath = nodeInfo.Root?.LocalPath ?? string.Empty,
             Size = nodeInfo.IsDirectory() ? null : (nodeInfo.Size >= 0 ? nodeInfo.Size : null),
+        };
+    }
+
+    public static SyncActivityItem<TId> GetSyncActivityItemForFileHydration<TId, TAltId>(this IIdentifiable<TId> node, NodeInfo<TAltId> nodeInfo)
+        where TId : IEquatable<TId>
+        where TAltId : IEquatable<TAltId>
+    {
+        return new SyncActivityItem<TId>
+        {
+            Source = SyncActivitySource.OnDemandFileHydration,
+            Id = node.Id,
+            ActivityType = SyncActivityType.Download,
+            NodeType = NodeType.File,
+            Name = nodeInfo.Name,
+            RelativeParentFolderPath = nodeInfo.GetParentFolderPath() ?? string.Empty,
+            LocalRootPath = nodeInfo.Root?.LocalPath ?? string.Empty,
+            Size = nodeInfo.Size >= 0 ? nodeInfo.Size : null,
+            Stage = SyncActivityStage.Preparation,
         };
     }
 

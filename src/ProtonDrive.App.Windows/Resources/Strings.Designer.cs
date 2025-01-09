@@ -1088,7 +1088,7 @@ namespace ProtonDrive.App.Windows.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Initializing....
+        ///   Looks up a localized string similar to Setting up....
         /// </summary>
         internal static string SyncStatus_val_Initializing {
             get {

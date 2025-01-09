@@ -15,7 +15,6 @@ using ProtonDrive.App.Mapping.SyncFolders;
 using ProtonDrive.App.Notifications;
 using ProtonDrive.App.Notifications.Offers;
 using ProtonDrive.App.Onboarding;
-using ProtonDrive.App.Reporting;
 using ProtonDrive.App.Services;
 using ProtonDrive.App.Sync;
 using ProtonDrive.App.SystemIntegration;
@@ -39,7 +38,6 @@ using ProtonDrive.App.Windows.Views.Shared;
 using ProtonDrive.App.Windows.Views.Shared.Navigation;
 using ProtonDrive.App.Windows.Views.SignIn;
 using ProtonDrive.App.Windows.Views.SystemTray;
-using ProtonDrive.Shared;
 using ProtonDrive.Shared.Offline;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Shared.FileSystem;
@@ -63,9 +61,9 @@ internal static class AppServices
                     .AddSingleton<IDialogService>(provider => provider.GetRequiredService<App>()));
     }
 
-    public static IHostBuilder AddServices(this IHostBuilder builder, IErrorReporting errorReporting, AppLaunchMode launchMode)
+    public static IHostBuilder AddServices(this IHostBuilder builder)
     {
-        return builder.ConfigureServices(services => AddWindowsAppServices(services, errorReporting, launchMode));
+        return builder.ConfigureServices(AddWindowsAppServices);
     }
 
     public static void InitializeServices(this IServiceProvider provider)
@@ -73,10 +71,10 @@ internal static class AppServices
         provider.InitializeAppServices();
     }
 
-    private static void AddWindowsAppServices(IServiceCollection services, IErrorReporting errorReporting, AppLaunchMode launchMode)
+    private static void AddWindowsAppServices(IServiceCollection services)
     {
         services
-            .AddAppServices(errorReporting, launchMode)
+            .AddAppServices()
 
             .AddSingleton(new DispatcherScheduler(Dispatcher.CurrentDispatcher))
             .AddKeyedSingleton<IScheduler>("Dispatcher", (sp, _) => sp.GetRequiredService<DispatcherScheduler>())
@@ -85,6 +83,7 @@ internal static class AppServices
             .AddSingleton<IOperatingSystemIntegrationService, OperatingSystemIntegrationService>()
             .AddSingleton<ILocalVolumeInfoProvider, VolumeInfoProvider>()
             .AddSingleton<ILocalFolderService, LocalFolderService>()
+            .AddSingleton<IKnownFolders, KnownFolders>()
             .AddSingleton<IReadOnlyFileAttributeRemover, ReadOnlyFileAttributeRemover>()
             .AddSingleton<IPlaceholderToRegularItemConverter, PlaceholderToRegularItemConverter>()
             .AddSingleton<INonSyncablePathProvider, NonSyncablePathProvider>()
@@ -185,6 +184,7 @@ internal static class AppServices
             .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<ISyncStateAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<ISyncActivityAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
+            .AddSingleton<ISyncStatisticsAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<SystemTrayViewModel>()
 
             .AddTransient<OfferViewModel>()

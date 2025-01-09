@@ -22,14 +22,14 @@ internal sealed class SessionWorkflowViewModel : ObservableObject, ISessionState
     {
         _authenticationService = authenticationService;
 
-        _credentialInputViewModel = new(authenticationService, externalHyperlinks, scheduler);
-        _secondFactorInputViewModel = new(authenticationService, scheduler);
-        _dataPasswordInputViewModel = new(authenticationService);
+        _credentialInputViewModel = new CredentialInputViewModel(authenticationService, externalHyperlinks, scheduler);
+        _secondFactorInputViewModel = new SecondFactorInputViewModel(authenticationService, scheduler);
+        _dataPasswordInputViewModel = new DataPasswordInputViewModel(authenticationService);
 
         _currentStepViewModel = _credentialInputViewModel;
     }
 
-    string? IDialogViewModel.Title => default;
+    string? IDialogViewModel.Title => null;
 
     public SessionWorkflowStepViewModelBase CurrentStepViewModel
     {
@@ -82,9 +82,9 @@ internal sealed class SessionWorkflowViewModel : ObservableObject, ISessionState
 
     private void ClearPasswords()
     {
-        _credentialInputViewModel.Password = default;
-        _credentialInputViewModel.FirstLoginAttempt = default;
-        _secondFactorInputViewModel.Code = default;
-        _dataPasswordInputViewModel.Password = default;
+        _credentialInputViewModel.Password = null;
+        _credentialInputViewModel.FirstLoginAttempt = false;
+        _secondFactorInputViewModel.Code = null;
+        _dataPasswordInputViewModel.Password = null;
     }
 }

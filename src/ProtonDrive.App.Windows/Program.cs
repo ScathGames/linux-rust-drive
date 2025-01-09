@@ -25,13 +25,13 @@ using ProtonDrive.App.Windows.Views.Main;
 using ProtonDrive.App.Windows.Views.SystemTray;
 using ProtonDrive.Shared;
 using ProtonDrive.Shared.Configuration;
+using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Sync.Windows.FileSystem;
 
 namespace ProtonDrive.App.Windows;
 
 public static class Program
 {
-    private static IHost? _host;
     private static AppLaunchMode _appLaunchMode;
     private static AppCrashMode _appCrashMode;
     private static bool _uninstall;
@@ -92,10 +92,7 @@ public static class Program
 
     private static void RunApplication()
     {
-        var errorReporting = ErrorReporting.Initialize(SentryOptionsProvider.GetOptions(() => _host?.Services));
-
-        using var host = CreateHost(errorReporting);
-
+        using var host = CreateHost();
         var updateService = host.Services.GetRequiredService<IUpdateService>();
 
         // Using synchronous call to stay on STA thread.
@@ -106,9 +103,10 @@ public static class Program
         }
 
         var app = host.Services.GetRequiredService<App>();
+
         app.InitializeComponent();
 
-        AddAppEventHandlers(app, host, errorReporting);
+        AddAppEventHandlers(app, host);
 
         using var systemTrayControl = CreateSystemTrayControl(host);
 
@@ -119,9 +117,9 @@ public static class Program
         app.Run();
     }
 
-    private static void AddAppEventHandlers(Application app, IHost host, IErrorReporting errorReporting)
+    private static void AddAppEventHandlers(Application app, IHost host)
     {
-        app.Startup += async (_, _) => await HandleAppStartupAsync(host, errorReporting).ConfigureAwait(true);
+        app.Startup += async (_, _) => await HandleAppStartupAsync(host).ConfigureAwait(true);
         app.Exit += (_, _) => HandleAppExit(host);
     }
 
@@ -145,12 +143,14 @@ public static class Program
         }
     }
 
-    private static async Task HandleAppStartupAsync(IHost host, IErrorReporting errorReporting)
+    private static async Task HandleAppStartupAsync(IHost host)
     {
         host.Services.InitializeServices();
         await host.StartAsync().ConfigureAwait(true);
 
+        var errorReporting = host.Services.GetRequiredService<IErrorReporting>();
         ThrowIfCrashOnStartupRequested(errorReporting);
+
         await OpenDocumentIfRequestedAsync(host, CancellationToken.None).ConfigureAwait(false);
     }
 
@@ -191,16 +191,14 @@ public static class Program
         }
     }
 
-    private static IHost CreateHost(IErrorReporting errorReporting)
+    private static IHost CreateHost()
     {
         var host = Host.CreateDefaultBuilder()
             .AddAppConfiguration()
             .AddLogging()
             .AddApp(new AppArguments(_appLaunchMode, _appCrashMode))
-            .AddServices(errorReporting, _appLaunchMode)
+            .AddServices()
             .Build();
-
-        _host = host;
 
         Ioc.Default.ConfigureServices(host.Services);
 

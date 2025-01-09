@@ -44,6 +44,12 @@ public enum ResponseCode
     AccountDisabled = 10003,
 
     /// <summary>
+    /// The session has expired and failed to refresh.
+    /// Either the refresh token has expired or the session was revoked on the backend.
+    /// </summary>
+    InvalidRefreshToken = 10013,
+
+    /// <summary>
     /// Free account
     /// </summary>
     NoActiveSubscription = 22110,

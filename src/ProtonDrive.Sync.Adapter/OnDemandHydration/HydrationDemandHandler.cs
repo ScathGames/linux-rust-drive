@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using ProtonDrive.Shared.IO;
 using ProtonDrive.Shared.Logging;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Adapter.OnDemandHydration.FileSizeCorrection;
@@ -11,6 +12,7 @@ using ProtonDrive.Sync.Adapter.Shared;
 using ProtonDrive.Sync.Adapter.Trees.Adapter;
 using ProtonDrive.Sync.Shared.Adapters;
 using ProtonDrive.Sync.Shared.FileSystem;
+using ProtonDrive.Sync.Shared.SyncActivity;
 using ProtonDrive.Sync.Shared.Trees.FileSystem;
 
 namespace ProtonDrive.Sync.Adapter.OnDemandHydration;
@@ -26,6 +28,7 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
     private readonly IFileRevisionProvider<TId> _fileRevisionProvider;
     private readonly IMappedNodeIdentityProvider<TId> _mappedNodeIdProvider;
     private readonly IFileSizeCorrector<TId, TAltId> _fileSizeCorrector;
+    private readonly SyncActivity<TId> _syncActivity;
 
     public HydrationDemandHandler(
         ILogger<HydrationDemandHandler<TId, TAltId>> logger,
@@ -34,7 +37,8 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
         AdapterTree<TId, TAltId> adapterTree,
         IFileRevisionProvider<TId> fileRevisionProvider,
         IMappedNodeIdentityProvider<TId> mappedNodeIdProvider,
-        IFileSizeCorrector<TId, TAltId> fileSizeCorrector)
+        IFileSizeCorrector<TId, TAltId> fileSizeCorrector,
+        SyncActivity<TId> syncActivity)
     {
         _logger = logger;
         _executionScheduler = executionScheduler;
@@ -43,6 +47,7 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
         _fileRevisionProvider = fileRevisionProvider;
         _mappedNodeIdProvider = mappedNodeIdProvider;
         _fileSizeCorrector = fileSizeCorrector;
+        _syncActivity = syncActivity;
     }
 
     public async Task HandleAsync(IFileHydrationDemand<TAltId> hydrationDemand, CancellationToken cancellationToken)
@@ -52,34 +57,76 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
         var fileNameToLog = _logger.GetSensitiveValueForLogging(hydrationDemand.FileInfo.Name);
         LogRequest();
 
+        var nodeModel = await Schedule(() => Prepare(hydrationDemand), cancellationToken).ConfigureAwait(false);
+
+        var syncActivityItem = nodeModel.GetSyncActivityItemForFileHydration(hydrationDemand.FileInfo);
+
         try
         {
-            var nodeModel = await Schedule(() => Prepare(hydrationDemand), cancellationToken).ConfigureAwait(false);
+            _syncActivity.OnChanged(syncActivityItem, SyncActivityItemStatus.InProgress);
 
-            var mappedNodeId = await GetMappedNodeIdOrDefault(nodeModel.Id, cancellationToken).ConfigureAwait(false);
-            if (mappedNodeId is null)
+            var sourceRevision = await OpenFileForReadingAsync(nodeModel, cancellationToken).ConfigureAwait(false);
+
+            syncActivityItem = syncActivityItem with
             {
-                throw new HydrationException($"File with node Id={nodeModel.Id} {hydrationDemand.FileInfo.GetCompoundId()} is not mapped");
+                Stage = SyncActivityStage.Execution,
+            };
+
+            _syncActivity.OnChanged(syncActivityItem, SyncActivityItemStatus.InProgress);
+
+            var destinationContent = new ProgressReportingStream(hydrationDemand.HydrationStream, NotifyProgressChanged);
+
+            await using (destinationContent.ConfigureAwait(false))
+            {
+                var initialLength = destinationContent.Length;
+
+                await HydrateFileAsync(destinationContent, sourceRevision, cancellationToken).ConfigureAwait(false);
+
+                var sizeMismatch = destinationContent.Length - initialLength;
+                if (sizeMismatch != 0)
+                {
+                    LogSizeMismatch(nodeModel.Id, sizeMismatch);
+
+                    await ScheduleExecution(() => CorrectFileSize(nodeModel, hydrationDemand, cancellationToken), cancellationToken).ConfigureAwait(false);
+                }
             }
 
-            var initialLength = hydrationDemand.HydrationStream.Length;
-            await HydrateFileAsync(hydrationDemand.HydrationStream, mappedNodeId.Value, nodeModel, cancellationToken).ConfigureAwait(false);
-
-            var sizeMismatch = hydrationDemand.HydrationStream.Length - initialLength;
-            if (sizeMismatch != 0)
-            {
-                LogSizeMismatch(nodeModel.Id, sizeMismatch);
-
-                await ScheduleExecution(() => CorrectFileSize(nodeModel, hydrationDemand, cancellationToken), cancellationToken).ConfigureAwait(false);
-
-                return;
-            }
+            _syncActivity.OnChanged(syncActivityItem, SyncActivityItemStatus.Succeeded);
 
             LogSuccess(nodeModel.Id);
         }
-        catch (OperationCanceledException)
+        catch (Exception ex)
         {
+            var (errorCode, errorMessage) = ex.GetErrorInfo();
+
+            switch (errorCode)
+            {
+                case FileSystemErrorCode.SharingViolation:
+                    _syncActivity.OnWarning(syncActivityItem, errorCode, errorMessage);
+                    break;
+
+                case FileSystemErrorCode.Cancelled or FileSystemErrorCode.TransferAbortedDueToFileChange:
+                    _syncActivity.OnCancelled(syncActivityItem, errorCode);
+                    break;
+
+                default:
+                    _syncActivity.OnFailed(syncActivityItem, errorCode, errorMessage);
+                    break;
+            }
+
+            if (ex is not OperationCanceledException)
+            {
+                throw;
+            }
+
             LogCancellation();
+        }
+
+        return;
+
+        void NotifyProgressChanged(Progress value)
+        {
+            _syncActivity.OnProgress(syncActivityItem, value);
         }
 
         void LogRequest()
@@ -120,6 +167,11 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
         }
     }
 
+    private static bool ContentHasDiverged(AdapterTreeNode<TId, TAltId> node, NodeInfo<TAltId> nodeInfo)
+    {
+        return node.Model.Size != nodeInfo.Size || node.Model.LastWriteTime != nodeInfo.LastWriteTimeUtc;
+    }
+
     private AdapterTreeNodeModel<TId, TAltId> Prepare(IFileHydrationDemand<TAltId> hydrationDemand)
     {
         var altId = hydrationDemand.FileInfo.GetCompoundId();
@@ -155,32 +207,33 @@ internal sealed class HydrationDemandHandler<TId, TAltId> : IFileHydrationDemand
         return _fileSizeCorrector.UpdateSizeAsync(nodeModel, hydrationDemand, cancellationToken);
     }
 
-    private bool ContentHasDiverged(AdapterTreeNode<TId, TAltId> node, NodeInfo<TAltId> nodeInfo)
-    {
-        return node.Model.Size != nodeInfo.Size || node.Model.LastWriteTime != nodeInfo.LastWriteTimeUtc;
-    }
-
-    private Task<TId?> GetMappedNodeIdOrDefault(TId nodeId, CancellationToken cancellationToken)
-    {
-        return _mappedNodeIdProvider.GetMappedNodeIdOrDefaultAsync(nodeId, cancellationToken);
-    }
-
-    private async Task HydrateFileAsync(Stream destinationContent, TId mappedNodeId, AdapterTreeNodeModel<TId, TAltId> nodeModel, CancellationToken cancellationToken)
+    private async Task<IRevision> OpenFileForReadingAsync(AdapterTreeNodeModel<TId, TAltId> nodeModel, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var sourceRevision = await _fileRevisionProvider.OpenFileForReadingAsync(mappedNodeId, nodeModel.ContentVersion, cancellationToken).ConfigureAwait(false);
-        await using (sourceRevision.ConfigureAwait(false))
+        var mappedNodeId = await _mappedNodeIdProvider.GetMappedNodeIdOrDefaultAsync(nodeModel.Id, cancellationToken).ConfigureAwait(false);
+        if (mappedNodeId is null)
         {
-            var sourceContent = sourceRevision.GetContentStream();
-            await using (sourceContent.ConfigureAwait(false))
-            {
-                await sourceContent.CopyToAsync(destinationContent, cancellationToken).ConfigureAwait(false);
+            throw new HydrationException(
+                $"File with Adapter Tree node Id={nodeModel.Id} is not mapped",
+                new FileSystemClientException(string.Empty, FileSystemErrorCode.ObjectNotFound));
+        }
 
-                if (destinationContent.Position < destinationContent.Length)
-                {
-                    destinationContent.SetLength(destinationContent.Position);
-                }
+        return await _fileRevisionProvider.OpenFileForReadingAsync(mappedNodeId.Value, nodeModel.ContentVersion, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task HydrateFileAsync(Stream destinationContent, IRevision sourceRevision, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var sourceContent = sourceRevision.GetContentStream();
+        await using (sourceContent.ConfigureAwait(false))
+        {
+            await sourceContent.CopyToAsync(destinationContent, cancellationToken).ConfigureAwait(false);
+
+            if (destinationContent.Position < destinationContent.Length)
+            {
+                destinationContent.SetLength(destinationContent.Position);
             }
         }
     }

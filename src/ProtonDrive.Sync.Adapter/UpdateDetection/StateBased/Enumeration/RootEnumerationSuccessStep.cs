@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.Sync.Adapter.NodeCopying;
 using ProtonDrive.Sync.Adapter.Shared;
@@ -14,11 +15,12 @@ internal sealed class RootEnumerationSuccessStep<TId, TAltId> : SuccessStep<TId,
     where TId : IEquatable<TId>
     where TAltId : IEquatable<TAltId>
 {
-    private readonly IDictionary<TId, RootInfo<TAltId>> _syncRoots;
+    private readonly AdapterTree<TId, TAltId> _adapterTree;
+    private readonly Dictionary<TId, RootInfo<TAltId>> _syncRoots;
     private readonly RootMigrationStep<TId, TAltId> _rootMigration;
+    private readonly ILogger<RootEnumerationSuccessStep<TId, TAltId>> _logger;
 
     public RootEnumerationSuccessStep(
-        ILogger<RootEnumerationSuccessStep<TId, TAltId>> logger,
         AdapterTree<TId, TAltId> adapterTree,
         IDirtyNodes<TId, TAltId> dirtyNodes,
         IIdentitySource<TId> idSource,
@@ -26,15 +28,17 @@ internal sealed class RootEnumerationSuccessStep<TId, TAltId> : SuccessStep<TId,
         ICopiedNodes<TId, TAltId> copiedNodes,
         NodeUpdateDetection<TId, TAltId> nodeUpdateDetection,
         IItemExclusionFilter itemExclusionFilter,
-        RootMigrationStep<TId, TAltId> rootMigration)
+        RootMigrationStep<TId, TAltId> rootMigration,
+        ILogger<RootEnumerationSuccessStep<TId, TAltId>> logger)
         : base(logger, adapterTree, dirtyNodes, idSource, nodeUpdateDetection, syncRoots, copiedNodes, itemExclusionFilter)
     {
+        _adapterTree = adapterTree;
         _syncRoots = syncRoots;
         _rootMigration = rootMigration;
+        _logger = logger;
     }
 
     public void Execute(
-        AdapterTreeNode<TId, TAltId> rootNode,
         RootInfo<TAltId> rootInfo,
         IDictionary<TId, AdapterTreeNode<TId, TAltId>> unprocessedSyncRootNodes)
     {
@@ -43,7 +47,7 @@ internal sealed class RootEnumerationSuccessStep<TId, TAltId> : SuccessStep<TId,
             Type = NodeType.Directory,
             Name = rootInfo.Id.ToString(),
             AltId = (rootInfo.VolumeId, rootInfo.NodeId),
-            ParentId = rootNode.Id,
+            ParentId = _adapterTree.Root.Id,
             Status = AdapterNodeStatus.DirtyDescendants,
         };
 
@@ -56,7 +60,7 @@ internal sealed class RootEnumerationSuccessStep<TId, TAltId> : SuccessStep<TId,
 
             if (existingNode.AltId.VolumeId != rootInfo.VolumeId)
             {
-                if (existingNode.AltId.VolumeId == default)
+                if (existingNode.AltId.VolumeId == 0)
                 {
                     // Migrate sync root branch to the desired volume
                     _rootMigration.MigrateSyncRootToVolume(existingNode, rootInfo.VolumeId);
@@ -73,7 +77,7 @@ internal sealed class RootEnumerationSuccessStep<TId, TAltId> : SuccessStep<TId,
         else
         {
             // A new node
-            ValidateAndUpdate(null, incomingNodeModel, rootNode);
+            ValidateAndUpdate(null, incomingNodeModel, _adapterTree.Root);
 
             existingNode = ExistingNode(incomingNodeModel) ?? throw new InvalidOperationException();
         }
@@ -84,6 +88,7 @@ internal sealed class RootEnumerationSuccessStep<TId, TAltId> : SuccessStep<TId,
     private AdapterTreeNode<TId, TAltId>? ExistingSyncRootNode(IncomingAdapterTreeNodeModel<TId, TAltId> incomingNodeModel)
     {
         var existingNode = ExistingNode(incomingNodeModel.AltId, incomingNodeModel.Type) ??
+                           ExistingSyncRootNodeByName(incomingNodeModel) ??
                            /* Looking for node not migrated to the specific volume */
                            ExistingNode((0, incomingNodeModel.AltId.ItemId), incomingNodeModel.Type);
 
@@ -121,6 +126,49 @@ internal sealed class RootEnumerationSuccessStep<TId, TAltId> : SuccessStep<TId,
 
             return null;
         }
+
+        return existingNode;
+    }
+
+    private AdapterTreeNode<TId, TAltId>? ExistingSyncRootNodeByName(IncomingAdapterTreeNodeModel<TId, TAltId> incomingNodeModel)
+    {
+        var existingNode = _adapterTree.Root.ChildrenByName(incomingNodeModel.Name)
+            .SingleOrDefault(r => r.AltId.VolumeId != 0);
+
+        if (existingNode == null)
+        {
+            return null;
+        }
+
+        // Sync root nodes are additionally matched by AltId
+        if (existingNode.AltId.Equals(incomingNodeModel.AltId))
+        {
+            return existingNode;
+        }
+
+        // Same AltId must not exist in the tree
+        var node = ExistingNode(incomingNodeModel.AltId);
+        if (node != null)
+        {
+            // The node is marked as deleted
+            var nodeModel = IncomingAdapterTreeNodeModel<TId, TAltId>
+                .FromNodeModel(node.Model)
+                .WithAltId(default)
+                .WithAppendedDirtyFlags(AdapterNodeStatus.DirtyDeleted);
+
+            DetectNodeUpdate(node, nodeModel);
+        }
+
+        _logger.LogWarning(
+            "Updating Adapter Tree sync root node with Id={Id} (name={Name}) AltId value from {PrevAltId} to {NewAltId}",
+            existingNode.Id,
+            existingNode.Name,
+            existingNode.AltId,
+            incomingNodeModel.AltId);
+
+        // Not matching AltId means that sync root folder was replaced with a new one,
+        // but the content remains same. Therefore, we update AltId on the sync root node.
+        DetectNodeUpdate(existingNode, incomingNodeModel);
 
         return existingNode;
     }

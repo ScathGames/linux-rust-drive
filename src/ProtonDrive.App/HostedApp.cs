@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -13,17 +13,20 @@ namespace ProtonDrive.App;
 internal class HostedApp : IHostedService
 {
     private readonly AppConfig _config;
+    private readonly AppArguments _appArguments;
     private readonly IEnumerable<IStartableService> _startableServices;
     private readonly IEnumerable<IStoppableService> _stoppableServices;
     private readonly ILogger<HostedApp> _logger;
 
     public HostedApp(
         AppConfig config,
+        AppArguments appArguments,
         IEnumerable<IStartableService> startableServices,
         IEnumerable<IStoppableService> stoppableServices,
         ILogger<HostedApp> logger)
     {
         _config = config;
+        _appArguments = appArguments;
         _startableServices = startableServices;
         _stoppableServices = stoppableServices;
         _logger = logger;
@@ -32,8 +35,9 @@ internal class HostedApp : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("=========================================================");
-        _logger.LogInformation("{AppName} v{AppVersion} started", _config.AppName, _config.AppVersion);
-        _logger.LogInformation("OS: {OsVersion}", Environment.OSVersion.VersionString);
+        _logger.LogInformation("{AppName} v{AppVersion} ({ProcessArchitecture}) started", _config.AppName, _config.AppVersion, RuntimeInformation.ProcessArchitecture);
+        _logger.LogInformation("OS: {OsVersion} ({OsArchitecture})", RuntimeInformation.OSDescription, RuntimeInformation.OSArchitecture);
+        _logger.LogInformation("Launch mode: {LaunchMode}", _appArguments.LaunchMode);
 
         foreach (var startable in _startableServices)
         {
@@ -48,6 +52,6 @@ internal class HostedApp : IHostedService
         // All stoppable app services are stopped concurrently
         await Task.WhenAll(_stoppableServices.Select(s => s.StopAsync(cancellationToken))).ConfigureAwait(false);
 
-        _logger.LogInformation("{AppName} v{AppVersion} exited", _config.AppName, _config.AppVersion);
+        _logger.LogInformation("{AppName} v{AppVersion} ({ProcessArchitecture}) exited", _config.AppName, _config.AppVersion, RuntimeInformation.ProcessArchitecture);
     }
 }

@@ -303,6 +303,7 @@
                     Margin="0,24,0,0" />
 
                 <TextBlock
+                    AutomationProperties.AutomationId="EmptySelectionPlaceholderText"
                     Text="Add folder to start securely syncing files to the cloud"
                     FontSize="14"
                     Foreground="{StaticResource GrayBrush}"

@@ -283,13 +283,14 @@ internal sealed class FileSyncStateHandler<TId, TAltId> : IDisposable
         var pathToLog = _logger.GetSensitiveValueForLogging(nodeInfo.Path);
 
         _logger.LogWarning(
-            "Updating state of {Type} \"{Path}\" with Id=\"{Root}\"/{Id} {ExternalId}, ContentVersion={ContentVersion} failed: {ErrorMessage}",
+            "Updating state of {Type} \"{Path}\" with Id=\"{Root}\"/{Id} {ExternalId}, ContentVersion={ContentVersion} failed: {ErrorCode} {ErrorMessage}",
             type,
             pathToLog,
             nodeInfo.Root?.Id,
             model.Id,
             nodeInfo.GetCompoundId(),
             model.ContentVersion,
+            exception.GetRelevantFormattedErrorCode(),
             exception.CombinedMessage());
 
         return _failureStep.Execute(exception, nodeInfo, destinationInfo: null);

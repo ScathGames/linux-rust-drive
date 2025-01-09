@@ -14,6 +14,7 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
     private readonly ILocalFolderService _localFolderService;
     private readonly ILocalSyncFolderValidator _syncFolderValidator;
     private readonly LocalFolderIdentityValidator _localFolderIdentityValidator;
+    private readonly LocalFolderDivergedIdentityHandler _divergedIdentityHandler;
     private readonly VolumeIdentityProvider _volumeIdentityProvider;
     private readonly ILogger<LocalFolderValidationStep> _logger;
 
@@ -21,12 +22,14 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
         ILocalFolderService localFolderService,
         ILocalSyncFolderValidator syncFolderValidator,
         LocalFolderIdentityValidator localFolderIdentityValidator,
+        LocalFolderDivergedIdentityHandler divergedIdentityHandler,
         VolumeIdentityProvider volumeIdentityProvider,
         ILogger<LocalFolderValidationStep> logger)
     {
         _localFolderService = localFolderService;
         _syncFolderValidator = syncFolderValidator;
         _localFolderIdentityValidator = localFolderIdentityValidator;
+        _divergedIdentityHandler = divergedIdentityHandler;
         _volumeIdentityProvider = volumeIdentityProvider;
         _logger = logger;
     }
@@ -42,7 +45,7 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
     {
         var shouldFolderExist =
             mapping.Status is MappingStatus.Complete
-            || mapping.Local.RootFolderId != default
+            || mapping.Local.RootFolderId != 0
             || mapping.Type is MappingType.HostDeviceFolder;
 
         if (!shouldFolderExist)
@@ -85,7 +88,7 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
     {
         var replica = mapping.Local;
 
-        if (mapping.Status is MappingStatus.Complete && replica.RootFolderId == default)
+        if (mapping.Status is MappingStatus.Complete && replica.RootFolderId == 0)
         {
             _logger.LogError("Local sync folder identity not specified");
             return MappingErrorCode.LocalFolderDoesNotExist;
@@ -105,22 +108,32 @@ internal sealed class LocalFolderValidationStep : ILocalFolderValidationStep
 
         if (_localFolderIdentityValidator.ValidateFolderIdentity(rootFolderInfo, replica, mapping.Remote.RootItemType) is { } result)
         {
-            return result;
+            if (result is not MappingErrorCode.LocalFolderDiverged)
+            {
+                return result;
+            }
+
+            if (!_divergedIdentityHandler.TryAcceptDivergedIdentity(rootFolderInfo, mapping))
+            {
+                return result;
+            }
+
+            mapping.IsDirty = true;
         }
 
         AddMissingVolumeInfo(mapping.Local, rootFolderInfo);
 
-        return default;
+        return null;
     }
 
     private void AddMissingVolumeInfo(LocalReplica replica, LocalFolderInfo folderInfo)
     {
-        if (replica.VolumeSerialNumber == default)
+        if (replica.VolumeSerialNumber == 0)
         {
             replica.VolumeSerialNumber = folderInfo.VolumeInfo.VolumeSerialNumber;
         }
 
-        if (replica.InternalVolumeId == default)
+        if (replica.InternalVolumeId == 0)
         {
             replica.InternalVolumeId = _volumeIdentityProvider.GetLocalVolumeId(replica.VolumeSerialNumber);
         }

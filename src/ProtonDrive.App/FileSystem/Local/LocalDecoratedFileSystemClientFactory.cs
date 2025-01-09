@@ -11,7 +11,6 @@ using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.Client.Contracts;
 using ProtonDrive.Shared;
 using ProtonDrive.Shared.Threading;
-using ProtonDrive.Shared.Volume;
 using ProtonDrive.Sync.Adapter;
 using ProtonDrive.Sync.Shared;
 using ProtonDrive.Sync.Shared.FileSystem;
@@ -81,12 +80,12 @@ internal sealed class LocalDecoratedFileSystemClientFactory
                 _loggerFactory.CreateLogger<LoggingFileSystemClientDecorator<long>>(),
                 new DispatchingFileSystemClient<long>(rootToClientMap));
 
-        RootInfo<long> CreateRoot(RemoteToLocalMapping mapping, RemoteToLocalMapping? parentMapping = default)
+        RootInfo<long> CreateRoot(RemoteToLocalMapping mapping, RemoteToLocalMapping? parentMapping = null)
         {
             var volumeId = mapping.Local.InternalVolumeId;
 
             var rootFolderId = mapping.Type is MappingType.SharedWithMeItem && mapping.Remote.RootItemType is LinkType.File
-                ? parentMapping?.Local.RootFolderId ?? default
+                ? parentMapping?.Local.RootFolderId ?? 0
                 : mapping.Local.RootFolderId;
 
             return new RootInfo<long>(

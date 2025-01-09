@@ -74,6 +74,7 @@
       <ComponentRef Id="DesktopShortcut" />
       <ComponentRef Id="LocalAppData" />
       <ComponentRef Id="InstallationInitiatorRegistryEntry" />
+      <ComponentRef Id="FirstLaunchRegistryEntry" />
     </Feature>
 
     <UIRef Id="WixUI_Minimal_WithoutEULA" />

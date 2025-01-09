@@ -82,7 +82,27 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
         return placeholderState.HasFlag(PlaceholderState.Partial);
     }
 
-    private static void TryConvertFile(string filePath, out bool deleted)
+    private static void RemoveReadOnlyAttribute(FileSystemFile file)
+    {
+        if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
+        {
+            file.Attributes &= ~FileAttributes.ReadOnly;
+        }
+    }
+
+    private void TryExcludeFromSync(FileSystemObject fileSystemObject)
+    {
+        try
+        {
+            fileSystemObject.SetPinState(CF_PIN_STATE.CF_PIN_STATE_EXCLUDED, CF_SET_PIN_FLAGS.CF_SET_PIN_FLAG_NONE);
+        }
+        catch (COMException ex) when (ex.HResultContainsWin32ErrorCode(Win32SystemErrorCode.ErrorInvalidFunction))
+        {
+            _logger.LogWarning("Failed to exclude from sync: {ExceptionType}: {ErrorCode}", ex.GetType().Name, ex.GetRelevantFormattedErrorCode());
+        }
+    }
+
+    private void TryConvertFile(string filePath, out bool deleted)
     {
         using var file = FileSystemFile.Open(filePath, FileSystemFileAccess.WriteAttributes | FileSystemFileAccess.Delete);
 
@@ -103,15 +123,7 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
             file.RevertPlaceholder();
         }
 
-        file.SetPinState(CF_PIN_STATE.CF_PIN_STATE_EXCLUDED, CF_SET_PIN_FLAGS.CF_SET_PIN_FLAG_NONE);
-    }
-
-    private static void RemoveReadOnlyAttribute(FileSystemFile file)
-    {
-        if (file.Attributes.HasFlag(FileAttributes.ReadOnly))
-        {
-            file.Attributes &= ~FileAttributes.ReadOnly;
-        }
+        TryExcludeFromSync(file);
     }
 
     private void TryConvertFolder(string folderPath, bool skipRoot, out bool deleted)
@@ -160,6 +172,6 @@ internal sealed class PlaceholderToRegularItemConverter : IPlaceholderToRegularI
             folder.RevertPlaceholder();
         }
 
-        folder.SetPinState(CF_PIN_STATE.CF_PIN_STATE_EXCLUDED, CF_SET_PIN_FLAGS.CF_SET_PIN_FLAG_NONE);
+        TryExcludeFromSync(folder);
     }
 }

@@ -37,11 +37,9 @@ internal class AppUpdates : IAppUpdates
         ILoggerFactory loggerFactory,
         AppUpdateConfig config,
         IHttpClientFactory httpClientFactory,
-        IOsProcesses osProcesses,
-        AppLaunchMode appLaunchMode)
+        IOsProcesses osProcesses)
     {
-        _appLaunchMode = appLaunchMode;
-
+        _appLaunchMode = config.AppLaunchMode;
         var checkForUpdateHttpClient = httpClientFactory.CreateClient(config.CheckForUpdateHttpClientName);
         var downloadUpdateHttpClient = httpClientFactory.CreateClient(config.DownloadUpdateHttpClientName);
 

@@ -38,6 +38,7 @@ using ProtonDrive.Shared.Configuration;
 using ProtonDrive.Shared.Devices;
 using ProtonDrive.Shared.Net.Http.TlsPinning;
 using ProtonDrive.Shared.Offline;
+using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Shared.Repository;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Shared.FileSystem;
@@ -58,6 +59,7 @@ public static class ApiClientConfigurator
     public static readonly string BlocksHttpClientName = "Blocks";
     public static readonly string PaymentsHttpClientName = "Payments";
     public static readonly string TlsPinningReportHttpClientName = "TlsPinningReport";
+    public static readonly string ErrorReportHttpClientName = "ErrorReport";
 
     private const string RefitHttpClientNameSuffix = "-Refit";
     private const string NonCriticalHttpClientNameSuffix = "-NonCritical";
@@ -66,7 +68,7 @@ public static class ApiClientConfigurator
     private static readonly ProtonApiUrlParameterFormatter DefaultUrlParameterFormatter = new();
     private static readonly RefitSettings DefaultRefitSettings = new(DefaultContentSerializer, DefaultUrlParameterFormatter);
 
-    public static IServiceCollection AddFileSystemClient(this IServiceCollection services, Action<Exception> reportException)
+    public static IServiceCollection AddFileSystemClient(this IServiceCollection services)
     {
         services.AddSingleton<Func<FileSystemClientParameters, IFileSystemClient<string>>>(
             sp => fileSystemClientParameters => new RemoteFileSystemClient(
@@ -84,7 +86,7 @@ public static class ApiClientConfigurator
                 sp.GetRequiredService<IRevisionManifestCreator>(),
                 sp.GetRequiredService<IBlockVerifierFactory>(),
                 sp.GetRequiredService<ILoggerFactory>(),
-                reportException));
+                sp.GetRequiredService<IErrorReporting>().CaptureException));
 
         services.AddSingleton<IRemoteEventLogClientFactory, RemoteEventLogClientFactory>();
 
@@ -103,6 +105,7 @@ public static class ApiClientConfigurator
         services.AddSingleton<IScheduler, ThreadPoolScheduler>();
         services.AddSingleton<CookieContainer>();
 
+        services.AddSingleton<IErrorReportingHttpClientConfigurator>(provider => new ErrorReportingHttpClientConfigurator(provider, locale));
         services.AddSingleton<AuthenticationService>();
         services.AddSingleton<IAuthenticationService>(sp => sp.GetRequiredService<AuthenticationService>());
         services.AddSingleton<ISessionProvider>(sp => sp.GetRequiredService<AuthenticationService>());
@@ -331,7 +334,7 @@ public static class ApiClientConfigurator
             throw new InvalidOperationException(errorMessage);
         }
 
-        var path = uri.AbsolutePath.EndsWith("/") ? uri.AbsolutePath : uri.AbsolutePath + "/";
+        var path = uri.AbsolutePath.EndsWith('/') ? uri.AbsolutePath : uri.AbsolutePath + "/";
 
         var uriBuilder = new UriBuilder(uri) { Path = path };
 

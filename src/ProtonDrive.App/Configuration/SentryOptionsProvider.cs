@@ -1,32 +1,37 @@
 ﻿using System;
-using System.Reflection;
-using ProtonDrive.Shared.Extensions;
-using ProtonDrive.Shared.Net.Http;
+using ProtonDrive.Client.Configuration;
 using Sentry;
 
 namespace ProtonDrive.App.Configuration;
 
-public static class SentryOptionsProvider
+internal sealed class SentryOptionsProvider
 {
-    public static SentryOptions GetOptions(Func<IServiceProvider?> getServiceProvider)
+    private readonly DriveApiConfig _driveApiConfig;
+    private readonly IErrorReportingHttpClientConfigurator _httpClientConfigurator;
+
+    public SentryOptionsProvider(DriveApiConfig driveApiConfig, IErrorReportingHttpClientConfigurator httpClientConfigurator)
     {
+        _driveApiConfig = driveApiConfig;
+        _httpClientConfigurator = httpClientConfigurator;
+    }
+
+    public SentryOptions GetOptions()
+    {
+        ArgumentNullException.ThrowIfNull(_driveApiConfig.CoreBaseUrl);
+
+        var baseUrlHost = _driveApiConfig.CoreBaseUrl.Host;
+
         var options = new SentryOptions
         {
-            Dsn = new Dsn("https://f4db09bc4cc144dab7455dbd71231e7f@drive-api.proton.me/core/v4/reports/sentry/3"),
-            Release = GetRelease("windows-drive@{AppVersion}"),
-            AttachStacktrace = true,
-            ConfigureHandler = (handler, _) =>
-            {
-                var serviceProvider = getServiceProvider.Invoke();
-                if (serviceProvider is not null)
-                {
-                    handler
-                        .AddAutomaticDecompression()
-                        .ConfigureCookies(serviceProvider)
-                        .AddTlsPinning("ErrorReport", serviceProvider);
-                }
-            },
+            Dsn = $"https://f4db09bc4cc144dab7455dbd71231e7f@{baseUrlHost}/core/v4/reports/sentry/3",
+            Release = _driveApiConfig.ClientVersion,
             Environment = "production",
+            AttachStacktrace = true,
+            SendClientReports = false,
+            CreateHttpMessageHandler = _httpClientConfigurator.CreateHttpMessageHandler,
+            ConfigureClient = _httpClientConfigurator.ConfigureHttpClient,
+            AutoSessionTracking = false, // Disable Sentry's "Release Health" feature.
+            IsGlobalModeEnabled = true, // Enabling this option is recommended for client applications only. It ensures all threads use the same global scope.
         };
 
 #if DEBUG
@@ -34,16 +39,5 @@ public static class SentryOptionsProvider
 #endif
 
         return options;
-    }
-
-    private static string GetRelease(string clientRelease)
-    {
-        return clientRelease.Replace("{AppVersion}", AppVersion());
-    }
-
-    private static string AppVersion()
-    {
-        // Normalized app version
-        return Assembly.GetExecutingAssembly().GetName().Version?.ToNormalized().ToString() ?? string.Empty;
     }
 }

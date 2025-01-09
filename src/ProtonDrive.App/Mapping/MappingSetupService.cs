@@ -13,6 +13,7 @@ using ProtonDrive.App.Sync;
 using ProtonDrive.App.Volumes;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.Logging;
+using ProtonDrive.Shared.Telemetry;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Shared.SyncActivity;
 
@@ -26,6 +27,7 @@ internal sealed class MappingSetupService
     private readonly IMappingTeardownPipeline _mappingTeardownPipeline;
     private readonly Lazy<IEnumerable<IMappingsSetupStateAware>> _setupStateAware;
     private readonly Lazy<IEnumerable<IMappingStateAware>> _mappingStateAware;
+    private readonly IErrorCounter _errorCounter;
     private readonly ILogger<MappingSetupService> _logger;
     private readonly CoalescingAction _mappingsSetup;
     private readonly List<RemoteToLocalMapping> _alreadySetUpMappings = [];
@@ -45,6 +47,7 @@ internal sealed class MappingSetupService
         IMappingTeardownPipeline mappingTeardownPipeline,
         Lazy<IEnumerable<IMappingsSetupStateAware>> setupStateAware,
         Lazy<IEnumerable<IMappingStateAware>> mappingStateAware,
+        IErrorCounter errorCounter,
         ILogger<MappingSetupService> logger)
     {
         _mappingRegistry = mappingRegistry;
@@ -52,6 +55,7 @@ internal sealed class MappingSetupService
         _mappingTeardownPipeline = mappingTeardownPipeline;
         _setupStateAware = setupStateAware;
         _mappingStateAware = mappingStateAware;
+        _errorCounter = errorCounter;
         _logger = logger;
 
         _mappingsSetup = new CoalescingAction(
@@ -422,7 +426,11 @@ internal sealed class MappingSetupService
                     mapping.Local.InternalVolumeId == default ||
                     mapping.Remote.InternalVolumeId == default;
 
+                mapping.IsDirty = false;
+
                 await SetUpMappingAsync(mapping, cancellationToken).ConfigureAwait(false);
+
+                atLeastOneMappingWasNotCompleteBeforeSetup |= mapping.IsDirty;
 
                 _alreadySetUpMappings.Add(mapping);
             }
@@ -461,7 +469,6 @@ internal sealed class MappingSetupService
         if (result.Status != MappingSetupStatus.Succeeded)
         {
             SetMappingError(mapping, result.ErrorCode);
-
             return;
         }
 
@@ -568,6 +575,8 @@ internal sealed class MappingSetupService
         };
 
         OnMappingStateChanged(mapping, state);
+
+        _errorCounter.Add(ErrorScope.MappingSetup, new MappingSetupException(mapping.Type, errorCode));
     }
 
     private void OnMappingStateChanged(RemoteToLocalMapping mapping, MappingState value)

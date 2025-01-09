@@ -21,4 +21,7 @@ public sealed class RemoteToLocalMapping
     public RemoteReplica Remote { get; set; } = new();
 
     public LocalReplica Local { get; set; } = new();
+
+    [JsonIgnore]
+    public bool IsDirty { get; set; }
 }

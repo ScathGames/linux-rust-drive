@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Authentication;
-using ProtonDrive.App.Reporting;
 using ProtonDrive.Client;
 using ProtonDrive.Client.Core.Events;
 using ProtonDrive.Client.Settings;
 using ProtonDrive.Client.Settings.Contracts;
 using ProtonDrive.Shared.Extensions;
+using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Settings.Remote;

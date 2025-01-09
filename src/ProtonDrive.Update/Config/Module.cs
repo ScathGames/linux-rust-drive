@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ProtonDrive.Shared;
 using ProtonDrive.Shared.Diagnostics;
 using ProtonDrive.Update.Updates;
 
@@ -12,7 +11,7 @@ namespace ProtonDrive.Update.Config;
 /// </summary>
 public static class Module
 {
-    public static IServiceCollection AddAppUpdate(this IServiceCollection services, AppLaunchMode appLaunchMode)
+    public static IServiceCollection AddAppUpdate(this IServiceCollection services)
     {
         return services
             .AddSingleton(
@@ -20,8 +19,7 @@ public static class Module
                     sp.GetRequiredService<ILoggerFactory>(),
                     sp.GetRequiredService<AppUpdateConfig>(),
                     sp.GetRequiredService<IHttpClientFactory>(),
-                    sp.GetRequiredService<IOsProcesses>(),
-                    appLaunchMode))
+                    sp.GetRequiredService<IOsProcesses>()))
             .AddSingleton<AppUpdatesAutoCleanup>()
 
             .AddSingleton<IAppUpdates>(

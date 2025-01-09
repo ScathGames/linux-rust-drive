@@ -21,4 +21,9 @@ public enum ErrorScope
     /// Error occurred when attempting to sanitize a .protondoc file by adding the file extension
     /// </summary>
     DocumentNameMigration,
+
+    /// <summary>
+    /// Error occurred when attempting to set up a mapping folder
+    /// </summary>
+    MappingSetup,
 }

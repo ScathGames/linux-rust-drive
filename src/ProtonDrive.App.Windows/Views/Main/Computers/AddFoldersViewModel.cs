@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Mapping.SyncFolders;
+using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Windows.SystemIntegration;
 
 namespace ProtonDrive.App.Windows.Views.Main.Computers;
@@ -21,6 +22,7 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
 {
     private readonly IFileSystemDisplayNameAndIconProvider _fileSystemDisplayNameAndIconProvider;
     private readonly ISyncFolderService _syncFolderService;
+    private readonly IKnownFolders _knownFolders;
     private readonly AddedFolderValidationResultMessageBuilder _messageBuilder;
     private readonly ILogger<AddFoldersViewModel> _logger;
     private readonly AsyncRelayCommand _saveCommand;
@@ -35,15 +37,17 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
     public AddFoldersViewModel(
         IFileSystemDisplayNameAndIconProvider fileSystemDisplayNameAndIconProvider,
         ISyncFolderService syncFolderService,
+        IKnownFolders knownFolders,
         AddedFolderValidationResultMessageBuilder messageBuilder,
         ILogger<AddFoldersViewModel> logger)
     {
         _fileSystemDisplayNameAndIconProvider = fileSystemDisplayNameAndIconProvider;
         _syncFolderService = syncFolderService;
+        _knownFolders = knownFolders;
         _messageBuilder = messageBuilder;
         _logger = logger;
 
-        foreach (var knownFolder in KnownFolders.IdsByPath)
+        foreach (var knownFolder in _knownFolders.IdsByPath)
         {
             TryAddFolder(knownFolder.Key, isChecked: false);
         }
@@ -54,7 +58,7 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
         SyncFolders.CollectionChanged += OnSyncFoldersCollectionChanged;
     }
 
-    string? IDialogViewModel.Title => default;
+    string? IDialogViewModel.Title => null;
 
     public bool SyncFoldersSaved
     {
@@ -117,13 +121,13 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
 
         foreach (var syncedFolder in SyncFolders)
         {
-            if (KnownFolders.IdsByPath.All(group => group.Key != syncedFolder.Path))
+            if (_knownFolders.IdsByPath.All(group => group.Key != syncedFolder.Path))
             {
                 arbitraryFoldersToRemove.Add(syncedFolder);
             }
             else
             {
-                syncedFolder.IsChecked = KnownFolders.IdsByPath.Any(group => group.Any(id => id == KnownFolders.Documents && group.Key == syncedFolder.Path));
+                syncedFolder.IsChecked = _knownFolders.IdsByPath.Any(group => group.Any(id => id == _knownFolders.Documents && group.Key == syncedFolder.Path));
             }
         }
 

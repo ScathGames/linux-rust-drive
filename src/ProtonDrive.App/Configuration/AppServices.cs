@@ -54,6 +54,7 @@ using ProtonDrive.Shared.Features;
 using ProtonDrive.Shared.Net.Http;
 using ProtonDrive.Shared.Net.Http.TlsPinning;
 using ProtonDrive.Shared.Offline;
+using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Shared.Repository;
 using ProtonDrive.Shared.Security.Cryptography;
 using ProtonDrive.Shared.Telemetry;
@@ -67,13 +68,14 @@ public static class AppServices
     public static readonly string CheckForUpdateHttpClientName = "CheckForUpdate";
     public static readonly string DownloadUpdateHttpClientName = "DownloadUpdate";
 
-    public static IServiceCollection AddAppServices(this IServiceCollection services, IErrorReporting errorReporting, AppLaunchMode appLaunchMode)
+    public static IServiceCollection AddAppServices(this IServiceCollection services)
     {
         const string cultureName = "en-US";
 
         return services
                 .AddHostedService<HostedApp>()
-                .AddSingleton(errorReporting)
+                .AddSingleton<SentryOptionsProvider>()
+                .AddSingleton<IErrorReporting, ErrorReporting>()
 
                 .AddSingleton(
                     provider => provider.GetRequiredService<IConfiguration>().Get<AppConfig>(options => options.BindNonPublicProperties = true) ??
@@ -93,13 +95,13 @@ public static class AppServices
 
                 .AddSingleton(GetDriveApiConfig)
                 .AddApiClients(cultureName)
-                .AddFileSystemClient(errorReporting.CaptureException)
+                .AddFileSystemClient()
 
                 .AddSingleton<TooManyRequestsBlockedEndpoints>()
                 .AddTransient<TooManyRequestsHandler>()
 
                 .AddAppUpdateConfig()
-                .AddAppUpdate(appLaunchMode)
+                .AddAppUpdate()
 
                 .ReplaceHttpClientLogging()
 
@@ -261,6 +263,8 @@ public static class AppServices
 
                 .AddSingleton<LocalFolderIdentityValidator>()
                 .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<LocalFolderIdentityValidator>())
+
+                .AddSingleton<LocalFolderDivergedIdentityHandler>()
 
                 .AddSingleton<RemoteFolderNameValidator>()
                 .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<RemoteFolderNameValidator>())
@@ -485,12 +489,14 @@ public static class AppServices
 
     private static AppUpdateConfig GetAppUpdateConfig(IServiceProvider provider)
     {
+        var appArguments = provider.GetRequiredService<AppArguments>();
         var appConfig = provider.GetRequiredService<AppConfig>();
         var updateConfig = provider.GetRequiredService<UpdateConfig>();
 
         var clientInstanceSettings = provider.GetRequiredService<ClientInstanceSettings>();
 
         return new AppUpdateConfig(
+            appArguments.LaunchMode,
             CheckForUpdateHttpClientName,
             DownloadUpdateHttpClientName,
             new Uri(updateConfig.UpdateUrl),
@@ -506,7 +512,7 @@ public static class AppServices
     {
         var appConfig = provider.GetRequiredService<AppConfig>();
         var config = provider.GetRequiredService<IConfiguration>().GetSection("DriveApi").Get<DriveApiConfig>(options => options.BindNonPublicProperties = true);
-        if (config == default)
+        if (config == null)
         {
             throw new InvalidOperationException($"Cannot instantiate {nameof(DriveApiConfig)} from the configuration");
         }

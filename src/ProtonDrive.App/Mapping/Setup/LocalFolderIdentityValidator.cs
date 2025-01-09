@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Settings;
@@ -11,7 +10,7 @@ namespace ProtonDrive.App.Mapping.Setup;
 internal sealed class LocalFolderIdentityValidator : IMappingsAware
 {
     private readonly ILogger<LocalFolderIdentityValidator> _logger;
-    private IReadOnlyCollection<RemoteToLocalMapping> _activeMappings = Array.Empty<RemoteToLocalMapping>();
+    private IReadOnlyCollection<RemoteToLocalMapping> _activeMappings = [];
 
     public LocalFolderIdentityValidator(ILogger<LocalFolderIdentityValidator> logger)
     {
@@ -23,16 +22,23 @@ internal sealed class LocalFolderIdentityValidator : IMappingsAware
         return ValidateFolderIdentity(folderInfo.VolumeInfo.VolumeSerialNumber, folderInfo.Id, replica, remoteRootType);
     }
 
+    void IMappingsAware.OnMappingsChanged(
+        IReadOnlyCollection<RemoteToLocalMapping> activeMappings,
+        IReadOnlyCollection<RemoteToLocalMapping> deletedMappings)
+    {
+        _activeMappings = activeMappings;
+    }
+
     private MappingErrorCode? ValidateFolderIdentity(int volumeSerialNumber, long folderId, LocalReplica replica, LinkType remoteRootType)
     {
-        if ((replica.RootFolderId != default && replica.RootFolderId != folderId)
-            || (replica.VolumeSerialNumber != default && replica.VolumeSerialNumber != volumeSerialNumber))
+        if ((replica.RootFolderId != 0 && replica.RootFolderId != folderId)
+            || (replica.VolumeSerialNumber != 0 && replica.VolumeSerialNumber != volumeSerialNumber))
         {
             _logger.LogWarning("The local sync folder identity has diverged");
             return MappingErrorCode.LocalFolderDiverged;
         }
 
-        if (remoteRootType is not LinkType.File)
+        if (remoteRootType is LinkType.Folder)
         {
             var mappingWithDuplicateFolder = _activeMappings
                 .FirstOrDefault(m => m.Local != replica && m.Local.VolumeSerialNumber == volumeSerialNumber && m.Local.RootFolderId == folderId);
@@ -44,13 +50,6 @@ internal sealed class LocalFolderIdentityValidator : IMappingsAware
             }
         }
 
-        return default;
-    }
-
-    void IMappingsAware.OnMappingsChanged(
-        IReadOnlyCollection<RemoteToLocalMapping> activeMappings,
-        IReadOnlyCollection<RemoteToLocalMapping> deletedMappings)
-    {
-        _activeMappings = activeMappings;
+        return null;
     }
 }

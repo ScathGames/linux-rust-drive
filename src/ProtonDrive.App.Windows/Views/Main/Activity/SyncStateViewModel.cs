@@ -13,12 +13,15 @@ using ProtonDrive.App.Authentication;
 using ProtonDrive.App.Sync;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Windows.SystemIntegration;
+using ProtonDrive.Shared;
+using ProtonDrive.Shared.Configuration;
 using ProtonDrive.Shared.Threading;
+using ProtonDrive.Sync.Shared.ExecutionStatistics;
 using ProtonDrive.Sync.Shared.SyncActivity;
 
 namespace ProtonDrive.App.Windows.Views.Main.Activity;
 
-internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, ISyncStateAware, ISyncActivityAware, IDisposable
+internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, ISyncStateAware, ISyncActivityAware, ISyncStatisticsAware, IDisposable
 {
     public const int MaxNumberOfVisibleItems = 100;
 
@@ -29,9 +32,11 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
     private readonly IFileSystemDisplayNameAndIconProvider _fileSystemDisplayNameAndIconProvider;
     private readonly ILocalFolderService _localFolderService;
     private readonly IScheduler _scheduler;
+    private readonly IClock _clock;
 
     private readonly AsyncRelayCommand _retrySyncCommand;
     private readonly ISchedulerTimer _timer;
+    private readonly TimeSpan _delayBeforeDisplayingSyncInitializationProgress;
 
     private SyncState _synchronizationState = SyncState.Terminated;
     private bool _isSyncInitialized;
@@ -39,17 +44,23 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
     private bool _isNewSession;
     private bool _isDisplayingDetails;
     private int _latestSyncPassNumber;
+    private int? _numberOfInitializedItems;
+    private DateTime? _syncInitializationStartTime;
 
     public SyncStateViewModel(
         ISyncService syncService,
         IFileSystemDisplayNameAndIconProvider fileSystemDisplayNameAndIconProvider,
         ILocalFolderService localFolderService,
-        [FromKeyedServices("Dispatcher")] IScheduler scheduler)
+        [FromKeyedServices("Dispatcher")] IScheduler scheduler,
+        AppConfig appConfig,
+        IClock clock)
     {
         _syncService = syncService;
-        _scheduler = scheduler;
         _fileSystemDisplayNameAndIconProvider = fileSystemDisplayNameAndIconProvider;
         _localFolderService = localFolderService;
+        _scheduler = scheduler;
+        _clock = clock;
+        _delayBeforeDisplayingSyncInitializationProgress = appConfig.DelayBeforeDisplayingSyncInitializationProgress;
 
         _retrySyncCommand = new AsyncRelayCommand(RetrySyncAsync, CanRetrySync);
 
@@ -86,6 +97,12 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
         }
     }
 
+    public int? NumberOfInitializedItems
+    {
+        get => _numberOfInitializedItems;
+        private set => SetProperty(ref _numberOfInitializedItems, value);
+    }
+
     public ICommand RetrySyncCommand => _retrySyncCommand;
 
     public ListCollectionView SyncActivityItems { get; }
@@ -119,6 +136,15 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
             };
 
             IsInitializingForTheFirstTime = !_isSyncInitialized && value.Status is SyncStatus.Initializing or SyncStatus.DetectingUpdates;
+
+            if (IsInitializingForTheFirstTime)
+            {
+                _syncInitializationStartTime ??= _clock.UtcNow;
+            }
+            else
+            {
+                _syncInitializationStartTime = null;
+            }
 
             OnPropertyChanged(nameof(SynchronizationStatus));
             OnPropertyChanged(nameof(Paused));
@@ -210,9 +236,26 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
             }
             else if (itemViewModel.SynchronizedAt == default)
             {
-                itemViewModel.SynchronizedAt = DateTime.UtcNow;
+                itemViewModel.SynchronizedAt = _clock.UtcNow;
             }
         }
+    }
+
+    void ISyncStatisticsAware.OnSyncStatisticsChanged(IExecutionStatistics value)
+    {
+        _scheduler.Schedule(() =>
+        {
+            if (_synchronizationState.Status is not (SyncStatus.Initializing or SyncStatus.DetectingUpdates))
+            {
+                NumberOfInitializedItems = null;
+                return;
+            }
+
+            if (_clock.UtcNow - _syncInitializationStartTime > _delayBeforeDisplayingSyncInitializationProgress)
+            {
+                NumberOfInitializedItems = value.Succeeded + value.Failed;
+            }
+        });
     }
 
     private static bool ItemSyncHasFailed(object item)

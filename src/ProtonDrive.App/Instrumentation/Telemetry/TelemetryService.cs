@@ -97,19 +97,14 @@ internal sealed class TelemetryService : IRemoteSettingsAware, IUserStateAware
                 return;
             }
 
-            if (IsFirstLaunchInstallationReportSent(registryKey, reportRegistryValueName))
+            if (!FirstLaunchReportMustBeSent(registryKey, reportRegistryValueName))
             {
                 return;
             }
 
             var initiatorValue = registryKey.GetValue(sourceRegistryValueName);
 
-            if (initiatorValue is not string initiator)
-            {
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(initiator))
+            if (initiatorValue is not string initiator || string.IsNullOrWhiteSpace(initiator))
             {
                 initiator = "own";
             }
@@ -129,9 +124,9 @@ internal sealed class TelemetryService : IRemoteSettingsAware, IUserStateAware
 
         return;
 
-        static bool IsFirstLaunchInstallationReportSent(RegistryKey registryKey, string value)
+        static bool FirstLaunchReportMustBeSent(RegistryKey registryKey, string value)
         {
-            return registryKey.GetValue(value) is int and > 0;
+            return registryKey.GetValue(value) is 0;
         }
     }
 

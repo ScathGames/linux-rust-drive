@@ -31,12 +31,10 @@ internal sealed class ForeignDeviceMappingSetupFinalizationStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!await TryAddOnDemandSyncRootAsync(mapping).ConfigureAwait(false))
+        if (await TryAddOnDemandSyncRootAsync(mapping).ConfigureAwait(false) is { } errorCode)
         {
-            return MappingErrorCode.LocalFileSystemAccessFailed;
+            return errorCode;
         }
-
-        cancellationToken.ThrowIfCancellationRequested();
 
         return MappingErrorCode.None;
     }
@@ -53,15 +51,8 @@ internal sealed class ForeignDeviceMappingSetupFinalizationStep
                _syncFolderProtector.ProtectFolder(foreignDeviceFolderPath, FolderProtectionType.Leaf);
     }
 
-    private async Task<bool> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
+    private Task<MappingErrorCode?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        if (mapping.SyncMethod is not SyncMethod.OnDemand)
-        {
-            return true;
-        }
-
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Hidden);
-
-        return await _onDemandSyncRootRegistry.TryRegisterAsync(root).ConfigureAwait(false);
+        return _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping);
     }
 }

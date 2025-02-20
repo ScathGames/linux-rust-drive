@@ -244,19 +244,19 @@ internal static class NodeInfoExtensions
         {
             CfCreatePlaceholders(
                     parentDirectory.FullPath,
-                    new[] { placeholderCreationInfo.Value },
+                    [placeholderCreationInfo.Value],
                     1,
                     CF_CREATE_FLAGS.CF_CREATE_FLAG_STOP_ON_ERROR,
                     out _)
                 .ThrowExceptionForHR();
         }
-        catch (Exception ex) when (ExceptionMapping.TryMapException(ex, id: default, out var mappedException))
+        catch (Exception ex) when (ExceptionMapping.TryMapException(ex, id: null, out var mappedException))
         {
             throw mappedException;
         }
 
         // We don't know File ID of the just created placeholder file
-        var newInfo = info.Copy().WithId(default);
+        var newInfo = info.Copy().WithId(0);
 
         return newInfo.OpenAsFile(access, share);
     }
@@ -366,7 +366,7 @@ internal static class NodeInfoExtensions
         var fileName = string.IsNullOrEmpty(tempFileName) ? info.Name : tempFileName;
 
         return info.Copy()
-            .WithId(default)
+            .WithId(0)
             .WithName(fileName)
             .WithPath(Path.Combine(Path.GetDirectoryName(info.Path) ?? string.Empty, fileName))
             .WithSize(0)
@@ -382,9 +382,11 @@ internal static class NodeInfoExtensions
     {
         var name = !string.IsNullOrEmpty(info.Name) ? info.Name : Path.GetFileName(info.Path);
 
-        if (FileSystemObject.GetNameValidationResult(name) is { } message)
+        var validationResult = FileSystemObject.GetNameValidationResult(name);
+
+        if (validationResult is not FileSystemNameValidationResult.Success)
         {
-            throw new FileSystemClientException<long>(message, FileSystemErrorCode.InvalidName, default);
+            throw new FileSystemClientException<long>(validationResult.ToString(), FileSystemErrorCode.InvalidName, objectId: 0);
         }
 
         return name;

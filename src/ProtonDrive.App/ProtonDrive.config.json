@@ -12,7 +12,7 @@
     "ClientVersion": "windows-drive@{AppVersion}",
     "UserAgent": "ProtonDrive/{AppVersion} ({SystemInfo})",
     "ContentType": "application/vnd.protonmail.api+json",
-    "Timeout": "00:00:20",
+    "Timeout": "00:00:30",
     "BlocksTimeout": "00:05:00",
     "RevisionUpdateTimeout": "00:01:30",
     "DefaultNumberOfRetries": 3,
@@ -70,7 +70,7 @@
     "NotificationInterval": "1.00:00:00",
     "MinProgressDuration": "00:00:02",
     "CleanupDelay": "00:00:20",
-    "Timeout": "00:00:20",
+    "Timeout": "00:00:30",
     "NumberOfRetries": 3
   },
   "TlsPinning": {
@@ -96,7 +96,10 @@
   "Serilog": {
     "Using": [ "Serilog.Sinks.Async", "Serilog.Sinks.File" ],
     "MinimumLevel": {
-      "Default": "Information"
+      "Default": "Information",
+      "Override": {
+        "Microsoft.Hosting.Lifetime": "Warning"
+      }
     },
     "WriteTo:Async": {
       "Name": "Async",

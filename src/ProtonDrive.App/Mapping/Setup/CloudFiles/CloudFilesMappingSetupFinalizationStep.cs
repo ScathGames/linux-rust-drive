@@ -44,9 +44,9 @@ internal sealed class CloudFilesMappingSetupFinalizationStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!await TryAddShellFolderAsync(mapping).ConfigureAwait(false))
+        if (await TryAddShellFolderAsync(mapping).ConfigureAwait(false) is { } errorCode)
         {
-            return MappingErrorCode.LocalFileSystemAccessFailed;
+            return errorCode;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -68,13 +68,13 @@ internal sealed class CloudFilesMappingSetupFinalizationStep
                _syncFolderProtector.ProtectFolder(cloudFilesFolderPath, FolderProtectionType.Leaf);
     }
 
-    private Task<bool> TryAddShellFolderAsync(RemoteToLocalMapping mapping)
+    private Task<MappingErrorCode?> TryAddShellFolderAsync(RemoteToLocalMapping mapping)
     {
         switch (mapping.SyncMethod)
         {
             case SyncMethod.Classic:
                 AddClassicSyncShellFolder(mapping);
-                return Task.FromResult(true);
+                return Task.FromResult<MappingErrorCode?>(null);
 
             case SyncMethod.OnDemand:
                 return TryAddOnDemandSyncRootAsync(mapping);
@@ -95,11 +95,9 @@ internal sealed class CloudFilesMappingSetupFinalizationStep
         _shellSyncFolderRegistry.Register(path);
     }
 
-    private Task<bool> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
+    private Task<MappingErrorCode?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
-
-        return _onDemandSyncRootRegistry.TryRegisterAsync(root);
+        return _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping);
     }
 
     private void CustomizeUserDataFolderAppearance()

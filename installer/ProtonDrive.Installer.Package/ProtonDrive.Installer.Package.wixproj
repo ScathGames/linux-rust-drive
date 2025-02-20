@@ -14,6 +14,13 @@
   <PropertyGroup Condition="'$(AppPlatform)' != ''">
     <OutputName>$(OutputName) ($(AppPlatform))</OutputName>
   </PropertyGroup>
+  <!-- 
+  Remove this property in order to support localization and multi-language MSI package:
+  https://wixtoolset.org/docs/v3/howtos/ui_and_localization/specifying_cultures_to_build/
+  -->
+  <PropertyGroup>
+    <Cultures>en-US</Cultures>
+  </PropertyGroup>
   <ItemGroup Condition="'$(ApplicationFilesPath)' != ''">
     <BindPath Include="$(ApplicationFilesPath)">
       <BindName>ApplicationFiles</BindName>

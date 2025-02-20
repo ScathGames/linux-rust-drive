@@ -192,6 +192,15 @@ internal sealed class MappingSetupService
                     SetMappingState(mapping, MappingSetupStatus.None);
                 });
 
+        mappings.Active
+            .Where(mapping => mapping is { HasSetupSucceeded: true, SyncMethod: SyncMethod.Classic, SyncMethodUpdateStatus: SyncMethodUpdateStatus.EnablingOnDemandSyncRequested })
+            .ForEach(mapping =>
+            {
+                hasAffectedMappings = true;
+                mapping.HasSetupSucceeded = false;
+                SetMappingState(mapping, MappingSetupStatus.None);
+            });
+
         if (!hasAffectedMappings && !mappingsChanged && State.Status is MappingSetupStatus.Succeeded)
         {
             _logger.LogInformation("Skipping sync folder mappings setup, mappings didn't change");
@@ -397,7 +406,7 @@ internal sealed class MappingSetupService
 
         foreach (var mapping in activeMappings)
         {
-            if (mapping.HasSetupSucceeded)
+            if (mapping is { HasSetupSucceeded: true, SyncMethodUpdateStatus: not SyncMethodUpdateStatus.EnablingOnDemandSyncRequested })
             {
                 // We track already set up mappings for the overlapping local folder detection
                 _alreadySetUpMappings.Add(mapping);
@@ -423,8 +432,8 @@ internal sealed class MappingSetupService
             {
                 atLeastOneMappingWasNotCompleteBeforeSetup |=
                     mapping.Status is not MappingStatus.Complete ||
-                    mapping.Local.InternalVolumeId == default ||
-                    mapping.Remote.InternalVolumeId == default;
+                    mapping.Local.InternalVolumeId == 0 ||
+                    mapping.Remote.InternalVolumeId == 0;
 
                 mapping.IsDirty = false;
 

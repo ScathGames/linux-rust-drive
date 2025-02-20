@@ -3,7 +3,7 @@
 public enum UserQuotaStatus
 {
     /// <summary>
-    /// Quota usage is less then 80%
+    /// Quota usage is less than 80%
     /// </summary>
     Regular,
 

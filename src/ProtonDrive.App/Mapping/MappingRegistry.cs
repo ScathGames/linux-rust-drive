@@ -242,6 +242,11 @@ internal sealed class MappingRegistry : IStartableService, IStoppableService, IM
             _isDirty = true;
         }
 
+        public void Update(RemoteToLocalMapping mapping)
+        {
+            _isDirty = true;
+        }
+
         public void Delete(RemoteToLocalMapping mapping)
         {
             _mappingRegistry.DeleteMapping(mapping);

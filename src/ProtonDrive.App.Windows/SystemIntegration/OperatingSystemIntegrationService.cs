@@ -20,19 +20,19 @@ internal sealed class OperatingSystemIntegrationService : IOperatingSystemIntegr
 
     public bool GetRunApplicationOnStartup()
     {
-        var registryKey = Registry.CurrentUser.OpenSubKey(StartupKey, true);
+        using var registryKey = Registry.CurrentUser.OpenSubKey(StartupKey, true);
 
         return registryKey?.GetValue(ProtonDriveRegistryValueName) != null;
     }
 
     public void SetRunApplicationOnStartup(bool value)
     {
-        var registryKey = Registry.CurrentUser.OpenSubKey(StartupKey, true);
+        using var registryKey = Registry.CurrentUser.OpenSubKey(StartupKey, true);
 
         if (registryKey == null)
         {
-            // We do not handle the absence of the the registry key.
-            _logger.LogWarning("Impossible to set the app to open on start-up due to the absence of the registry key.");
+            // We do not handle the absence of the registry key.
+            _logger.LogWarning("Impossible to set the app to open on start-up due to the absence of the registry key");
 
             return;
         }
@@ -46,12 +46,12 @@ internal sealed class OperatingSystemIntegrationService : IOperatingSystemIntegr
             }
 
             registryKey.SetValue(ProtonDriveRegistryValueName, $"\"{_appConfig.AppLaunchPath}\" -quiet");
-            _logger.LogDebug("App set to open on start-up automatically.");
+            _logger.LogInformation("App set to open on start-up automatically");
         }
         else if (registryKey.GetValue(ProtonDriveRegistryValueName) != null)
         {
             registryKey.DeleteValue(ProtonDriveRegistryValueName);
-            _logger.LogDebug("App disabled to open on start-up automatically.");
+            _logger.LogInformation("App disabled to open on start-up automatically");
         }
     }
 }

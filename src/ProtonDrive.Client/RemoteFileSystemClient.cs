@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using Proton.Security.Cryptography.Abstractions;
 using ProtonDrive.BlockVerification;
@@ -15,6 +13,7 @@ using ProtonDrive.Client.Configuration;
 using ProtonDrive.Client.Contracts;
 using ProtonDrive.Client.Cryptography;
 using ProtonDrive.Client.FileUploading;
+using ProtonDrive.Client.MediaTypes;
 using ProtonDrive.Client.RemoteNodes;
 using ProtonDrive.Client.Volumes;
 using ProtonDrive.Shared;
@@ -32,41 +31,6 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
     private const int MaxNumberOfBuffers = 40;
 
     private readonly BlockingArrayMemoryPool<byte> _bufferPool = new(BufferSize, MaxNumberOfBuffers);
-
-    private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider = new()
-    {
-        Mappings =
-        {
-            { ".apk", "application/vnd.android.package-archive" },
-            { ".apng", "image/apng" },
-            { ".arc", "application/x-freearc" },
-            { ".avif", "image/avif" },
-            { ".bzip2", "application/x-bzip2" },
-            { ".cr3", "image/x-canon-cr3" },
-            { ".epub", "application/epub+zip" },
-            { ".flac", "audio/flac" },
-            { ".gzip", "application/gzip" },
-            { ".heic", "image/heic" },
-            { ".heics", "image/heic-sequence" },
-            { ".heif", "image/heif" },
-            { ".heifs", "image/heif-sequence" },
-            { ".keynote", "application/vnd.apple.keynote" },
-            { ".mp1s", "video/mp1s" },
-            { ".mp2p", "video/mp2p" },
-            { ".mp2t", "video/mp2t" },
-            { ".mp4a", "audio/mp4" },
-            { ".numbers", "application/vnd.apple.numbers" },
-            { ".odp", "application/vnd.oasis.opendocument.presentation" },
-            { ".odt", "application/vnd.oasis.opendocument.text" },
-            { ".opus", "audio/opus" },
-            { ".pages", "application/vnd.apple.pages" },
-            { ".qcp", "audio/qcelp" },
-            { ".v3g2", "video/3gpp2" },
-            { ".v3gp", "video/3gpp" },
-            { ".x7zip", "application/x-7z-compressed" },
-        },
-    };
-
     private readonly DriveApiConfig _config;
     private readonly string _volumeId;
     private readonly string _shareId;
@@ -74,6 +38,7 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
     private readonly string? _linkId;
     private readonly string? _linkName;
     private readonly IClientInstanceIdentityProvider _clientInstanceIdentityProvider;
+    private readonly IFileContentTypeProvider _fileContentTypeProvider;
     private readonly IRemoteNodeService _remoteNodeService;
     private readonly ILinkApiClient _linkApiClient;
     private readonly IFolderApiClient _folderApiClient;
@@ -90,6 +55,7 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
     internal RemoteFileSystemClient(
         DriveApiConfig config,
         FileSystemClientParameters fileSystemClientParameters,
+        IFileContentTypeProvider fileContentTypeProvider,
         IClientInstanceIdentityProvider clientInstanceIdentityProvider,
         IRemoteNodeService remoteNodeService,
         ILinkApiClient linkApiClient,
@@ -105,6 +71,7 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
         Action<Exception> reportBlockVerificationOrDecryptionFailure)
     {
         _config = config;
+        _fileContentTypeProvider = fileContentTypeProvider;
         _volumeId = fileSystemClientParameters.VolumeId;
         _shareId = fileSystemClientParameters.ShareId;
         _virtualParentId = fileSystemClientParameters.VirtualParentId;
@@ -1020,14 +987,9 @@ public sealed class RemoteFileSystemClient : IFileSystemClient<string>
 
     private string? GetMediaType(NodeInfo<string> nodeInfo)
     {
-        if (nodeInfo.IsDirectory())
-        {
-            return null;
-        }
-
-        return _fileExtensionContentTypeProvider.TryGetContentType(nodeInfo.Name, out var contentType)
-            ? contentType
-            : MediaTypeNames.Application.Octet;
+        return nodeInfo.IsDirectory()
+            ? null :
+            _fileContentTypeProvider.GetContentType(nodeInfo.Name);
     }
 
     private void EnsureId([NotNull] string? id)

@@ -1,6 +1,6 @@
 # Proton Drive app for Windows
 
-Copyright (c) 2024 Proton AG
+Copyright (c) 2025 Proton AG
 
 ## License
 

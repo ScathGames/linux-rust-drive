@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Mapping.Setup.HostDeviceFolders;
 using ProtonDrive.App.Settings;
+using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Sync.Shared.FileSystem;
 
@@ -12,15 +13,21 @@ namespace ProtonDrive.App.Mapping.Teardown;
 internal sealed class HostDeviceFolderMappingTeardownStep
 {
     private readonly ILocalSpecialSubfoldersDeletionStep _specialFoldersDeletion;
+    private readonly IOnDemandSyncRootRegistry _onDemandSyncRootRegistry;
+    private readonly IPlaceholderToRegularItemConverter _placeholderConverter;
     private readonly Func<FileSystemClientParameters, IFileSystemClient<string>> _remoteFileSystemClientFactory;
     private readonly ILogger<HostDeviceFolderMappingFoldersSetupStep> _logger;
 
     public HostDeviceFolderMappingTeardownStep(
         ILocalSpecialSubfoldersDeletionStep specialFoldersDeletion,
+        IOnDemandSyncRootRegistry onDemandSyncRootRegistry,
+        IPlaceholderToRegularItemConverter placeholderConverter,
         Func<FileSystemClientParameters, IFileSystemClient<string>> remoteFileSystemClientFactory,
         ILogger<HostDeviceFolderMappingFoldersSetupStep> logger)
     {
         _specialFoldersDeletion = specialFoldersDeletion;
+        _onDemandSyncRootRegistry = onDemandSyncRootRegistry;
+        _placeholderConverter = placeholderConverter;
         _remoteFileSystemClientFactory = remoteFileSystemClientFactory;
         _logger = logger;
     }
@@ -34,30 +41,34 @@ internal sealed class HostDeviceFolderMappingTeardownStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var result =
-            DeleteSpecialSubfolders(mapping) ??
-            await DeleteHostDeviceFolder(mapping.Remote, cancellationToken).ConfigureAwait(false);
+        if (!TryConvertToRegularFolder(mapping))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
 
-        return result ?? MappingErrorCode.None;
+        if (!TryDeleteSpecialSubfolders(mapping))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
+
+        if (!await TryRemoveOnDemandSyncRootAsync(mapping).ConfigureAwait(false))
+        {
+            return MappingErrorCode.LocalFileSystemAccessFailed;
+        }
+
+        await DeleteRemoteHostDeviceFolder(mapping.Remote, cancellationToken).ConfigureAwait(false);
+
+        return MappingErrorCode.None;
     }
 
-    private MappingErrorCode? DeleteSpecialSubfolders(RemoteToLocalMapping mapping)
-    {
-        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.Path);
-
-        return default;
-    }
-
-    private async Task<MappingErrorCode?> DeleteHostDeviceFolder(RemoteReplica replica, CancellationToken cancellationToken)
+    private async Task DeleteRemoteHostDeviceFolder(RemoteReplica replica, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(replica.RootLinkId) || string.IsNullOrEmpty(replica.ShareId))
         {
-            return default;
+            return;
         }
 
         await DeleteDeviceFolderAsync(replica.VolumeId ?? string.Empty, replica.ShareId, replica.RootLinkId, cancellationToken).ConfigureAwait(false);
-
-        return default;
     }
 
     private async Task DeleteDeviceFolderAsync(string volumeId, string shareId, string id, CancellationToken cancellationToken)
@@ -86,5 +97,38 @@ internal sealed class HostDeviceFolderMappingTeardownStep
         }
 
         _logger.LogInformation("Moved to trash remote host device folder with ID={Id}", id);
+    }
+
+    private bool TryConvertToRegularFolder(RemoteToLocalMapping mapping)
+    {
+        if (mapping.SyncMethod is not SyncMethod.OnDemand && mapping.SyncMethodUpdateStatus is SyncMethodUpdateStatus.None)
+        {
+            return true;
+        }
+
+        return _placeholderConverter.TryConvertToRegularFolder(mapping.Local.Path, skipRoot: true);
+    }
+
+    private bool TryDeleteSpecialSubfolders(RemoteToLocalMapping mapping)
+    {
+        _specialFoldersDeletion.DeleteSpecialSubfolders(mapping.Local.Path);
+
+        return true;
+    }
+
+    private async Task<bool> TryRemoveOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
+    {
+        if (mapping.SyncMethod is not SyncMethod.OnDemand && mapping.SyncMethodUpdateStatus is SyncMethodUpdateStatus.None)
+        {
+            return true;
+        }
+
+        var root = new OnDemandSyncRootInfo(
+            Path: mapping.Local.Path,
+            RootId: mapping.Id.ToString(),
+            Visibility: ShellFolderVisibility.Hidden,
+            SiblingsGrouping: ShellFolderSiblingsGrouping.Independent);
+
+        return await _onDemandSyncRootRegistry.TryUnregisterAsync(root).ConfigureAwait(false);
     }
 }

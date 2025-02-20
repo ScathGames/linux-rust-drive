@@ -10,12 +10,14 @@ using ProtonDrive.App.Configuration;
 using ProtonDrive.App.Devices;
 using ProtonDrive.App.Features;
 using ProtonDrive.App.InterProcessCommunication;
+using ProtonDrive.App.Localization;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Mapping.SyncFolders;
 using ProtonDrive.App.Notifications;
 using ProtonDrive.App.Notifications.Offers;
 using ProtonDrive.App.Onboarding;
 using ProtonDrive.App.Services;
+using ProtonDrive.App.Settings;
 using ProtonDrive.App.Sync;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Volumes;
@@ -38,7 +40,9 @@ using ProtonDrive.App.Windows.Views.Shared;
 using ProtonDrive.App.Windows.Views.Shared.Navigation;
 using ProtonDrive.App.Windows.Views.SignIn;
 using ProtonDrive.App.Windows.Views.SystemTray;
+using ProtonDrive.Shared.Localization;
 using ProtonDrive.Shared.Offline;
+using ProtonDrive.Shared.Repository;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Shared.FileSystem;
 using ProtonDrive.Sync.Windows.FileSystem.Client;
@@ -99,6 +103,12 @@ internal static class AppServices
                             provider.GetRequiredService<ILogger<LoggingSyncFolderStructureProtectorDecorator>>(),
                             new NtfsPermissionsBasedSyncFolderStructureProtector())))
             .AddSingleton<IShellSyncFolderRegistry, Win32ShellSyncFolderRegistry>()
+            .AddSingleton<WinRegistryLanguageRepository>()
+            .AddSingleton<IRepository<LanguageSettings>, WinRegistryLanguageRepository>()
+
+            .AddSingleton<LanguageService>()
+            .AddSingleton<ILanguageService>(provider => provider.GetRequiredService<LanguageService>())
+            .AddSingleton<ILanguageProvider>(provider => provider.GetRequiredService<LanguageService>())
 
             .AddSingleton<CloudFilterSyncRootRegistry>()
             .AddSingleton<IOnDemandSyncRootRegistry>(provider => provider.GetRequiredService<CloudFilterSyncRootRegistry>())
@@ -161,6 +171,9 @@ internal static class AppServices
             .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<SyncedDevicesViewModel>())
             .AddSingleton<IMappingStateAware>(provider => provider.GetRequiredService<SyncedDevicesViewModel>())
 
+            .AddTransient<RemoveSyncFolderConfirmationViewModel>()
+            .AddTransient<Func<RemoveSyncFolderConfirmationViewModel>>(provider => provider.GetRequiredService<RemoveSyncFolderConfirmationViewModel>)
+
             .AddSingleton<SharedWithMeViewModel>()
             .AddSingleton<ISharedWithMeOnboardingStateAware>(provider => provider.GetRequiredService<SharedWithMeViewModel>())
 
@@ -180,11 +193,14 @@ internal static class AppServices
             .AddSingleton<AccountRootSyncFolderViewModel>()
             .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<AccountRootSyncFolderViewModel>())
             .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<AccountRootSyncFolderViewModel>())
+            .AddSingleton<RenameRemoteNodeViewModel>()
+            .AddSingleton<ISyncStateAware>(provider => provider.GetRequiredService<RenameRemoteNodeViewModel>())
             .AddSingleton<SyncStateViewModel>()
             .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<ISyncStateAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<ISyncActivityAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<ISyncStatisticsAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
+            .AddSingleton<IFeatureFlagsAware>(provider => provider.GetRequiredService<SyncStateViewModel>())
             .AddSingleton<SystemTrayViewModel>()
 
             .AddTransient<OfferViewModel>()

@@ -1,0 +1,1320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AccountDisplayStatus_Value_AccountError">
+    <value></value>
+  </data>
+  <data name="AccountDisplayStatus_Value_SessionError">
+    <value>Oturum açılamadı</value>
+  </data>
+  <data name="AccountDisplayStatus_Value_SettingUp">
+    <value>Ayarlanıyor...</value>
+  </data>
+  <data name="AccountDisplayStatus_Value_SignedOut">
+    <value>Oturum kapatıldı</value>
+  </data>
+  <data name="AccountDisplayStatus_Value_SigningIn">
+    <value>Oturum açılıyor...</value>
+  </data>
+  <data name="AccountDisplayStatus_Value_SigningOut">
+    <value>Oturum kapatılıyor...</value>
+  </data>
+  <data name="AccountDisplayStatus_Value_Succeeded">
+    <value>Oturum açıldı</value>
+  </data>
+  <data name="AccountErrorCode_Value_AccountSwitchingFailed">
+    <value>Hesap değiştirilemedi. Uygulamayı yeniden başlatın.</value>
+  </data>
+  <data name="AccountErrorCode_Value_Delinquent">
+    <value>Hesabınızda ödenmemiş faturalar var. Ödemek için panonuza gidin ya da yöneticinize bildirin.</value>
+  </data>
+  <data name="AccountErrorCode_Value_DriveAccessFailed">
+    <value>Proton Drive bağlantısı kurulamadı. İnternet bağlantınızı denetleyin.</value>
+  </data>
+  <data name="AccountErrorCode_Value_NoDriveAccess">
+    <value>Proton Drive erişimi için tarifenizi yükseltin</value>
+  </data>
+  <data name="AccountErrorCode_Value_None">
+    <value></value>
+  </data>
+  <data name="Activity_Local_InProgress_SyncActivityType_Value_Create">
+    <value>Oluşturuluyor</value>
+    <comment>Indicates a local folder being created. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_InProgress_SyncActivityType_Value_Delete">
+    <value>Siliniyor</value>
+    <comment>Indicates the local file or folder being deleted. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_InProgress_SyncActivityType_Value_Download">
+    <value>Proton Drive üzerinden indiriliyor</value>
+    <comment>Indicates a file being downloaded. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_InProgress_SyncActivityType_Value_FetchUpdates">
+    <value>Güncellemeler alınıyor</value>
+    <comment>Indicates local file system changes being fetched. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_InProgress_SyncActivityType_Value_Move">
+    <value>Taşınıyor</value>
+    <comment>Indicates the local file or folder being moved. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_InProgress_SyncActivityType_Value_Rename">
+    <value>Yeniden adlandırılıyor</value>
+    <comment>Indicates the local file or folder being renamed. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_InProgress_SyncActivityType_Value_Upload">
+    <value>Proton Drive üzerine yükleniyor</value>
+    <comment>Indicates a  file being uploaded to Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_Succeeded_SyncActivityType_Value_Create">
+    <value>Oluşturuldu</value>
+    <comment>Indicates a local folder has been created. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_Succeeded_SyncActivityType_Value_Delete">
+    <value>Silindi</value>
+    <comment>Indicates a local file or folder has been deleted. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_Succeeded_SyncActivityType_Value_Download">
+    <value>Proton Drive üzerinden indirildi</value>
+    <comment>Indicates a file has been downloaded. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_Succeeded_SyncActivityType_Value_FetchUpdates">
+    <value>Güncellemeler alındı</value>
+    <comment>Indicates local file system changes have been fetched. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_Succeeded_SyncActivityType_Value_Move">
+    <value>Taşındı</value>
+    <comment>Indicates a local file or folder has been moved. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_Succeeded_SyncActivityType_Value_Rename">
+    <value>Yeniden adlandırıldı</value>
+    <comment>Indicates a local file or folder has been renamed. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Local_Succeeded_SyncActivityType_Value_Upload">
+    <value>Proton Drive üzerine yüklendi</value>
+    <comment>Indicates a file has been uploaded to Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_InProgress_SyncActivityType_Value_Create">
+    <value>Proton Drive üzerinde oluşturuluyor</value>
+    <comment>Indicates a folder is being created on Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_InProgress_SyncActivityType_Value_Delete">
+    <value>Proton Drive üzerinden siliniyor</value>
+    <comment>Indicates the file or folder is being deleted from Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_InProgress_SyncActivityType_Value_Download">
+    <value>Proton Drive üzerinden indiriliyor</value>
+    <comment>Indicates a file is being downloaded from Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_InProgress_SyncActivityType_Value_FetchUpdates">
+    <value>Proton Drive üzerinden güncellemeler alınıyor</value>
+    <comment>Indicates changes are being fetched from Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_InProgress_SyncActivityType_Value_Move">
+    <value>Proton Drive üzerinde taşınıyor</value>
+    <comment>Indicates the file or folder is being moved on Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_InProgress_SyncActivityType_Value_Rename">
+    <value>Proton Drive üzerinde yeniden adlandırılıyor</value>
+    <comment>Indicates the file or folder is being renamed on Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_InProgress_SyncActivityType_Value_Upload">
+    <value>Proton Drive üzerine yükleniyor</value>
+    <comment>Indicates the file is being uploaded to Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_Succeeded_SyncActivityType_Value_Create">
+    <value>Proton Drive üzerinde oluşturuldu</value>
+    <comment>Indicates a folder has been created on Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_Succeeded_SyncActivityType_Value_Delete">
+    <value>Proton Drive üzerinden silindi</value>
+    <comment>Indicates the file or folder has been deleted from Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_Succeeded_SyncActivityType_Value_Download">
+    <value>Proton Drive üzerinden indirildi</value>
+    <comment>Indicates a file has been downloaded from Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_Succeeded_SyncActivityType_Value_FetchUpdates">
+    <value>Proton Drive üzerinden güncellemeler alındı</value>
+    <comment>Indicates changes have been fetched from Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_Succeeded_SyncActivityType_Value_Move">
+    <value>Proton Drive üzerinde taşındı</value>
+    <comment>Indicates the file or folder has been moved on Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_Succeeded_SyncActivityType_Value_Rename">
+    <value>Proton Drive üzerinde yeniden adlandırıldı</value>
+    <comment>Indicates the file or folder has been renamed on Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="Activity_Remote_Succeeded_SyncActivityType_Value_Upload">
+    <value>Proton Drive üzerine yüklendi</value>
+    <comment>Indicates the file has been uploaded to Proton Drive. Displayed on the Activity page in the tooltip of the activity type.</comment>
+  </data>
+  <data name="AppDisplayStatus_Value_AccountError">
+    <value>Hesap kurulamadı</value>
+  </data>
+  <data name="AppDisplayStatus_Value_FinishingUp">
+    <value>Tamamlanıyor...</value>
+  </data>
+  <data name="AppDisplayStatus_Value_Offline">
+    <value>Çevrim dışı</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SettingUp">
+    <value>Kuruluyor...</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SignInError">
+    <value>Oturum açılamadı</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SignedOut">
+    <value>Oturum kapatıldı</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SigningIn">
+    <value>Oturum açılıyor...</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SigningOut">
+    <value>Oturum kapatılıyor...</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SyncFolderError">
+    <value>Eşitleme klasörleri kurulamadı</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SynchronizationError">
+    <value>Eşitlenemedi</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SynchronizationPaused">
+    <value>Eşitleme duraklatıldı</value>
+  </data>
+  <data name="AppDisplayStatus_Value_SynchronizationWarning">
+    <value>Bazı ögeler eşitlenemedi</value>
+  </data>
+  <data name="AppDisplayStatus_Value_Synchronized">
+    <value>Eşitlendi</value>
+  </data>
+  <data name="AppDisplayStatus_Value_Synchronizing">
+    <value>Eşitleniyor...</value>
+  </data>
+  <data name="BugReport_Button_Cancel">
+    <value>İ_ptal</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="BugReport_Button_Cancel_HelpText">
+    <value>Bildiriminizi iptal edin</value>
+  </data>
+  <data name="BugReport_Button_Report">
+    <value>Bil_dir</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="BugReport_Button_Report_HelpText">
+    <value>Bildiriminizi gönderin</value>
+  </data>
+  <data name="BugReport_Button_ShowLogs">
+    <value>_Günlüğü görüntüle</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="BugReport_CheckBox_IncludeLogs">
+    <value>_Uygulama günlüklerini kat</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="BugReport_CheckBox_IncludeLogs_Tooltip">
+    <value>Bildirime, uygulama tarafından oluşturulmuş son 3 günlük dosyası eklenecek.</value>
+  </data>
+  <data name="BugReport_Text_Description_HelpText">
+    <value>Açıklama. Sorun neydi? Yaptığınız işlemlerin tümü nelerdir? (en az 10 karakter)</value>
+  </data>
+  <data name="BugReport_Text_Description_Label">
+    <value>_Açıklama</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="BugReport_Text_Description_Label_Requirement">
+    <value>(en az 10 karakter)</value>
+  </data>
+  <data name="BugReport_Text_Description_Watermark_ExactSteps">
+    <value>Tam olarak hangi adımları uyguladınız?</value>
+  </data>
+  <data name="BugReport_Text_Description_Watermark_WhatWentWrong">
+    <value>Sorun neydi?</value>
+  </data>
+  <data name="BugReport_Text_Email_HelpText">
+    <value>E-posta adresi (zorunlu alan)</value>
+  </data>
+  <data name="BugReport_Text_Email_Label">
+    <value>_E-posta adresi</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="BugReport_Text_IssueTitle_HelpText">
+    <value>Sorun başlığı (zorunlu alan)</value>
+  </data>
+  <data name="BugReport_Text_IssueTitle_Label">
+    <value>_Başlık</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="BugReport_Text_IssueTitle_Watermark">
+    <value>Sorun başlığı</value>
+  </data>
+  <data name="Dialog_Button_Cancel">
+    <value>İptal</value>
+  </data>
+  <data name="Dialog_Button_Ok">
+    <value>Tamam</value>
+  </data>
+  <data name="Dialog_Button_Save">
+    <value>_Kaydet</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="FileSystemErrorCode_Value_Cancelled">
+    <value>İptal edildi</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_CloudFileProviderNotRunning">
+    <value>Lütfen bulut depolama hizmeti sağlayıcınızın (OneDrive gibi) çalıştığından ve bağlı olduğundan emin olun.</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_CyclicRedundancyCheck">
+    <value>Veri hatası (döngüsel artıklık denetimi). Lütfen sürücünüzde (USB, disk vb...) dosya sistemi hataları ve bozuk kesimler olup olmadığını denetleyin.</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_DirectoryNotFound">
+    <value>Yolun bir parçası bulunamadı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_DuplicateName">
+    <value>Ad zaten kullanılıyor</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_FreeSpaceExceeded">
+    <value>Yeteri kadar boş alan yok</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_IdentityMismatch">
+    <value>Dosya veya klasör değiştirilmiş</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_IntegrityFailure">
+    <value>Veriler doğrulanamadı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_InvalidName">
+    <value>Ad içinde, Windows tarafından desteklenmeyen karakterler var. Eşitleyebilmek için lütfen şu karakterleri kaldırın: \ / : * ? “ &lt; &gt; |</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_LastWriteTimeTooRecent">
+    <value>Dosya çok yakın zamanda değiştiği için atlandı. Uygulama otomatik olarak yeniden deneyecek</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_MetadataMismatch">
+    <value>Dosya veya klasör değiştirilmiş</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_MissingIndividuallySharedFile">
+    <value>Sizinle paylaşılan özgün dosya silinmiş, taşınmış veya yeniden adlandırılmış.
+Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_NetworkError">
+    <value>Proton Drive bağlantısı kurulamadı. İnternet bağlantınızı denetleyin.</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_ObjectNotFound">
+    <value>Dosya veya klasör bulunamadı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_Offline">
+    <value>Çevrim dışı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_Partial">
+    <value>Bu dosya yerel olarak bulunamadığından yüklenemedi. Sorunu çözmek için lütfen dosyayı silin ve varsa Proton Drive çöp kutusundan kopyasını geri yükleyin.</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_PathNotFound">
+    <value>Dosya veya klasör bulunamadı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_RateLimited">
+    <value>Bir sorun çıktı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_ReadOnlyFile">
+    <value>Dosya salt okunur</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_ReadOnlyRoot">
+    <value>Yalnızca görüntülenebilen dosyalar ve klasörler değiştirilemez. Sorunu çözmek için “Benimle paylaşılanlar” altında eşitlemeyi kapatıp açın.</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_ServerError">
+    <value>Bir sorun çıktı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_SharingViolation">
+    <value>Dosya veya klasör başka bir uygulama tarafından kullanılıyor</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_TimedOut">
+    <value>Zaman aşımına uğradı</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_TransferAbortedDueToFileChange">
+    <value>Dosya eşitlenirken değiştirildiği için yükleme iptal edildi. Uygulama otomatik olarak yeniden deneyecek</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_UnauthorizedAccess">
+    <value>İzinler yetersiz</value>
+  </data>
+  <data name="FileSystemErrorCode_Value_Unknown">
+    <value>Bir sorun çıktı</value>
+  </data>
+  <data name="Main_About_AppUpdateStatus_Value_CheckingForUpdate">
+    <value>Güncelleme denetleniyor...</value>
+  </data>
+  <data name="Main_About_AppUpdateStatus_Value_DownloadingAnUpdate">
+    <value>Bir güncelleme indiriliyor...</value>
+  </data>
+  <data name="Main_About_AppUpdateStatus_Value_UpToDate">
+    <value>Güncel</value>
+  </data>
+  <data name="Main_About_AppUpdateStatus_Value_UpdateCheckFailed">
+    <value>Güncelleme denetlenemedi</value>
+  </data>
+  <data name="Main_About_AppUpdateStatus_Value_UpdatesAvailable">
+    <value>Güncelleme yayınlanmış</value>
+  </data>
+  <data name="Main_About_Button_PrivacyPolicy">
+    <value>Gi_zlilik ilkesi</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_About_Button_TermsOfService">
+    <value>_Hizmet koşulları</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_About_Button_UpdateNow">
+    <value>_Güncelle</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_About_Button_UpdateNow_HelpText">
+    <value>Yeni bir Proton Drive sürümü yayınlanmış. Şimdi güncelleyin.</value>
+  </data>
+  <data name="Main_About_Label_CurrentVersion">
+    <value>Güncel sürüm</value>
+  </data>
+  <data name="Main_About_Label_ReleaseDate">
+    <value>Yayınlanma tarihi</value>
+  </data>
+  <data name="Main_About_ReleaseHistory_Label_New">
+    <value>YENİ</value>
+  </data>
+  <data name="Main_About_ReleaseHistory_Title">
+    <value>Yenilikler</value>
+  </data>
+  <data name="Main_About_Title">
+    <value>Hakkında</value>
+  </data>
+  <data name="Main_Account_Account_Button_ManageAccount">
+    <value>_Hesap yönetimi</value>
+  </data>
+  <data name="Main_Account_Account_HelpText">
+    <value>Hesabınızı yönetin</value>
+  </data>
+  <data name="Main_Account_Account_Info_UnknownUser">
+    <value>Kullanıcı bilinmiyor</value>
+  </data>
+  <data name="Main_Account_Label_Account">
+    <value>Hesap</value>
+  </data>
+  <data name="Main_Account_Label_Security">
+    <value>Güvenlik</value>
+  </data>
+  <data name="Main_Account_Password_Button_ChangePassword">
+    <value>_Değiştir</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Account_Password_Description">
+    <value>Hesabınızın parolasını değiştirin.</value>
+  </data>
+  <data name="Main_Account_Password_HelpText">
+    <value>Proton Drive parolanızı değiştirin</value>
+  </data>
+  <data name="Main_Account_Password_Title">
+    <value>Parola</value>
+  </data>
+  <data name="Main_Account_Plan_Button_SeePlans">
+    <value>_Tarifelere bakın</value>
+  </data>
+  <data name="Main_Account_Plan_Description">
+    <value>Daha fazla depolama alanı edinin</value>
+  </data>
+  <data name="Main_Account_Plan_HelpText">
+    <value>Diğer Proton Drive tarifelerine bakın</value>
+  </data>
+  <data name="Main_Account_SessionManagement_Button_Manage">
+    <value>_Yönetim</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Account_SessionManagement_Description">
+    <value>Hesabınızın oturumunu kapatmadığınız veya parolanızı değiştirmediğiniz sürece oturumunuz açık kalır. 60 gün kullanılmayan oturumlar kapatılır.</value>
+  </data>
+  <data name="Main_Account_SessionManagement_HelpText">
+    <value>Oturumunuzu yönetin. 60 gün kullanılmayan oturumlar kapatılır.</value>
+  </data>
+  <data name="Main_Account_SessionManagement_Title">
+    <value>Oturum yönetimi</value>
+  </data>
+  <data name="Main_Account_SignOut_Description">
+    <value>Oturumunuzu kapatın ve eşitlemeyi kapatın. Eşitlemeyi sürdürmek için aynı hesapla yeniden oturum açabilirsiniz.</value>
+  </data>
+  <data name="Main_Account_SignOut_HelpText">
+    <value>Proton Drive oturumunu kapatın</value>
+  </data>
+  <data name="Main_Account_SignOut_Title">
+    <value>_Oturumu kapat</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Account_Storage_Button_UpgradePlan">
+    <value>Tarifeyi yükselt</value>
+  </data>
+  <data name="Main_Account_Storage_Info_EnsureMoreStorage">
+    <value>Kesintisiz eşitleme için daha fazla depolama alanı edinin.</value>
+  </data>
+  <data name="Main_Account_Storage_Info_UsedSpaceFormat">
+    <value>Kullanılan toplam alan: {0} / {1}</value>
+  </data>
+  <data name="Main_Account_Storage_Title">
+    <value>Depolama alanı kapasitesi</value>
+  </data>
+  <data name="Main_Account_Storage_Warning_StorageExceeded">
+    <value>Eşitleme durduruldu. Hesabınızın depolama alanı kapasitesi aşıldı.</value>
+  </data>
+  <data name="Main_Account_Storage_Warning_StorageLimit">
+    <value>Depolama alanı sınırınıza ulaşmak üzeresiniz.</value>
+  </data>
+  <data name="Main_Account_Title">
+    <value>Hesap</value>
+  </data>
+  <data name="Main_Activity_Button_PauseSync">
+    <value>_Eşitlemeyi duraklat</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Activity_Button_ResumeSync">
+    <value>Eşitlemeyi _sürdür</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Activity_Button_Retry">
+    <value>Eşitlemeyi yeniden dene</value>
+  </data>
+  <data name="Main_Activity_Column_Folder">
+    <value>Klasör</value>
+  </data>
+  <data name="Main_Activity_Column_Name">
+    <value>Ad</value>
+  </data>
+  <data name="Main_Activity_Column_Progress_Tooltip_Finalizing">
+    <value>Tamamlanıyor...</value>
+  </data>
+  <data name="Main_Activity_Column_Size">
+    <value>Boyut</value>
+  </data>
+  <data name="Main_Activity_Column_Status">
+    <value>Durum</value>
+  </data>
+  <data name="Main_Activity_Column_Synced">
+    <value>Eşitlendi</value>
+  </data>
+  <data name="Main_Activity_Column_Type">
+    <value>Tür</value>
+  </data>
+  <data name="Main_Activity_ErrorHeader_Button_ShowMore">
+    <value>Daha fazla ayrıntı göster</value>
+  </data>
+  <data name="Main_Activity_ErrorHeader_Description">
+    <value>Bu konular ile ilgili ayrıntılı bilgi almak için tıklayın</value>
+  </data>
+  <data name="Main_Activity_ErrorHeader_HelpText">
+    <value>Tüm hataları yeni bir bölümde görüntüleyin</value>
+  </data>
+  <data name="Main_Activity_ErrorHeader_Info_MultipleItemsFormat">
+    <value>{0} sorun var</value>
+  </data>
+  <data name="Main_Activity_ErrorHeader_Info_SingleItem">
+    <value>1 sorun var</value>
+  </data>
+  <data name="Main_Activity_Errors_Title">
+    <value>Eşitleme sorunları ({0})</value>
+  </data>
+  <data name="Main_Activity_Errors_Title_Tooltip">
+    <value>İşleme dön</value>
+  </data>
+  <data name="Main_Activity_Intro_Idle_Description">
+    <value>Dosya ve klasörlerle ilgili eşitleme bilgileri burada görüntülenir</value>
+  </data>
+  <data name="Main_Activity_Intro_Idle_HelpText">
+    <value>Dosyalarınız güncel</value>
+  </data>
+  <data name="Main_Activity_Intro_Idle_Title">
+    <value>Dosyalarınız güncel</value>
+  </data>
+  <data name="Main_Activity_Intro_Initializing_Description_Line1">
+    <value>Bu işlem birkaç dakika sürebilir.</value>
+  </data>
+  <data name="Main_Activity_Intro_Initializing_Description_Line2">
+    <value>Pencereyi küçültebilir veya kapatabilirsiniz.</value>
+  </data>
+  <data name="Main_Activity_Intro_Initializing_HelpText">
+    <value>Eşitlemeye hazırlanıyor</value>
+  </data>
+  <data name="Main_Activity_Intro_Initializing_Title">
+    <value>Sürücünüz kuruluyor...</value>
+  </data>
+  <data name="Main_Activity_Intro_Paused_Description">
+    <value>Eşitlemeyi açmak için "Eşitlemeyi sürdür" üzerine tıklayın</value>
+  </data>
+  <data name="Main_Activity_Intro_Paused_HelpText">
+    <value>Eşitleme duraklatıldı</value>
+  </data>
+  <data name="Main_Activity_Intro_Paused_Title">
+    <value>Eşitleme duraklatıldı</value>
+  </data>
+  <data name="Main_Activity_Status_Value_SettingUp">
+    <value>Kuruluyor...</value>
+  </data>
+  <data name="Main_Activity_Status_Value_SettingUpFormat">
+    <value>Kuruluyor... ({0} öge eşitlemeye hazırlandı)</value>
+  </data>
+  <data name="Main_Activity_Title">
+    <value>Etkinlik</value>
+  </data>
+  <data name="Main_MyComputer_Device_Button_Rename">
+    <value>_Yeniden adlandır</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Device_HelpText">
+    <value>Aygıtınızı yeniden adlandırın</value>
+  </data>
+  <data name="Main_MyComputer_Device_Label">
+    <value>Bu aygıt</value>
+  </data>
+  <data name="Main_MyComputer_Device_Rename_Button_Cancel_HelpText">
+    <value>Aygıtı yeniden adlandırmayı iptal et</value>
+  </data>
+  <data name="Main_MyComputer_Device_Rename_Button_Save_HelpText">
+    <value>Aygıt adını kaydet</value>
+  </data>
+  <data name="Main_MyComputer_Device_Rename_Error_Tooltip">
+    <value>Aygıt adı geçersiz: Yeni ad veya 255 karakterden uzun olamaz.</value>
+  </data>
+  <data name="Main_MyComputer_Device_Rename_HelpText">
+    <value>Aygıtınızı yeniden adlandırın</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_Button_AddMore">
+    <value>_Daha fazla klasör ekle</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_Description">
+    <value>Eklenen klasördeki tüm veriler Proton Drive üzerine yedeklenir.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_Info_Saving">
+    <value>Klasörler kaydediliyor...</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_Title">
+    <value>Klasörler ekle</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_FolderIncludedByAnAlreadySyncedFolderFormat">
+    <value>Zaten Proton Drive ile eşitlenen bir klasörün içinde bulunduğundan {0} klasör eşitlenemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_FolderIncludesAnAlreadySyncedFolderFormat">
+    <value>Zaten Proton Drive ile eşitlenen bir alt klasörü bulunduğundan {0} klasör eşitlenemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_LocalFileSystemAccessFailedFormat">
+    <value>{0} klasöre erişilemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_LocalFolderDoesNotExistFormat">
+    <value>{0} klasör bulunamadı veya açılamadı</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_LocalVolumeNotSupportedFormat">
+    <value>Desteklenmeyen bir Drive üzerinde bulunduğundan {0} klasör eşitlenemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_NetworkFolderNotSupportedFormat">
+    <value>Ağ klasörleri desteklenmediğinden {0} klasör eşitlenemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_NonSyncableFolderFormat">
+    <value>Sistem klasörü olarak işaretlenmiş olduğundan {0} klasör eşitlenemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_UnableToAddFoldersFormat">
+    <value>{0} klasör eklenemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_AddFolders_ValidationError_UnableToAddOneFolder">
+    <value>1 klasör eklenemedi</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Button_Add">
+    <value>_Klasörler ekle</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_Button_Add_HelpText_AddFirst">
+    <value>Eşitlenecek ilk klasörlerinizi ekleyin</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Button_Add_HelpText_AddNext">
+    <value>Eşitlenecek yeni bir klasör ekleyin</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Column_Name">
+    <value>Ad</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Intro_Description">
+    <value>Dosyaları bulutla güvenle eşitlemek için klasör ekleyin</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Intro_Title">
+    <value>Dosyalarınızı güvenle eşitleyin</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Label">
+    <value>Bu aygıtta eşitlenen klasörler</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync">
+    <value>İsteğe _bağlı eşitlemeyi aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_Menu_Item_OpenFolder">
+    <value>_Klasörü aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_Menu_Item_RemoveFolder">
+    <value>_Klasörü kaldır</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Button_Confirm">
+    <value>Klasörü kaldır</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_1">
+    <value>{0} klasörüne eklenen dosyalar artık eşitlenmeyecek ve bu klasör Proton Drive Çöp Kutusu içine taşınacak.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_2">
+    <value>Var olan dosyalar bilgisayarınızda kalmayı sürdürecek.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Title">
+    <value>Klasör kaldırılsın mı?</value>
+  </data>
+  <data name="Main_MyComputer_Folders_SyncMethod_Value_OnDemand">
+    <value>(isteğe bağlı)</value>
+  </data>
+  <data name="Main_MyComputer_Title">
+    <value>Bilgisayarım</value>
+  </data>
+  <data name="Main_Settings_AccountRootFolder_Button_Change">
+    <value>_Değiştir</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Settings_AccountRootFolder_HelpText">
+    <value>Proton Drive kök klasörünüzü değiştirin.</value>
+  </data>
+  <data name="Main_Settings_AccountRootFolder_Title">
+    <value>Konum</value>
+  </data>
+  <data name="Main_Settings_Label_AccountRootFolder">
+    <value>Proton Drive klasörünüz:</value>
+  </data>
+  <data name="Main_Settings_Label_General">
+    <value>Genel</value>
+  </data>
+  <data name="Main_Settings_Language_Title">
+    <value>Dil</value>
+  </data>
+  <data name="Main_Settings_OpenOnStartup_HelpText">
+    <value>Windows başlangıcında Proton Drive açılsın</value>
+  </data>
+  <data name="Main_Settings_OpenOnStartup_Title">
+    <value>Başlangıçta açılsın</value>
+  </data>
+  <data name="Main_Settings_Language_Button_Restart">
+    <value>Şimdi yeniden başlat</value>
+  </data>
+  <data name="Main_Settings_Language_Message_PleaseRestart">
+    <value>Lütfen dil değişikliğini uygulamak için uygulamayı yeniden başlatın</value>
+  </data>
+  <data name="Main_Settings_Title">
+    <value>Ayarlar</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_Name">
+    <value>Ad</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_Permissions">
+    <value>İzinler</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_Permissions_Tooltip">
+    <value>Yönetici tarafından size verilen izinler</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_Permissions_Value_Editor">
+    <value>Düzenleyici</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_Permissions_Value_Viewer">
+    <value>Görüntüleyici</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_SharedBy">
+    <value>Paylaşan</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_SharedOn">
+    <value>Paylaşılma zamanı</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_Sync">
+    <value>Eşitleme</value>
+  </data>
+  <data name="Main_SharedWithMe_Column_Sync_Info_Tooltip">
+    <value>Açtığınızda paylaşılan dosyaya veya klasöre bilgisayarınızdan erişebilirsiniz.
+Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
+  </data>
+  <data name="Main_SharedWithMe_Error_FailedToLoad">
+    <value>Veriler yüklenemedi</value>
+  </data>
+  <data name="Main_SharedWithMe_Error_FailedToLoad_Items_Plural">
+    <value>{0} öge yüklenemedi</value>
+  </data>
+  <data name="Main_SharedWithMe_Error_FailedToLoad_Items_Singular">
+    <value>{0} öge yüklenemedi</value>
+  </data>
+  <data name="Main_SharedWithMe_Intro_Description">
+    <value>Sizinle paylaşılan dosyalar ve klasörler burada görüntülenir</value>
+  </data>
+  <data name="Main_SharedWithMe_Intro_Title">
+    <value>Henüz bir şey paylaşılmamış</value>
+  </data>
+  <data name="Main_SharedWithMe_Menu_Item_OpenFolder">
+    <value>Klasörü _aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_SharedWithMe_Menu_Item_RemoveMe">
+    <value>_Beni kaldır</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Button_Close_HelpText">
+    <value>“Benimle paylaşılanlar” başlangıcını atla</value>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Button_GetStarted">
+    <value>_Başlayalım</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Description">
+    <value>Sizinle paylaşılan dosyaları ve klasörleri bilgisayarınızla kolayca eşitleyin.</value>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Point_1">
+    <value>Eşitlenecek dosyaları veya klasörleri seçin.</value>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Point_1_Label">
+    <value>1.</value>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Point_2">
+    <value>Proton Drive klasörünüzdeki paylaşılan dosyalara erişin.</value>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Point_2_Label">
+    <value>2.</value>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Point_3">
+    <value>Bunları düzenleyin, yenilerini yükleyin ve çevrim dışı olarak erişin.</value>
+  </data>
+  <data name="Main_SharedWithMe_Onboarding_Point_3_Label">
+    <value>3.</value>
+  </data>
+  <data name="Main_SharedWithMe_Status_ItemsSynced_Plural">
+    <value>{0} / {1} öge eşitlendi</value>
+  </data>
+  <data name="Main_SharedWithMe_Status_ItemsSynced_Singular">
+    <value>{0} / {1} öge eşitlendi</value>
+  </data>
+  <data name="Main_SharedWithMe_Title">
+    <value>Benimle paylaşılanlar</value>
+  </data>
+  <data name="Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Advice">
+    <value>Yeni ögeler eklemek için lütfen bazı eski ögeleri eşitlemeyi bırakın.</value>
+  </data>
+  <data name="Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Limit">
+    <value>Aynı anda yalnızca {0} öge eşitleyebilirsiniz.</value>
+  </data>
+  <data name="Main_SharedWithMe_Warning_SharingUnavailable">
+    <value>Paylaşım geçici olarak kullanılamıyor</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_About">
+    <value>Hakkında</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_About_HelpText">
+    <value>Menü ögesi: Hakkında</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Account">
+    <value>Hesap</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Account_HelpText">
+    <value>Menü ögesi: Hesap</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Activity">
+    <value>Etkinlik</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Activity_HelpText">
+    <value>Menü ögesi: Etkinlik</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Help">
+    <value>Yardım</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Help_HelpText">
+    <value>Menü ögesi: Yardım</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_MyComputer">
+    <value>Bilgisayarım</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_MyComputer_HelpText">
+    <value>Menü ögesi: Bilgisayarım</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Settings">
+    <value>Ayarlar</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_Settings_HelpText">
+    <value>Menü ögesi: Ayarlar</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_SharedWithMe">
+    <value>Benimle paylaşılanlar</value>
+  </data>
+  <data name="Main_Sidebar_NavigationMenu_Item_SharedWithMe_HelpText">
+    <value>Menü ögesi: Benimle paylaşılanlar</value>
+  </data>
+  <data name="Main_Sidebar_Offer_Button_GetDeal">
+    <value>_Tekliften yararlan</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Sidebar_Storage_Button_GetMoreStorage">
+    <value>Daha fazla depolama alanı edinin</value>
+  </data>
+  <data name="Main_Sidebar_Storage_Info_StorageNotAvailable">
+    <value>Depolama alanı bilgileri kullanılamıyor</value>
+  </data>
+  <data name="Main_Sidebar_Storage_Info_UsedSpaceFormat">
+    <value>{0} / {1} kullanılıyor</value>
+  </data>
+  <data name="Main_Sidebar_Storage_Title">
+    <value>Depolama alanı</value>
+  </data>
+  <data name="Main_Sidebar_Storage_Tooltip">
+    <value>Depolama alanı yönetimi</value>
+  </data>
+  <data name="Main_Window_Title">
+    <value>Proton Drive</value>
+  </data>
+  <data name="MappingErrorCode_Value_DriveAccessFailed">
+    <value>Proton Drive bağlantısı kurulamadı. İnternet bağlantınızı denetleyin.</value>
+  </data>
+  <data name="MappingErrorCode_Value_DriveFolderDiverged">
+    <value>Proton Drive klasörü taşınmış. Yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_DriveFolderDoesNotExist">
+    <value>Büyük olasılıkla bir aygıt klasörünün silinmesi nedeniyle Proton Drive dosyalarınıza erişilemiyor. Yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_DriveHostDeviceDiverged">
+    <value>Büyük olasılıkla bir aygıt silme işlemi nedeniyle Proton Drive dosyalarınıza erişilemiyor. Yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_DriveShareDiverged">
+    <value>Büyük olasılıkla bir parola sıfırlaması nedeniyle Proton Drive dosyalarınıza erişilemiyor. Yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_DriveVolumeDiverged">
+    <value>Büyük olasılıkla bir parola sıfırlaması nedeniyle Proton Drive dosyalarına erişilemiyor. Yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_InsufficientDeviceQuota">
+    <value>Eşitlenebilecek en fazla bilgisayar sayısına ulaşıldı. Proton Drive internet uygulaması üzerinden gereksiz bilgisayarları silin.</value>
+  </data>
+  <data name="MappingErrorCode_Value_InsufficientLocalFreeSpace">
+    <value>Depolama alanı boşaltın ya da işareti kaldırın</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalAndRemoteFoldersNotEmpty">
+    <value>Bir eşitleme klasörü kurmak için boş bir Windows veya Proton Drive internet klasörü gerekir. Lütfen birini boşaltıp yeniden deneyin.</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalFileSystemAccessFailed">
+    <value>Yerel eşitleme klasörüne erişilemedi veya klasör oluşturulamadı. Denemeyi sürdüreceğiz.</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalFolderDiverged">
+    <value>Eşitleme klasörü yolu yeni bir klasörle değiştirildi. Önceki eşitleme klasörünü geri yükleyin ya da yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalFolderDoesNotExist">
+    <value>Eşitleme klasörü bulunamadı. Silinmiş, yeniden adlandırılmış veya taşınmış olabilir. Eşitleme klasörünü geri yükleyin ya da yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalFolderIncludedByAnAlreadySyncedFolder">
+    <value>Seçilmiş klasör, zaten eşitlenen bir klasörün içinde bulunuyor</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalFolderIncludesAnAlreadySyncedFolder">
+    <value>Seçilmiş klasör içinde zaten eşitlenen bir klasör bulunuyor</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalFolderNonSyncable">
+    <value>Yerel klasör eşitlenmeye uygun değil. Yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalFolderNotEmpty">
+    <value>Eşitleme kurulmadan önce yerel klasör boş olmalıdır</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalOnDemandSyncRootNotRegistered">
+    <value>Eşitleme klasörü beklenmedik bir şekilde kayıttan kaldırılmış. Yeni bir eşitleme klasörü oluşturun.</value>
+  </data>
+  <data name="MappingErrorCode_Value_LocalVolumeNotSupported">
+    <value>Yerel sürücü türü desteklenmiyor. Eşitleme klasörünü farklı bir yerel sürücüde kurmayı deneyin.</value>
+  </data>
+  <data name="MappingErrorCode_Value_None">
+    <value></value>
+  </data>
+  <data name="MappingErrorCode_Value_RemoteShareWithMeItemDoesNotExist">
+    <value>Paylaşılan Proton Drive dosyasına veya klasörüne erişilemiyor. Sizinle hala paylaşılıp paylaşılmadığını kontrol edin.</value>
+  </data>
+  <data name="MappingErrorCode_Value_RemoteShareWithMeItemPermissionsDiverged">
+    <value>Paylaşılan Proton Drive dosyası veya klasörünün izinleri değişmiş. Sorunu çözmek için eşitlemeyi kapatıp yeniden açın.</value>
+  </data>
+  <data name="MappingErrorCode_Value_SharingDisabled">
+    <value>Paylaşım geçici olarak kullanılamıyor</value>
+  </data>
+  <data name="MappingSetupStatus_Value_Failed">
+    <value>Eşitleme klasörleri kurulamadı</value>
+  </data>
+  <data name="MappingSetupStatus_Value_None">
+    <value></value>
+  </data>
+  <data name="MappingSetupStatus_Value_PartiallySucceeded">
+    <value>Bazı eşitleme klasörleri kurulamadı</value>
+  </data>
+  <data name="MappingSetupStatus_Value_SettingUp">
+    <value>Eşitleme klasörleri kuruluyor...</value>
+  </data>
+  <data name="MappingSetupStatus_Value_Succeeded">
+    <value>Tamam</value>
+  </data>
+  <data name="Onboarding_AccountRootFolderSelection_Button_ChangeFolder">
+    <value>_Değiştir</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Onboarding_AccountRootFolderSelection_Button_ChangeFolder_HelpText">
+    <value>Proton Drive kök klasörünüzü değiştirin.</value>
+  </data>
+  <data name="Onboarding_AccountRootFolderSelection_Error_InvalidSyncFolder">
+    <value>Eşitleme klasörü geçersiz</value>
+  </data>
+  <data name="Onboarding_AccountRootFolderSelection_Label_Description">
+    <value>Dosyalarıma ve eşitlenmiş diğer aygıtlara buradan erişin</value>
+  </data>
+  <data name="Onboarding_AccountRootFolderSelection_Label_Location">
+    <value>Konum</value>
+  </data>
+  <data name="Onboarding_AccountRootFolderSelection_Title">
+    <value>Proton Drive klasörünüz</value>
+  </data>
+  <data name="Onboarding_Button_Continue">
+    <value>İ_lerle</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Onboarding_Button_FinishSetup">
+    <value>_Kurulumu bitir</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Onboarding_SyncFolderSelection_Button_AddMoreFolders">
+    <value>_Daha fazla klasör ekle</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Onboarding_SyncFolderSelection_Button_AddMoreFolders_HelpText">
+    <value>Eşitlenecek başka bir klasör ekleyin</value>
+  </data>
+  <data name="Onboarding_SyncFolderSelection_Label_Description">
+    <value>Seçilmiş klasörler Proton Drive ile eşitlenecek. Dosyalar yedeklenecek ve diğer aygıtlarınızda da kullanılabilir olacak.</value>
+  </data>
+  <data name="Onboarding_SyncFolderSelection_Title">
+    <value>Klasörlerinizi yedekleyin</value>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Button_NotNow">
+    <value>Şimdi _değil</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Button_Upgrade">
+    <value>_Yükselt</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Label_Calendar">
+    <value>Takvim</value>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Label_Mail">
+    <value>E-posta</value>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Label_PasswordManager">
+    <value>Parola yöneticisi</value>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Label_Recommended">
+    <value>Önerilir</value>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Label_Vpn">
+    <value>VPN</value>
+  </data>
+  <data name="Onboarding_UpgradeStorage_Title">
+    <value>Daha fazla depolama alanı edinin</value>
+  </data>
+  <data name="ReleaseNoteType_Value_Feature">
+    <value>Yeni özellikler</value>
+  </data>
+  <data name="ReleaseNoteType_Value_Fix">
+    <value>Hata düzeltmeleri</value>
+  </data>
+  <data name="ReleaseNoteType_Value_Improvement">
+    <value>Geliştirmeler</value>
+  </data>
+  <data name="SessionStatus_Value_Ending">
+    <value>Oturum kapatılıyor...</value>
+  </data>
+  <data name="SessionStatus_Value_Failed">
+    <value>Oturum açılamadı. İnternet bağlantınızı denetleyin.</value>
+  </data>
+  <data name="SessionStatus_Value_NotStarted">
+    <value>Oturum kapatıldı</value>
+  </data>
+  <data name="SessionStatus_Value_SigningIn">
+    <value>Oturum açılıyor...</value>
+  </data>
+  <data name="SessionStatus_Value_Started">
+    <value>Oturum açıldı</value>
+  </data>
+  <data name="SessionStatus_Value_Starting">
+    <value>Oturum açılıyor...</value>
+  </data>
+  <data name="SignIn_Button_Authenticate">
+    <value>_Kimlik doğrulama</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Button_Back">
+    <value>_Geri</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Button_CreateAccount">
+    <value>_Hesap aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Button_ForgotPassword">
+    <value>_Parolamı unuttum</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Button_SignIn">
+    <value>_Oturum aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Button_SignInAsAnotherUser">
+    <value>Ya da başka bir kullanıcı olarak oturum açın</value>
+  </data>
+  <data name="SignIn_Button_Unlock">
+    <value>_Kilidi aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Message_SigningIn">
+    <value>Hesabınızda oturum açılıyor</value>
+  </data>
+  <data name="SignIn_Text_2FACode">
+    <value>Kimlik doğrulama uygulamanızdan alacağınız kodu yazın</value>
+  </data>
+  <data name="SignIn_Text_Password">
+    <value>_Parola</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Text_SecondPassword">
+    <value>İkinci parola</value>
+  </data>
+  <data name="SignIn_Text_Username">
+    <value>E-posta adresi veya _kullanıcı adı</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SignIn_Text_Username_HelpText">
+    <value>Kullanıcı adı</value>
+  </data>
+  <data name="SignIn_Text_ValidationError_PasswordRequired">
+    <value>Parolanın yazılması zorunludur</value>
+  </data>
+  <data name="SignIn_Text_ValidationError_SessionExpired">
+    <value>Oturumunuzun geçerlilik süresi dolmuş. İlerlemek için lütfen oturum açın.</value>
+  </data>
+  <data name="SignIn_Text_ValidationError_SomethingWentWrong">
+    <value>Bir sorun çıktı</value>
+  </data>
+  <data name="SignIn_Text_ValidationError_UsernameRequired">
+    <value>Kullanıcı adı gereklidir</value>
+  </data>
+  <data name="SignIn_Title_2FA">
+    <value>İki adımlı doğrulama</value>
+  </data>
+  <data name="SyncFolderValidationResult_Title_InsufficientLocalFreeSpace">
+    <value>Bu aygıtta yeterli boş alan yok</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_FolderIncludedByAnAlreadySyncedFolder">
+    <value>Klasör zaten eşitlenen bir klasör altında bulunuyor</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_FolderIncludesAnAlreadySyncedFolder">
+    <value>Klasörde zaten eşitlenen bir klasör bulunuyor</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_InsufficientLocalFreeSpace">
+    <value>Alan boşaltın ya da işareti kaldırın.</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_LocalFileSystemAccessFailed">
+    <value>Klasöre erişilemedi</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_LocalFolderDoesNotExist">
+    <value>Klasör bulunamadı</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_LocalFolderNotEmpty">
+    <value>Eşitleme kurulmadan önce klasör boş olmalıdır</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_LocalVolumeNotSupported">
+    <value>Sürücü türü desteklenmiyor</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_NetworkFolderNotSupported">
+    <value>Ağ sürücülerindeki klasörlerin eşitlenmesi desteklenmiyor.</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_NonSyncableFolder">
+    <value>Klasör eşitlenmeye uygun değil</value>
+  </data>
+  <data name="SyncFolderValidationResult_Value_Succeeded">
+    <value></value>
+  </data>
+  <data name="SyncStatus_Value_DetectingUpdates">
+    <value>Güncellemeler alınıyor...</value>
+  </data>
+  <data name="SyncStatus_Value_Failed">
+    <value>Hata</value>
+  </data>
+  <data name="SyncStatus_Value_Idle">
+    <value>Eşitlendi</value>
+  </data>
+  <data name="SyncStatus_Value_Initializing">
+    <value>Kuruluyor...</value>
+  </data>
+  <data name="SyncStatus_Value_Offline">
+    <value>Çevrim dışı</value>
+  </data>
+  <data name="SyncStatus_Value_Paused">
+    <value>Duraklatıldı</value>
+  </data>
+  <data name="SyncStatus_Value_Synchronizing">
+    <value>Eşitleniyor...</value>
+  </data>
+  <data name="SyncStatus_Value_Terminated">
+    <value></value>
+  </data>
+  <data name="SyncStatus_Value_Terminating">
+    <value>Sonlandırılıyor...</value>
+  </data>
+  <data name="SystemTray_Menu_Item_Exit">
+    <value>Çı_k</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SystemTray_Menu_Item_OpenInBrowser">
+    <value>_Tarayıcıda aç</value>
+  </data>
+  <data name="SystemTray_Menu_Item_OpenLocalFolder">
+    <value>_Yerel klasörü aç</value>
+  </data>
+  <data name="SystemTray_Menu_Item_OpenProtonDrive">
+    <value>_Proton Drive aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SystemTray_Menu_Item_PauseSync">
+    <value>_Eşitlemeyi duraklat</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="SystemTray_Menu_Item_SignIn">
+    <value>_Oturum aç</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneMinuteAgo" xml:space="preserve">
+    <value>bir dakika önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneHourAgo" xml:space="preserve">
+    <value>bir saat önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneDayAgo" xml:space="preserve">
+    <value>bir gün önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_MinutesAgoFormat" xml:space="preserve">
+    <value>{0} dakika önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_HoursAgoFormat" xml:space="preserve">
+    <value>{0} saat önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_DaysAgoFormat" xml:space="preserve">
+    <value>{0} gün önce</value>
+  </data>
+</root>

@@ -2,6 +2,6 @@
 
 public enum SyncMethod
 {
-    Classic,
-    OnDemand,
+    Classic = 0,
+    OnDemand = 1,
 }

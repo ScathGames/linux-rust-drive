@@ -79,7 +79,7 @@ internal sealed class CredentialInputViewModel : SessionWorkflowStepWithPassword
     {
         return (!FirstLoginAttempt && Username is null) || Username?.Length > 0
             ? ValidationResult.Success
-            : new ValidationResult($"{nameof(Username)} is required");
+            : new ValidationResult(Resources.Strings.SignIn_Text_ValidationError_UsernameRequired);
     }
 
     private ValidationResult? ValidatePassword()
@@ -91,15 +91,15 @@ internal sealed class CredentialInputViewModel : SessionWorkflowStepWithPassword
             result = new ValidationResult(
                 LastResponse.Code switch
                 {
-                    ResponseCode.InvalidRefreshToken => "Your session has expired. Sign in to continue.",
-                    _ => LastResponse.Error ?? "Something went wrong",
+                    ResponseCode.InvalidRefreshToken => Resources.Strings.SignIn_Text_ValidationError_SessionExpired,
+                    _ => LastResponse.Error ?? Resources.Strings.SignIn_Text_ValidationError_SomethingWentWrong,
                 });
         }
         else
         {
             result = (!FirstLoginAttempt && Password is null) || Password?.Length > 0
                 ? ValidationResult.Success
-                : new ValidationResult($"{nameof(Password)} is required");
+                : new ValidationResult(Resources.Strings.SignIn_Text_ValidationError_PasswordRequired);
         }
 
         LastResponse = null;

@@ -1,21 +1,62 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using ProtonDrive.Shared.Extensions;
 
 namespace ProtonDrive.Shared.Net.Http.TlsPinning;
 
-internal sealed class TlsPinningPolicy
+public sealed class TlsPinningPolicy
 {
-    private readonly TlsPinningConfig _config;
+    private readonly IReadOnlyCollection<byte[]> _knownPublicKeyHashDigests;
 
     public TlsPinningPolicy(TlsPinningConfig config)
     {
-        _config = config;
+        _knownPublicKeyHashDigests = config.PublicKeyHashes.Select(Convert.FromBase64String).AsReadOnlyCollection(config.PublicKeyHashes.Count);
     }
 
     public bool IsValid(X509Certificate certificate)
     {
         using var certificate2 = new X509Certificate2(certificate);
-        var hash = new PublicKeyInfoHash(certificate2).Value();
+        Span<byte> hashDigestBuffer = stackalloc byte[SHA256.HashSizeInBytes];
+        if (!TryGetPublicKeySha256Digest(certificate2, hashDigestBuffer))
+        {
+            return false;
+        }
 
-        return _config.PublicKeyHashes.Contains(hash);
+        foreach (var knownPublicKeyHashDigest in _knownPublicKeyHashDigests)
+        {
+            if (knownPublicKeyHashDigest.AsSpan().SequenceEqual(hashDigestBuffer))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryGetPublicKeySha256Digest(X509Certificate2 certificate, Span<byte> outputBuffer)
+    {
+        var publicKey = (AsymmetricAlgorithm?)certificate.GetRSAPublicKey()
+            ?? certificate.GetDSAPublicKey()
+            ?? throw new NotSupportedException("No supported key algorithm");
+
+        // Expected length of public key info is around 550 bytes
+        var publicKeyInfoBuffer = ArrayPool<byte>.Shared.Rent(1024);
+
+        try
+        {
+            var publishKeyInfo = publicKey.TryExportSubjectPublicKeyInfo(publicKeyInfoBuffer, out var publicKeyInfoLength)
+                ? publicKeyInfoBuffer.AsSpan()[..publicKeyInfoLength]
+                : publicKey.ExportSubjectPublicKeyInfo();
+
+            return SHA256.TryHashData(publishKeyInfo, outputBuffer, out _);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(publicKeyInfoBuffer);
+        }
     }
 }

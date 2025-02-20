@@ -6,10 +6,11 @@ namespace ProtonDrive.App.Instrumentation.Telemetry.MappingSetup;
 
 public sealed record MappingSetupDetails
 {
-    public MappingSetupDetails(MappingType type, LinkType linkType, MappingStatus status, MappingSetupStatus mappingSetupStatus, bool isReadOnly)
+    public MappingSetupDetails(MappingType type, LinkType linkType, SyncMethod syncMethod, MappingStatus status, MappingSetupStatus mappingSetupStatus, bool isReadOnly)
     {
         Type = type;
         LinkType = linkType;
+        SyncMethod = syncMethod;
         Status = status;
         SetupStatus = mappingSetupStatus;
         SyncType = type switch
@@ -21,6 +22,7 @@ public sealed record MappingSetupDetails
 
     public MappingType Type { get; }
     public LinkType LinkType { get; }
+    public SyncMethod SyncMethod { get; }
     public MappingStatus Status { get; }
     public MappingSetupStatus SetupStatus { get; }
     public MappingSyncType SyncType { get; }

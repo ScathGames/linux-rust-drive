@@ -26,7 +26,7 @@ public class FileSystemClientException<TId> : FileSystemClientException
     }
 
     public FileSystemClientException(string message, FileSystemErrorCode errorCode, TId? objectId)
-        : this(message, errorCode, objectId, innerException: default)
+        : this(message, errorCode, objectId, innerException: null)
     {
     }
 

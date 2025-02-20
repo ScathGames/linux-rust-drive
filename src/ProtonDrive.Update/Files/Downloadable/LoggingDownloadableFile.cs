@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.Shared.Extensions;
@@ -20,13 +21,15 @@ internal class LoggingDownloadableFile : IDownloadableFile
         _origin = origin;
     }
 
-    public async Task DownloadAsync(string url, string filename)
+    public async Task DownloadAsync(string url, string filePath)
     {
         try
         {
-            _logger.LogInformation("Downloading the app update file \"{path}\"", filename);
+            var filename = Path.GetFileName(filePath);
 
-            await _origin.DownloadAsync(url, filename).ConfigureAwait(false);
+            _logger.LogInformation("Downloading the app update file \"{filename}\"", filename);
+
+            await _origin.DownloadAsync(url, filePath).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex.IsCommunicationException() || ex.IsFileAccessException())
         {

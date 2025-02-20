@@ -8,6 +8,7 @@
     xmlns:controls="clr-namespace:ProtonDrive.App.Windows.Controls"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:mapping="clr-namespace:ProtonDrive.App.Mapping;assembly=ProtonDrive.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:settings="clr-namespace:ProtonDrive.App.Windows.Views.Main.Settings"
@@ -16,12 +17,12 @@
     <StackPanel>
         <TextBlock
             AutomationProperties.HeadingLevel="Level2"
-            Text="Your Proton Drive folder:"
+            Text="{loc:Resource Main_Settings_Label_AccountRootFolder}"
             FontWeight="SemiBold" />
 
         <Button
             AutomationProperties.AutomationId="SelectFolderButton"
-            AutomationProperties.HelpText="Change your Proton Drive root folder."
+            AutomationProperties.HelpText="{loc:Resource Main_Settings_AccountRootFolder_HelpText}"
             Command="{Binding SelectFolderCommand}"
             Foreground="{StaticResource GrayBrush}"
             Style="{StaticResource SectionButtonStyle}"
@@ -45,7 +46,7 @@
                     Grid.Column="1"
                     Margin="15,0,0,0">
                     <Run
-                        Text="Location"
+                        Text="{loc:Resource Main_Settings_AccountRootFolder_Title}"
                         Foreground="{StaticResource Text.DarkTheme.Brush}" />
                     <LineBreak />
                     <TextBlock
@@ -94,7 +95,7 @@
 
                 <AccessText
                     Grid.Column="3"
-                    Text="_Change"
+                    Text="{loc:Resource Main_Settings_AccountRootFolder_Button_Change}"
                     VerticalAlignment="Center"
                     Margin="15,0,0,0" />
             </Grid>

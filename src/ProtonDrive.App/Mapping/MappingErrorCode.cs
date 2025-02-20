@@ -20,6 +20,9 @@ public enum MappingErrorCode
     LocalFolderIncludedByAnAlreadySyncedFolder,
     LocalFolderIncludesAnAlreadySyncedFolder,
     LocalFolderNonSyncable,
+    LocalFolderNonSyncableOnDemand,
+    LocalOnDemandSyncRootNotRegistered,
     InsufficientLocalFreeSpace,
+    InsufficientDeviceQuota,
     SharingDisabled,
 }

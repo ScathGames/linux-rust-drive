@@ -8,6 +8,7 @@
     xmlns:controls="clr-namespace:ProtonDrive.App.Windows.Controls"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:shared="clr-namespace:ProtonDrive.App.Drive.Services.Shared;assembly=ProtonDrive.App"
     xmlns:sharedViews="clr-namespace:ProtonDrive.App.Windows.Views.Shared"
@@ -93,12 +94,12 @@
                         <Style
                             TargetType="TextBlock"
                             BasedOn="{StaticResource {x:Type TextBlock}}">
-                            <Setter Property="Text" Value="Editor" />
+                            <Setter Property="Text" Value="{loc:Resource Main_SharedWithMe_Column_Permissions_Value_Editor}" />
                             <Style.Triggers>
                                 <DataTrigger
                                     Binding="{Binding IsReadOnly}"
                                     Value="True">
-                                    <Setter Property="Text" Value="Viewer" />
+                                    <Setter Property="Text" Value="{loc:Resource Main_SharedWithMe_Column_Permissions_Value_Viewer}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -200,13 +201,13 @@
                         <MenuItem
                             AutomationProperties.AutomationId="OpenFolderMenuItem"
                             Command="{Binding OpenFolderCommand}"
-                            Header="_Open folder" />
+                            Header="{loc:Resource Main_SharedWithMe_Menu_Item_OpenFolder}" />
 
                         <MenuItem
                             AutomationProperties.AutomationId="RemoveMeMenuItem"
                             CommandParameter="{Binding}"
                             Command="{Binding RemoveMeCommand}"
-                            Header="_Remove me" />
+                            Header="{loc:Resource Main_SharedWithMe_Menu_Item_RemoveMe}" />
                     </MenuItem>
                 </Menu>
             </DataTemplate>
@@ -235,7 +236,7 @@
                     <Image
                         Grid.Column="2"
                         Source="{StaticResource Icon.Information}"
-                        ToolTip="Enable to make the shared file or folder accessible from your computer.&#x0a;Contents of files will be downloaded on demand only."
+                        ToolTip="{loc:Resource Main_SharedWithMe_Column_Sync_Info_Tooltip}"
                         Width="14"
                         Height="14"
                         VerticalAlignment="Center"
@@ -288,7 +289,7 @@
                     <TextBlock
                         Grid.Column="0"
                         Grid.Row="0"
-                        Text="Shared with me"
+                        Text="{loc:Resource Main_SharedWithMe_Title}"
                         Style="{StaticResource Heading1Style}" />
 
                     <StackPanel
@@ -301,24 +302,32 @@
                             Foreground="{StaticResource GrayBrush}"
                             Visibility="{Binding Items.Count, Mode=OneWay, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
                             Margin="0,0,7,0">
-                            <Run Text="{Binding NumberOfSyncedItems, Mode=OneWay}" />
-                            <Run Text="of" />
-                            <Run Text="{Binding Items.Count, Mode=OneWay}" />
-                            <Run>
-                                <Run.Style>
-                                    <Style TargetType="Run">
-                                        <Setter Property="Text" Value="items" />
-                                        <Style.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding Items.Count}"
-                                                Value="1">
-                                                <Setter Property="Text" Value="item" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Run.Style>
-                            </Run>
-                            <Run Text="synced" />
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text">
+                                        <Setter.Value>
+                                            <MultiBinding StringFormat="{loc:Resource Main_SharedWithMe_Status_ItemsSynced_Plural}">
+                                                <Binding Path="NumberOfSyncedItems" />
+                                                <Binding Path="Items.Count" />
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding NumberOfSyncedItems}"
+                                            Value="1">
+                                            <Setter Property="Text">
+                                                <Setter.Value>
+                                                    <MultiBinding StringFormat="{loc:Resource Main_SharedWithMe_Status_ItemsSynced_Singular}">
+                                                        <Binding Path="NumberOfSyncedItems" />
+                                                        <Binding Path="Items.Count" />
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
                         </TextBlock>
 
                         <Image
@@ -333,7 +342,7 @@
                             VerticalAlignment="Center" />
 
                         <TextBlock
-                            Text="Failed to load data"
+                            Text="{loc:Resource Main_SharedWithMe_Error_FailedToLoad}"
                             Foreground="{StaticResource NegativeBrush}"
                             Visibility="{Binding Status, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={x:Static shared:DataServiceStatus.Failed}}"
                             VerticalAlignment="Center"
@@ -349,22 +358,30 @@
                             Visibility="{Binding NumberOfFailedItems, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}"
                             VerticalAlignment="Center"
                             Margin="7,0,0,0">
-                            <Run Text="{Binding NumberOfFailedItems, Mode=OneWay}" />
-                            <Run>
-                                <Run.Style>
-                                    <Style TargetType="Run">
-                                        <Setter Property="Text" Value="items" />
-                                        <Style.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding NumberOfFailedItems, Mode=OneWay}"
-                                                Value="1">
-                                                <Setter Property="Text" Value="item" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Run.Style>
-                            </Run>
-                            <Run Text="failed to be loaded" />
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text">
+                                        <Setter.Value>
+                                            <MultiBinding StringFormat="{loc:Resource Main_SharedWithMe_Error_FailedToLoad_Items_Plural}">
+                                                <Binding Path="NumberOfFailedItems" />
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding NumberOfFailedItems}"
+                                            Value="1">
+                                            <Setter Property="Text">
+                                                <Setter.Value>
+                                                    <MultiBinding StringFormat="{loc:Resource Main_SharedWithMe_Error_FailedToLoad_Items_Singular}">
+                                                        <Binding Path="NumberOfFailedItems" />
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
                         </TextBlock>
                     </StackPanel>
 
@@ -372,7 +389,7 @@
                         Grid.Column="1"
                         Grid.Row="0"
                         Grid.RowSpan="2"
-                        Content="Open _folder"
+                        Content="{loc:Resource Main_SharedWithMe_Menu_Item_OpenFolder}"
                         Command="{Binding OpenSharedWithMeRootFolderCommand}"
                         Visibility="{Binding IsEnabled, RelativeSource={RelativeSource Self}, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}"
                         VerticalAlignment="Center"
@@ -388,21 +405,19 @@
                         Width="170" />
 
                     <TextBlock
-                        AutomationProperties.HelpText="Nothing shared yet"
-                        Text="Nothing shared yet"
+                        AutomationProperties.HelpText="{loc:Resource Main_SharedWithMe_Intro_Title}"
+                        Text="{loc:Resource Main_SharedWithMe_Intro_Title}"
                         Style="{StaticResource Subtitle.DarkTheme.Style}"
                         HorizontalAlignment="Center" />
 
                     <TextBlock
-                        Text="Files and folders that are shared"
+                        Text="{loc:Resource Main_SharedWithMe_Intro_Description}"
                         Foreground="{StaticResource GrayBrush}"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap"
+                        MaxWidth="200"
                         HorizontalAlignment="Center"
                         Margin="0,10,0,0" />
-
-                    <TextBlock
-                        Text="with you will appear here"
-                        Foreground="{StaticResource GrayBrush}"
-                        HorizontalAlignment="Center" />
                 </StackPanel>
 
                 <Grid
@@ -439,13 +454,14 @@
                                     AutomationProperties.AutomationId="MaximumNumberOfSyncedItemsSupportedText"
                                     TextTrimming="CharacterEllipsis">
                                     <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}You can only sync {0} items at once.">
+                                        <MultiBinding StringFormat="{loc:Resource Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Limit}">
                                             <Binding Path="MaximumNumberOfSyncedItemsSupported" />
                                         </MultiBinding>
                                     </TextBlock.Text>
                                 </TextBlock>
+
                                 <TextBlock
-                                    Text="To add new items, please stop syncing some of the old ones."
+                                    Text="{loc:Resource Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Advice}"
                                     TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                         </Grid>
@@ -485,7 +501,7 @@
                                 Grid.Column="1"
                                 Margin="15,0,0,0">
                                 <TextBlock
-                                    Text="Sharing is temporarily unavailable"
+                                    Text="{loc:Resource Main_SharedWithMe_Warning_SharingUnavailable}"
                                     TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                         </Grid>

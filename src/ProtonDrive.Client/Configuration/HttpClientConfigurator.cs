@@ -9,24 +9,29 @@ using ProtonDrive.Shared.Net.Http;
 
 namespace ProtonDrive.Client.Configuration;
 
-internal static class HttpClientConfigurator
+public static class HttpClientConfigurator
 {
+    public static IHttpClientBuilder ApplyHttpClientPrimaryHandler(this IHttpClientBuilder builder, string name)
+    {
+        return builder
+            .UseSocketsHttpHandler((socketsHttpHandler, serviceProvider) => ConfigurePrimaryHttpMessageHandler(socketsHttpHandler, name, serviceProvider));
+    }
+
+    public static void ConfigurePrimaryHttpMessageHandler(SocketsHttpHandler socketsHttpHandler, string name, IServiceProvider serviceProvider)
+    {
+        socketsHttpHandler
+            .AddAutomaticDecompression()
+            .ConfigureCookies(serviceProvider)
+            .AddTlsPinning(name, serviceProvider);
+    }
+
     public static IHttpClientBuilder ConfigureHttpClient(
         this IHttpClientBuilder builder,
-        string name,
         Func<DriveApiConfig, int> numberOfRetriesSelector,
         Func<DriveApiConfig, TimeSpan> timeoutSelector,
         bool useOfflinePolicy = true)
     {
         builder
-            .ConfigureHttpMessageHandlerBuilder(
-                (httpClientHandler, serviceProvider) =>
-                {
-                    httpClientHandler
-                        .AddAutomaticDecompression()
-                        .ConfigureCookies(serviceProvider)
-                        .AddTlsPinning(name, serviceProvider);
-                })
             .AddHttpMessageHandler<ServerTimeRecordingHandler>()
             .AddHttpMessageHandler<TooManyRequestsHandler>()
             .AddHttpMessageHandler<ChunkedTransferEncodingHandler>()
@@ -39,7 +44,8 @@ internal static class HttpClientConfigurator
             builder.AddHttpMessageHandler<OfflineHandler>();
         }
 
-        return builder.AddPolicyHandler((provider, _) => GetRetryPolicy(provider, numberOfRetriesSelector))
+        return builder
+            .AddPolicyHandler((provider, _) => GetRetryPolicy(provider, numberOfRetriesSelector))
             .AddTimeoutHandler(provider => timeoutSelector.Invoke(provider.GetRequiredService<DriveApiConfig>()));
     }
 

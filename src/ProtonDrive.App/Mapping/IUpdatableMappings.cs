@@ -19,6 +19,12 @@ public interface IUpdatableMappings : IDisposable
     void Add(RemoteToLocalMapping mapping);
 
     /// <summary>
+    /// Marks active mapping as updated. This enables saving mappings and notifying through <see cref="IMappingsAware"/>.
+    /// </summary>
+    /// <param name="mapping">Updated mapping.</param>
+    void Update(RemoteToLocalMapping mapping);
+
+    /// <summary>
     /// Deletes active mapping by changing its status to <see cref="MappingStatus.Deleted"/>
     /// and moving it to the set of deleted mappings.
     /// </summary>

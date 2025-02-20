@@ -133,7 +133,11 @@ internal sealed class CloudFilesMappingTeardownStep
 
     private Task<bool> TryRemoveOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
+        var root = new OnDemandSyncRootInfo(
+            Path: mapping.Local.Path,
+            RootId: mapping.Id.ToString(),
+            Visibility: ShellFolderVisibility.Visible,
+            SiblingsGrouping: ShellFolderSiblingsGrouping.Grouped);
 
         return _onDemandSyncRootRegistry.TryUnregisterAsync(root);
     }

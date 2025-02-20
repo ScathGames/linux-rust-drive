@@ -11,6 +11,8 @@ namespace ProtonDrive.Sync.Windows.FileSystem;
 
 public abstract class FileSystemObject : IDisposable
 {
+    private static readonly char[] InvalidCharacters = Path.GetInvalidFileNameChars();
+
     private static readonly HashSet<string> DosDeviceNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "CON", "PRN", "AUX", "NUL",
@@ -128,47 +130,49 @@ public abstract class FileSystemObject : IDisposable
     /// on Windows file naming conventions.
     /// </remarks>
     /// <param name="name">The file or folder name to validate</param>
-    /// <returns>NULL if the name is valid; The error message otherwise.</returns>
-    public static string? GetNameValidationResult(string name)
+    /// <returns>FileSystemNameValidationResult.None if the name is valid, otherwise the corresponding issue.</returns>
+    public static FileSystemNameValidationResult GetNameValidationResult(string name)
     {
         if (string.IsNullOrEmpty(name))
         {
-            return "Name is empty";
+            return FileSystemNameValidationResult.Empty;
         }
 
         if (name.Length > 255)
         {
-            return "Name too long";
+            return FileSystemNameValidationResult.TooLong;
         }
 
-        if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        if (name.IndexOfAny(InvalidCharacters) >= 0)
         {
-            return "Name contains an invalid character";
+            return FileSystemNameValidationResult.InvalidCharacters;
         }
 
         if (name.EndsWith(' '))
         {
-            return "Name ends with a space";
+            return FileSystemNameValidationResult.EndsWithSpace;
         }
 
         if (name.EndsWith('.'))
         {
-            return "Name ends with a period";
+            return FileSystemNameValidationResult.EndsWithPeriod;
         }
 
         if (name.Length is >= 3 and <= 4 && DosDeviceNames.Contains(name))
         {
-            return "Name is reserved DOS device name";
+            return FileSystemNameValidationResult.Reserved;
         }
 
-        return default;
+        return FileSystemNameValidationResult.Success;
     }
 
     public void Rename(string newName, bool replaceIfExists = false)
     {
-        if (GetNameValidationResult(newName) is { } message)
+        var result = GetNameValidationResult(newName);
+
+        if (result is not FileSystemNameValidationResult.Success)
         {
-            throw new ArgumentException(message, nameof(newName));
+            throw new ArgumentException(result.ToString(), nameof(newName));
         }
 
         Internal.FileSystem.Rename(FileHandle, newName, replaceIfExists);
@@ -179,9 +183,11 @@ public abstract class FileSystemObject : IDisposable
 
     public void Move(FileSystemDirectory newParent, string newName, bool replaceIfExists = false)
     {
-        if (GetNameValidationResult(newName) is { } message)
+        var result = GetNameValidationResult(newName);
+
+        if (result is not FileSystemNameValidationResult.Success)
         {
-            throw new ArgumentException(message, nameof(newName));
+            throw new ArgumentException(result.ToString(), nameof(newName));
         }
 
         Internal.FileSystem.Move(FileHandle, newParent.FileHandle, newName, replaceIfExists);

@@ -15,6 +15,7 @@ internal static class MappingSetupReportFactory
         const string statusDimensionName = "status";
         const string setupStatusDimensionName = "setupStatus";
         const string syncModeDimensionName = "syncMode";
+        const string syncMethodDimensionName = "syncMethod";
 
         const string measurementGroupName = "drive.windows.mappings";
         const string eventName = "periodic_setup_state_report";
@@ -25,6 +26,7 @@ internal static class MappingSetupReportFactory
                 {
                     x.Type,
                     x.LinkType,
+                    x.SyncMethod,
                     x.SyncType,
                     x.Status,
                     x.SetupStatus,
@@ -43,6 +45,7 @@ internal static class MappingSetupReportFactory
 
                     values.Add(countMetricName, group.Count());
                     dimensions.Add(typeDimensionName, type);
+                    dimensions.Add(syncMethodDimensionName, group.Key.SyncMethod.ToString());
                     dimensions.Add(syncModeDimensionName, group.Key.SyncType.ToString());
                     dimensions.Add(statusDimensionName, group.Key.Status.ToString());
                     dimensions.Add(setupStatusDimensionName, group.Key.SetupStatus.ToString());

@@ -87,7 +87,11 @@ internal sealed class ForeignDeviceMappingTeardownStep
             return true;
         }
 
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Hidden);
+        var root = new OnDemandSyncRootInfo(
+            Path: mapping.Local.Path,
+            RootId: mapping.Id.ToString(),
+            Visibility: ShellFolderVisibility.Hidden,
+            SiblingsGrouping: ShellFolderSiblingsGrouping.Grouped);
 
         return await _onDemandSyncRootRegistry.TryUnregisterAsync(root).ConfigureAwait(false);
     }

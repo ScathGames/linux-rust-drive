@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using ProtonDrive.App.Windows.Resources;
 
 namespace ProtonDrive.App.Windows.Toolkit.Converters;
 
@@ -16,18 +17,20 @@ public sealed class EnumToDisplayTextConverter : IValueConverter
 
     public object? Convert(object? value, Type? targetType, object? parameter, CultureInfo? culture)
     {
-        if (value == null)
-        {
-            return DependencyProperty.UnsetValue;
-        }
+        return value == null
+            ? DependencyProperty.UnsetValue
+            : Convert(value, parameter);
+    }
 
+    public string? Convert(object value, object? parameter)
+    {
         var sourceType = value.GetType();
         var valueName = Enum.GetName(sourceType, value) ?? string.Empty;
         var key = parameter is string pattern
             ? GetResourceKey(pattern, sourceType.Name, valueName)
-            : $"{sourceType.Name}_val_{valueName}";
+            : $"{sourceType.Name}_Value_{valueName}";
 
-        return Resources.Strings.ResourceManager.GetString(key);
+        return Strings.ResourceManager.GetString(key, Strings.Culture);
     }
 
     public object ConvertBack(object? value, Type? targetType, object? parameter, CultureInfo? culture)
@@ -35,7 +38,7 @@ public sealed class EnumToDisplayTextConverter : IValueConverter
         throw new NotSupportedException();
     }
 
-    private string GetResourceKey(string pattern, string typeName, string valueName)
+    private static string GetResourceKey(string pattern, string typeName, string valueName)
     {
         return pattern
             .Replace(TypeNamePlaceholder, typeName)

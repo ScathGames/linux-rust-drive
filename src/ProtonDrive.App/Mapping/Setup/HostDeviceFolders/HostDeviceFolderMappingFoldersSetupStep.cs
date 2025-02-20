@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Devices;
 using ProtonDrive.App.Settings;
 using ProtonDrive.App.SystemIntegration;
+using ProtonDrive.Client;
 using ProtonDrive.Shared;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.Logging;
@@ -105,10 +106,10 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
     {
         var replica = mapping.Local;
 
-        if (replica.RootFolderId != default)
+        if (replica.RootFolderId != 0)
         {
             // Already set up
-            return default;
+            return null;
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -135,7 +136,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
         replica.VolumeSerialNumber = rootFolder.VolumeInfo.VolumeSerialNumber;
         replica.InternalVolumeId = _volumeIdentityProvider.GetLocalVolumeId(replica.VolumeSerialNumber);
 
-        return default;
+        return null;
     }
 
     private async Task<MappingErrorCode?> SetUpRemoteFolderAsync(RemoteToLocalMapping mapping, CancellationToken cancellationToken)
@@ -145,13 +146,19 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
         if (!string.IsNullOrEmpty(replica.RootLinkId) && !string.IsNullOrEmpty(replica.ShareId))
         {
             // Already set up
-            return default;
+            return null;
         }
 
-        var hostDevice = await _deviceService.SetUpHostDeviceAsync(cancellationToken).ConfigureAwait(false);
+        var (hostDevice, errorResponseCode) = await _deviceService.SetUpHostDeviceAsync(cancellationToken).ConfigureAwait(false);
+
         if (hostDevice is null)
         {
-            return MappingErrorCode.DriveAccessFailed;
+            _logger.LogInformation("Setting up remote folder failed");
+            return errorResponseCode switch
+            {
+                ResponseCode.InsufficientDeviceQuota => MappingErrorCode.InsufficientDeviceQuota,
+                _ => MappingErrorCode.DriveAccessFailed,
+            };
         }
 
         _logger.LogInformation("Creating host device folder for sync folder mapping {Id} ({Type})", mapping.Id, mapping.Type);
@@ -169,7 +176,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
         replica.RootItemName = folder.Value.Name;
         replica.InternalVolumeId = _volumeIdentityProvider.GetRemoteVolumeId(replica.VolumeId);
 
-        return default;
+        return null;
     }
 
     private async Task<(string Id, string Name)?> CreateDeviceFolderAsync(
@@ -203,7 +210,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
                 nameToLog,
                 ex.CombinedMessage());
 
-            return default;
+            return null;
         }
     }
 
@@ -236,7 +243,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
             }
         }
 
-        return default;
+        return null;
     }
 
     private async Task<string?> TryCreateUniqueFolderAsync(
@@ -251,7 +258,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
         }
         catch (FileSystemClientException<string> ex) when (ex.ErrorCode == FileSystemErrorCode.DuplicateName)
         {
-            return default;
+            return null;
         }
     }
 

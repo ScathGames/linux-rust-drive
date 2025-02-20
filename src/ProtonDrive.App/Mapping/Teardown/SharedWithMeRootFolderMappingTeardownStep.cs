@@ -69,7 +69,11 @@ internal sealed class SharedWithMeRootFolderMappingTeardownStep
             throw new InvalidEnumArgumentException(nameof(mapping.SyncMethod), (int)mapping.SyncMethod, typeof(SyncMethod));
         }
 
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
+        var root = new OnDemandSyncRootInfo(
+            Path: mapping.Local.Path,
+            RootId: mapping.Id.ToString(),
+            Visibility: ShellFolderVisibility.Visible,
+            SiblingsGrouping: ShellFolderSiblingsGrouping.Grouped);
 
         return _onDemandSyncRootRegistry.TryUnregisterAsync(root);
     }

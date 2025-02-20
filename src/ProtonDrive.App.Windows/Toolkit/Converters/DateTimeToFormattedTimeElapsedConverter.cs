@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using ProtonDrive.App.Windows.Resources;
 
 namespace ProtonDrive.App.Windows.Toolkit.Converters;
 
@@ -42,12 +43,12 @@ internal class DateTimeToFormattedTimeElapsedConverter : IValueConverter
 
         return minutesElapsed switch
         {
-            < 2 => "a minute ago",
-            < 60 => $"{minutesElapsed} minutes ago",
-            < 60 * 2 => "an hour ago",
-            < 60 * 24 => $"{minutesElapsed / 60} hours ago",
-            < 60 * 24 * 2 => "a day ago",
-            _ => $"{minutesElapsed / 60 / 24} days ago",
+            < 2 => Strings.Main_Activity_TimeElapsed_OneMinuteAgo,
+            < 60 => string.Format(Strings.Main_Activity_TimeElapsed_MinutesAgoFormat, minutesElapsed),
+            < 60 * 2 => Strings.Main_Activity_TimeElapsed_OneHourAgo,
+            < 60 * 24 => string.Format(Strings.Main_Activity_TimeElapsed_HoursAgoFormat, minutesElapsed / 60),
+            < 60 * 24 * 2 => Strings.Main_Activity_TimeElapsed_OneDayAgo,
+            _ => string.Format(Strings.Main_Activity_TimeElapsed_DaysAgoFormat, minutesElapsed / 60 / 24),
         };
     }
 }

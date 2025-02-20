@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -10,18 +11,22 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using ProtonDrive.App.Authentication;
+using ProtonDrive.App.Features;
 using ProtonDrive.App.Sync;
 using ProtonDrive.App.SystemIntegration;
+using ProtonDrive.App.Windows.Services;
 using ProtonDrive.App.Windows.SystemIntegration;
 using ProtonDrive.Shared;
 using ProtonDrive.Shared.Configuration;
+using ProtonDrive.Shared.Features;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Shared.ExecutionStatistics;
 using ProtonDrive.Sync.Shared.SyncActivity;
 
 namespace ProtonDrive.App.Windows.Views.Main.Activity;
 
-internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, ISyncStateAware, ISyncActivityAware, ISyncStatisticsAware, IDisposable
+internal sealed class SyncStateViewModel
+    : PageViewModel, ISessionStateAware, ISyncStateAware, ISyncActivityAware, ISyncStatisticsAware, IFeatureFlagsAware, IDisposable
 {
     public const int MaxNumberOfVisibleItems = 100;
 
@@ -32,9 +37,12 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
     private readonly IFileSystemDisplayNameAndIconProvider _fileSystemDisplayNameAndIconProvider;
     private readonly ILocalFolderService _localFolderService;
     private readonly IScheduler _scheduler;
+    private readonly IDialogService _dialogService;
+    private readonly RenameRemoteNodeViewModel _renameRemoteNodeDialogViewModel;
     private readonly IClock _clock;
 
     private readonly AsyncRelayCommand _retrySyncCommand;
+    private readonly RelayCommand<SyncActivityItemViewModel> _fixItemNameCommand;
     private readonly ISchedulerTimer _timer;
     private readonly TimeSpan _delayBeforeDisplayingSyncInitializationProgress;
 
@@ -46,6 +54,7 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
     private int _latestSyncPassNumber;
     private int? _numberOfInitializedItems;
     private DateTime? _syncInitializationStartTime;
+    private bool _isRemoteNodeRenamingDisabled;
 
     public SyncStateViewModel(
         ISyncService syncService,
@@ -53,16 +62,21 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
         ILocalFolderService localFolderService,
         [FromKeyedServices("Dispatcher")] IScheduler scheduler,
         AppConfig appConfig,
+        IDialogService dialogService,
+        RenameRemoteNodeViewModel renameRemoteNodeDialogViewModel,
         IClock clock)
     {
         _syncService = syncService;
         _fileSystemDisplayNameAndIconProvider = fileSystemDisplayNameAndIconProvider;
         _localFolderService = localFolderService;
         _scheduler = scheduler;
+        _dialogService = dialogService;
+        _renameRemoteNodeDialogViewModel = renameRemoteNodeDialogViewModel;
         _clock = clock;
         _delayBeforeDisplayingSyncInitializationProgress = appConfig.DelayBeforeDisplayingSyncInitializationProgress;
 
         _retrySyncCommand = new AsyncRelayCommand(RetrySyncAsync, CanRetrySync);
+        _fixItemNameCommand = new RelayCommand<SyncActivityItemViewModel>(OpenRenameItemDialog, CanOpenRenameItemDialog);
 
         SyncActivityItems = GetItems();
         FailedItems = GetFailedItems();
@@ -92,6 +106,11 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
         get => _syncService.Paused;
         set
         {
+            if (_syncService.Paused == value)
+            {
+                return;
+            }
+
             _syncService.Paused = value;
             OnPropertyChanged();
         }
@@ -103,7 +122,21 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
         private set => SetProperty(ref _numberOfInitializedItems, value);
     }
 
+    public bool IsRemoteNodeRenamingDisabled
+    {
+        get => _isRemoteNodeRenamingDisabled;
+        private set
+        {
+            if (SetProperty(ref _isRemoteNodeRenamingDisabled, value))
+            {
+                _fixItemNameCommand.NotifyCanExecuteChanged();
+            }
+        }
+    }
+
     public ICommand RetrySyncCommand => _retrySyncCommand;
+
+    public ICommand FixItemNameCommand => _fixItemNameCommand;
 
     public ListCollectionView SyncActivityItems { get; }
 
@@ -124,66 +157,68 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
 
     void ISyncStateAware.OnSyncStateChanged(SyncState value)
     {
-        _scheduler.Schedule(() =>
-        {
-            _synchronizationState = value;
-
-            _isSyncInitialized = value.Status switch
+        _scheduler.Schedule(
+            () =>
             {
-                SyncStatus.Idle or SyncStatus.Synchronizing or SyncStatus.Failed => true,
-                SyncStatus.Terminating or SyncStatus.Terminated => false,
-                _ => _isSyncInitialized,
-            };
+                _synchronizationState = value;
 
-            IsInitializingForTheFirstTime = !_isSyncInitialized && value.Status is SyncStatus.Initializing or SyncStatus.DetectingUpdates;
+                _isSyncInitialized = value.Status switch
+                {
+                    SyncStatus.Idle or SyncStatus.Synchronizing or SyncStatus.Failed => true,
+                    SyncStatus.Terminating or SyncStatus.Terminated => false,
+                    _ => _isSyncInitialized,
+                };
 
-            if (IsInitializingForTheFirstTime)
-            {
-                _syncInitializationStartTime ??= _clock.UtcNow;
-            }
-            else
-            {
-                _syncInitializationStartTime = null;
-            }
+                IsInitializingForTheFirstTime = !_isSyncInitialized && value.Status is SyncStatus.Initializing or SyncStatus.DetectingUpdates;
 
-            OnPropertyChanged(nameof(SynchronizationStatus));
-            OnPropertyChanged(nameof(Paused));
+                if (IsInitializingForTheFirstTime)
+                {
+                    _syncInitializationStartTime ??= _clock.UtcNow;
+                }
+                else
+                {
+                    _syncInitializationStartTime = null;
+                }
 
-            if (_isNewSession && value.Status is SyncStatus.Terminated or SyncStatus.Initializing)
-            {
-                _isNewSession = false;
-                _syncActivityItems.Clear();
-            }
+                OnPropertyChanged(nameof(SynchronizationStatus));
+                OnPropertyChanged(nameof(Paused));
 
-            switch (value.Status)
-            {
-                case SyncStatus.Synchronizing:
-                    ++_latestSyncPassNumber;
-                    break;
+                if (_isNewSession && value.Status is SyncStatus.Terminated or SyncStatus.Initializing)
+                {
+                    _isNewSession = false;
+                    _syncActivityItems.Clear();
+                }
 
-                case SyncStatus.Idle:
-                    RemoveOutdatedFailedItems();
-                    break;
-            }
-        });
+                switch (value.Status)
+                {
+                    case SyncStatus.Synchronizing:
+                        ++_latestSyncPassNumber;
+                        break;
+
+                    case SyncStatus.Idle:
+                        RemoveOutdatedFailedItems();
+                        break;
+                }
+            });
     }
 
     void ISyncActivityAware.OnSyncActivityChanged(SyncActivityItem<long> item)
     {
-        _scheduler.Schedule(() =>
-        {
-            var itemViewModel = _syncActivityItems.FirstOrDefault(
-                x => x.DataItem.Id == item.Id && x.DataItem.Replica == item.Replica && x.DataItem.Source == item.Source);
+        _scheduler.Schedule(
+            () =>
+            {
+                var itemViewModel = _syncActivityItems.FirstOrDefault(
+                    x => x.DataItem.Id == item.Id && x.DataItem.Replica == item.Replica && x.DataItem.Source == item.Source);
 
-            if (itemViewModel is null)
-            {
-                AddNewItem();
-            }
-            else
-            {
-                UpdateExistingItem(itemViewModel);
-            }
-        });
+                if (itemViewModel is null)
+                {
+                    AddNewItem();
+                }
+                else
+                {
+                    UpdateExistingItem(itemViewModel);
+                }
+            });
 
         return;
 
@@ -223,7 +258,7 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
                 item = itemViewModel.DataItem with
                 {
                     ErrorCode = default,
-                    ErrorMessage = default,
+                    ErrorMessage = null,
                     Status = SyncActivityItemStatus.Succeeded,
                 };
             }
@@ -232,9 +267,9 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
 
             if (item.Status is SyncActivityItemStatus.InProgress)
             {
-                itemViewModel.SynchronizedAt = default;
+                itemViewModel.SynchronizedAt = null;
             }
-            else if (itemViewModel.SynchronizedAt == default)
+            else if (itemViewModel.SynchronizedAt == null)
             {
                 itemViewModel.SynchronizedAt = _clock.UtcNow;
             }
@@ -243,19 +278,28 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
 
     void ISyncStatisticsAware.OnSyncStatisticsChanged(IExecutionStatistics value)
     {
-        _scheduler.Schedule(() =>
-        {
-            if (_synchronizationState.Status is not (SyncStatus.Initializing or SyncStatus.DetectingUpdates))
+        _scheduler.Schedule(
+            () =>
             {
-                NumberOfInitializedItems = null;
-                return;
-            }
+                if (_synchronizationState.Status is not (SyncStatus.Initializing or SyncStatus.DetectingUpdates))
+                {
+                    NumberOfInitializedItems = null;
+                    return;
+                }
 
-            if (_clock.UtcNow - _syncInitializationStartTime > _delayBeforeDisplayingSyncInitializationProgress)
-            {
-                NumberOfInitializedItems = value.Succeeded + value.Failed;
-            }
-        });
+                if (_clock.UtcNow - _syncInitializationStartTime > _delayBeforeDisplayingSyncInitializationProgress)
+                {
+                    NumberOfInitializedItems = value.Succeeded + value.Failed;
+                }
+            });
+    }
+
+    void IFeatureFlagsAware.OnFeatureFlagsChanged(IReadOnlyCollection<(Feature Feature, bool IsEnabled)> features)
+    {
+        _scheduler.Schedule(
+            () =>
+                IsRemoteNodeRenamingDisabled = features.Any(x => x.Feature is Feature.DriveWindowsRemoteNodeRenamingDisabled && x.IsEnabled)
+        );
     }
 
     private static bool ItemSyncHasFailed(object item)
@@ -328,6 +372,22 @@ internal sealed class SyncStateViewModel : PageViewModel, ISessionStateAware, IS
         {
             item.OnSynchronizedAtChanged();
         }
+    }
+
+    private bool CanOpenRenameItemDialog(SyncActivityItemViewModel? parameter)
+    {
+        return !IsRemoteNodeRenamingDisabled;
+    }
+
+    private void OpenRenameItemDialog(SyncActivityItemViewModel? item)
+    {
+        if (item is null || IsRemoteNodeRenamingDisabled)
+        {
+            return;
+        }
+
+        _renameRemoteNodeDialogViewModel.SetSyncActivityItem(item);
+        _dialogService.ShowDialog(_renameRemoteNodeDialogViewModel);
     }
 
     private sealed class SyncActivityItemComparer : IComparer

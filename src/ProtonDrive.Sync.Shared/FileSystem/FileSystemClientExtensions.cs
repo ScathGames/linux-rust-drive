@@ -9,15 +9,22 @@ namespace ProtonDrive.Sync.Shared.FileSystem;
 
 public static class FileSystemClientExtensions
 {
-    public static Task Rename<TId>(this IFileSystemClient<TId> origin, NodeInfo<TId> info, string newName, CancellationToken cancellationToken)
+    public static Task RenameAsync<TId>(this IFileSystemClient<TId> origin, NodeInfo<TId> info, string newName, CancellationToken cancellationToken)
         where TId : IEquatable<TId>
     {
         Ensure.NotNullOrEmpty(newName, nameof(newName));
-        Ensure.NotNullOrEmpty(info.Path, nameof(info), nameof(info.Path));
+        Ensure.IsTrue(
+            string.IsNullOrEmpty(info.Path) || (info.Path.EndsWith(info.Name, StringComparison.Ordinal) && info.Path[^info.Name.Length].Equals(Path.DirectorySeparatorChar)),
+            "Path and name do not match",
+            nameof(info));
+
+        var newPath = !string.IsNullOrEmpty(info.Path)
+            ? Path.Combine(info.Path[..^(info.Name.Length + 1)], newName)
+            : string.Empty;
 
         var newInfo = info.Copy()
             .WithName(newName)
-            .WithPath(Path.Combine(Path.GetDirectoryName(info.Path) ?? string.Empty, newName));
+            .WithPath(newPath);
 
         return origin.Move(info, newInfo, cancellationToken);
     }

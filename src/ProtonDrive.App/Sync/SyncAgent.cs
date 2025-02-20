@@ -307,6 +307,20 @@ internal class SyncAgent : IDisposable
         }
     }
 
+    public async Task<LooseCompoundAltIdentity<string>?> GetRemoteIdFromNodeIdOrDefaultAsync(long remoteNodeId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var remoteNodeAltId = await _remoteAdapter.GetNodeAltIdByIdOrDefaultAsync(remoteNodeId, cancellationToken).ConfigureAwait(false);
+
+            return remoteNodeAltId;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private async Task InternalSynchronizeAsync(CancellationToken cancellationToken)
     {
         if (!_initialized)

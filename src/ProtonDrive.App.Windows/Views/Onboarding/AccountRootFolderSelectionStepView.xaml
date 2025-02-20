@@ -6,6 +6,7 @@
     xmlns:controls="clr-namespace:ProtonDrive.App.Windows.Controls"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:mapping="clr-namespace:ProtonDrive.App.Mapping;assembly=ProtonDrive.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:onboarding="clr-namespace:ProtonDrive.App.Windows.Views.Onboarding"
@@ -17,11 +18,11 @@
     d:DataContext="{d:DesignInstance onboarding:AccountRootFolderSelectionStepViewModel}">
     <StackPanel Margin="40,20">
         <TextBlock
-            Text="Your Proton Drive folder"
+            Text="{loc:Resource Onboarding_AccountRootFolderSelection_Title}"
             Style="{StaticResource Heading1Style}" />
 
         <TextBlock
-            Text="Access my files and other synced devices here"
+            Text="{loc:Resource Onboarding_AccountRootFolderSelection_Label_Description}"
             FontSize="{StaticResource TextBlock.Subtitle.FontSize}"
             LineHeight="20"
             TextWrapping="Wrap"
@@ -36,7 +37,7 @@
 
         <Button
             AutomationProperties.AutomationId="OnboardingChangeSyncFolderButton"
-            AutomationProperties.HelpText="Change your Proton Drive root folder."
+            AutomationProperties.HelpText="{loc:Resource Onboarding_AccountRootFolderSelection_Button_ChangeFolder_HelpText}"
             Command="{Binding ChangeSyncFolderCommand}"
             Foreground="{StaticResource GrayBrush}"
             Style="{StaticResource SectionButtonStyle}"
@@ -61,7 +62,7 @@
                     VerticalAlignment="Center"
                     Margin="15,0,0,0">
                     <TextBlock
-                        Text="Location"
+                        Text="{loc:Resource Onboarding_AccountRootFolderSelection_Label_Location}"
                         FontSize="14" />
 
                     <TextBlock
@@ -75,7 +76,7 @@
 
                 <AccessText
                     Grid.Column="2"
-                    Text="_Change"
+                    Text="{loc:Resource Onboarding_AccountRootFolderSelection_Button_ChangeFolder}"
                     Foreground="{StaticResource GrayBrush}"
                     VerticalAlignment="Center"
                     Margin="15,0,0,0" />
@@ -113,7 +114,7 @@
                         AutomationProperties.AutomationId="ErrorTitleText"
                         Grid.Column="1"
                         Grid.Row="0"
-                        Text="{Binding ValidationResult, Converter={x:Static converters:EnumToDisplayTitleTextConverter.Instance}, FallbackValue='Invalid sync folder'}"
+                        Text="{Binding ValidationResult, Converter={x:Static converters:EnumToDisplayTitleTextConverter.Instance}, FallbackValue={loc:Resource Onboarding_AccountRootFolderSelection_Error_InvalidSyncFolder}}"
                         FontSize="14"
                         TextWrapping="Wrap"
                         Margin="15,-1,0,0" />
@@ -137,7 +138,7 @@
             <Button
                 x:Name="FinishSetupButton"
                 AutomationProperties.AutomationId="OnboardingFinishSetupButton"
-                Content="_Finish setup"
+                Content="{loc:Resource Onboarding_Button_FinishSetup}"
                 Command="{Binding ContinueCommand}"
                 IsDefault="True"
                 Style="{StaticResource PrimaryButtonStyle}" />

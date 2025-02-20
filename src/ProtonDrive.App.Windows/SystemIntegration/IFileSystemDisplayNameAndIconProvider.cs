@@ -16,4 +16,6 @@ internal interface IFileSystemDisplayNameAndIconProvider
     ImageSource? GetFileIconWithoutAccess(string nameOrPath, ShellIconSize iconSize);
 
     ImageSource? GetFolderIconWithoutAccess(string nameOrPath, ShellIconSize iconSize);
+
+    string? GetDisplayNameWithoutAccess(string path);
 }

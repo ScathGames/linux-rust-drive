@@ -65,6 +65,8 @@ internal partial class App : IApp, IDialogService, ISessionStateAware, IOnboardi
         throw new NotSupportedException("This constructor only exists to satisfy WPF code generation");
     }
 
+    public bool IsRestartRequested { get; private set; }
+
     public Task<IntPtr> ActivateAsync()
     {
         return Schedule(Activate);
@@ -108,6 +110,14 @@ internal partial class App : IApp, IDialogService, ISessionStateAware, IOnboardi
         };
 
         dialog.ShowDialog();
+    }
+
+    public Task RestartAsync()
+    {
+        _logger.LogInformation("Restarting the app requested");
+        IsRestartRequested = true;
+
+        return ExitAsync();
     }
 
     public async Task ExitAsync()
@@ -210,10 +220,7 @@ internal partial class App : IApp, IDialogService, ISessionStateAware, IOnboardi
 
     private void ShowWindow(Window window)
     {
-        if (!window.IsVisible)
-        {
-            window.Show();
-        }
+        window.Show();
 
         if (window.WindowState == WindowState.Minimized)
         {
@@ -225,7 +232,7 @@ internal partial class App : IApp, IDialogService, ISessionStateAware, IOnboardi
         window.Topmost = false;
         window.Focus();
 
-        if (_appArguments.CrashMode is AppCrashMode.OnMainWindowActivation && _hasAttemptedToCrash && window == MainWindow)
+        if (_appArguments.CrashMode is AppCrashMode.OnMainWindowActivation && !_hasAttemptedToCrash && window == MainWindow)
         {
             _hasAttemptedToCrash = true;
             throw new IntentionalCrashException();

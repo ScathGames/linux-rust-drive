@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.Main"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:shared="clr-namespace:ProtonDrive.App.Windows.Views.Shared"
@@ -45,7 +46,7 @@
                     Grid.Row="1"
                     Command="{Binding OpenWebDashboardCommand}"
                     Cursor="Hand"
-                    ToolTip="Manage storage">
+                    ToolTip="{loc:Resource Main_Sidebar_Storage_Tooltip}">
                     <Button.Style>
                         <Style
                             TargetType="Button"
@@ -73,7 +74,7 @@
 
                             <TextBlock
                                 Grid.Column="1"
-                                Text="Storage"
+                                Text="{loc:Resource Main_Sidebar_Storage_Title}"
                                 FontSize="{StaticResource TextBlock.Default.FontSize}"
                                 Margin="10,0,0,0" />
                         </Grid>
@@ -92,8 +93,8 @@
                             Margin="0,7,0,0">
                             <TextBlock.Text>
                                 <MultiBinding
-                                    FallbackValue="Space info not available"
-                                    StringFormat="{}{0} of {1} used">
+                                    FallbackValue="{loc:Resource Main_Sidebar_Storage_Info_StorageNotAvailable}"
+                                    StringFormat="{loc:Resource Main_Sidebar_Storage_Info_UsedSpaceFormat}">
                                     <Binding
                                         Path="User.UsedSpace"
                                         Converter="{x:Static converters:FileSizeToStringConverter.Instance}"
@@ -110,7 +111,7 @@
 
                 <Button
                     Grid.Row="2"
-                    Content="Get more storage"
+                    Content="{loc:Resource Main_Sidebar_Storage_Button_GetMoreStorage}"
                     Command="{Binding GetMoreStorageCommand}"
                     Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}"
                     Margin="0,10,0,0" />

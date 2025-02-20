@@ -13,4 +13,6 @@ public interface IKnownFolders
     Guid Desktop { get; }
 
     ILookup<string, Guid> IdsByPath { get; }
+
+    string? GetPath(Guid knownFolderGuid);
 }

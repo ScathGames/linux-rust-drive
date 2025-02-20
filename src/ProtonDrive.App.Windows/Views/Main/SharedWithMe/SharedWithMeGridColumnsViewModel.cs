@@ -4,17 +4,28 @@ namespace ProtonDrive.App.Windows.Views.Main.SharedWithMe;
 
 internal sealed class SharedWithMeGridColumnsViewModel
 {
-    private const string PermissionsColumnTooltip = "Permissions granted to you by the owner";
+    private static readonly string PermissionsColumnTooltip = Resources.Strings.Main_SharedWithMe_Column_Permissions_Tooltip;
 
     public GridColumnViewModel PermissionsColumn { get; } = new(
         name: nameof(SharedWithMeItemViewModel.IsReadOnly),
-        displayName: "Permissions",
+        displayName: Resources.Strings.Main_SharedWithMe_Column_Permissions,
         tooltip: PermissionsColumnTooltip);
 
-    public GridColumnViewModel NameColumn { get; } = new(name: nameof(SharedWithMeItemViewModel.Name), displayName: "Name");
-    public GridColumnViewModel SharedByColumn { get; } = new(name: nameof(SharedWithMeItemViewModel.InviterDisplayName), displayName: "Shared by");
-    public GridColumnViewModel SharedOnColumn { get; } = new(name: nameof(SharedWithMeItemViewModel.SharingLocalDateTime), displayName: "Shared on");
-    public GridColumnViewModel EnableSyncColumn { get; } = new(name: nameof(SharedWithMeItemViewModel.IsSyncEnabled), displayName: "Sync");
+    public GridColumnViewModel NameColumn { get; } = new(
+        name: nameof(SharedWithMeItemViewModel.Name),
+        displayName: Resources.Strings.Main_SharedWithMe_Column_Name);
+
+    public GridColumnViewModel SharedByColumn { get; } = new(
+        name: nameof(SharedWithMeItemViewModel.InviterDisplayName),
+        displayName: Resources.Strings.Main_SharedWithMe_Column_SharedBy);
+
+    public GridColumnViewModel SharedOnColumn { get; } = new(
+        name: nameof(SharedWithMeItemViewModel.SharingLocalDateTime),
+        displayName: Resources.Strings.Main_SharedWithMe_Column_SharedOn);
+
+    public GridColumnViewModel EnableSyncColumn { get; } = new(
+        name: nameof(SharedWithMeItemViewModel.IsSyncEnabled),
+        displayName: Resources.Strings.Main_SharedWithMe_Column_Sync);
 
     public void ClearSorting()
     {

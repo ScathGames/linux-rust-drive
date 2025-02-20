@@ -89,13 +89,13 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
 
     public NodeType NodeType => DataItem.NodeType;
 
-    public string FolderName => GetFolderName();
+    public string FolderName => GetFolderDisplayName();
 
     public string FolderPath => GetFolderPath();
 
     public long? Size => DataItem.Size;
 
-    public string ActivityTypeDisplayText => GetActivityTypeDisplayText();
+    public string? ActivityTypeDisplayText => GetActivityTypeDisplayText();
 
     public int LastSyncPassNumber { get; set; }
 
@@ -108,25 +108,13 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
     public FileSystemErrorCode? ErrorCode
     {
         get => _errorCode;
-        private set
-        {
-            if (SetProperty(ref _errorCode, value))
-            {
-                OnPropertyChanged();
-            }
-        }
+        private set => SetProperty(ref _errorCode, value);
     }
 
     public string? ErrorMessage
     {
         get => _errorMessage;
-        private set
-        {
-            if (SetProperty(ref _errorMessage, value))
-            {
-                OnPropertyChanged();
-            }
-        }
+        private set => SetProperty(ref _errorMessage, value);
     }
 
     internal SyncActivityItem<long> DataItem
@@ -144,14 +132,14 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
         OnPropertyChanged(nameof(SynchronizedAt));
     }
 
-    private static string GetResourceKeyPattern(SyncActivityItemStatus status)
+    private static string GetResourceKeyPattern(SyncActivityItemStatus status, Replica replica)
     {
         const string type = EnumToDisplayTextConverter.TypeNamePlaceholder;
         const string value = EnumToDisplayTextConverter.ValueNamePlaceholder;
 
         return (status != SyncActivityItemStatus.Succeeded)
-            ? $"Activity_InProgress_{type}_val_{value}"
-            : $"Activity_Succeeded_{type}_val_{value}";
+            ? $"Activity_{replica}_InProgress_{type}_Value_{value}"
+            : $"Activity_{replica}_Succeeded_{type}_Value_{value}";
     }
 
     private void OnDataItemUpdated(SyncActivityItem<long> value)
@@ -172,31 +160,15 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
         OnPropertyChanged(nameof(FolderPath));
     }
 
-    private string GetActivityTypeDisplayText()
+    private string? GetActivityTypeDisplayText()
     {
-        var activityType = DataItem.ActivityType;
-
-        var converted = EnumToDisplayTextConverter.Convert(
-            value: activityType,
+        var displayText = EnumToDisplayTextConverter.Convert(
+            value: DataItem.ActivityType,
             targetType: null,
-            parameter: GetResourceKeyPattern(Status),
+            parameter: GetResourceKeyPattern(Status, Replica),
             culture: null);
 
-        var activityText = converted as string ?? string.Empty;
-
-        activityText += activityType switch
-        {
-            SyncActivityType.Upload => " to Proton Drive",
-            SyncActivityType.Download => " from Proton Drive",
-            SyncActivityType.Create => Replica == Replica.Remote ? " on Proton Drive" : string.Empty,
-            SyncActivityType.Rename => Replica == Replica.Remote ? " on Proton Drive" : string.Empty,
-            SyncActivityType.Move => Replica == Replica.Remote ? " on Proton Drive" : string.Empty,
-            SyncActivityType.Delete => Replica == Replica.Remote ? " from Proton Drive" : string.Empty,
-            SyncActivityType.FetchUpdates => Replica == Replica.Remote ? " from Proton Drive" : string.Empty,
-            _ => string.Empty,
-        };
-
-        return activityText;
+        return displayText as string;
     }
 
     private bool CanOpenFolder()
@@ -211,7 +183,7 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
         await _localFolderService.OpenFolderAsync(folderPath).ConfigureAwait(true);
     }
 
-    private string GetFolderName()
+    private string GetFolderDisplayName()
     {
         var relativeFolderPath = _dataItem.RelativeParentFolderPath;
 
@@ -220,19 +192,8 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
             return Path.GetFileName(relativeFolderPath);
         }
 
-        // We are on the sync root folder, taking the name of it
-        var folderName = Path.GetFileName(_dataItem.LocalRootPath);
-
-        if (string.IsNullOrEmpty(folderName))
-        {
-            // The sync root is the root of the volume
-            var rootName = Path.GetPathRoot(_dataItem.LocalRootPath) ?? string.Empty;
-
-            // Stripping the ending path separator from the drive letter ("X:\")
-            return Path.EndsInDirectorySeparator(rootName) ? rootName[..^1] : rootName;
-        }
-
-        return folderName;
+        // We are on the sync root folder
+        return _fileSystemDisplayNameAndIconProvider.GetDisplayNameWithoutAccess(_dataItem.LocalRootPath) ?? string.Empty;
     }
 
     private string GetFolderPath()

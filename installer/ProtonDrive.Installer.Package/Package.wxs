@@ -35,7 +35,7 @@
 
     <Launch
       Condition="NOT ALLUSERS"
-      Message="Setting the ALLUSERS property is not allowed because [ProductName] is a per-user application. Setup will now exit." />
+      Message="!(loc.AllUsersPropertyError)" />
 
     <Property Id="WINDOWSBUILDNUMBER">
       <RegistrySearch Id="WindowsBuildNumberSearch" Root="HKLM" Key="SOFTWARE\Microsoft\Windows NT\CurrentVersion" Name="CurrentBuildNumber" Type="raw"/>
@@ -51,18 +51,18 @@
     <?if $(AppPlatform) ~= "x64" ?>
     <Launch
       Condition="WIX_NATIVE_MACHINE = 34404"
-      Message="This application requires Windows for x64 processors." />
+      Message="!(loc.RequiredX64WindowsError)" />
     <?endif ?>
 
     <?if $(AppPlatform) ~= "arm64" ?>
     <Launch
       Condition="WIX_NATIVE_MACHINE = 43620"
-      Message="This application requires Windows for Arm64 processors." />
+      Message="!(loc.RequiredArm64WindowsError)" />
     <?endif ?>
 
     <Launch
       Condition="Installed OR ((VersionNT64 >= 603) AND (WINDOWSBUILDNUMBER >= 17763))"
-      Message="This application requires a version of Windows equal to or newer than Windows 10 or Windows Server 2016 v1809." />
+      Message="!(loc.RequiredWindows10OrNewerError)" />
 
     <util:CloseApplication Target="ProtonDrive.exe" EndSessionMessage="yes" RebootPrompt="no" />
 

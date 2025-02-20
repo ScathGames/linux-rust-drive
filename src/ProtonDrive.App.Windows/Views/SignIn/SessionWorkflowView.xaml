@@ -6,6 +6,7 @@
     xmlns:controls="clr-namespace:ProtonDrive.App.Windows.Controls"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.SignIn"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
@@ -62,7 +63,7 @@
             VerticalAlignment="Top"
             Margin="0,30,0,0">
             <TextBlock
-                Text="Signing in to your account"
+                Text="{loc:Resource SignIn_Message_SigningIn}"
                 FontSize="20"
                 HorizontalAlignment="Center" />
 

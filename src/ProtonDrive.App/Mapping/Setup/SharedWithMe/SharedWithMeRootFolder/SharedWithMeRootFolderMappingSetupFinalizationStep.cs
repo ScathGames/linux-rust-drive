@@ -30,12 +30,10 @@ internal sealed class SharedWithMeRootFolderMappingSetupFinalizationStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!await TryAddOnDemandSyncRootAsync(mapping).ConfigureAwait(false))
+        if (await TryAddOnDemandSyncRootAsync(mapping).ConfigureAwait(false) is { } errorCode)
         {
-            return MappingErrorCode.LocalFileSystemAccessFailed;
+            return errorCode;
         }
-
-        cancellationToken.ThrowIfCancellationRequested();
 
         return MappingErrorCode.None;
     }
@@ -48,15 +46,8 @@ internal sealed class SharedWithMeRootFolderMappingSetupFinalizationStep
         return _syncFolderProtector.ProtectFolder(sharedWithMeRootFolderPath, FolderProtectionType.AncestorWithFiles);
     }
 
-    private Task<bool> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
+    private Task<MappingErrorCode?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        if (mapping.SyncMethod is not SyncMethod.OnDemand)
-        {
-            return Task.FromResult(true);
-        }
-
-        var root = new OnDemandSyncRootInfo(Path: mapping.Local.Path, RootId: mapping.Id.ToString(), ShellFolderVisibility.Visible);
-
-        return _onDemandSyncRootRegistry.TryRegisterAsync(root);
+        return _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping);
     }
 }

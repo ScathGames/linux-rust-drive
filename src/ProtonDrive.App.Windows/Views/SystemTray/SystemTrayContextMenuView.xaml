@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.SystemTray"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Style="{StaticResource DarkContextMenuStyle}"
@@ -16,13 +17,13 @@
 
     <MenuItem
         Command="{Binding ShowMainWindowCommand}"
-        Header="_Open Proton Drive"
+        Header="{loc:Resource SystemTray_Menu_Item_OpenProtonDrive}"
         Style="{StaticResource DarkMenuItemStyle}"
         Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}" />
 
     <MenuItem
         Command="{Binding SignInCommand}"
-        Header="_Sign-in"
+        Header="{loc:Resource SystemTray_Menu_Item_SignIn}"
         Style="{StaticResource DarkMenuItemStyle}"
         Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}" />
 
@@ -32,18 +33,18 @@
 
     <MenuItem
         Command="{Binding OpenDriveOnlineCommand}"
-        Header="Open in _browser"
+        Header="{loc:Resource SystemTray_Menu_Item_OpenInBrowser}"
         Style="{StaticResource DarkMenuItemStyle}" />
 
     <MenuItem
         x:Name="OpenLocalFolderItemMenu"
         Command="{Binding OpenAccountRootFolderCommand}"
-        Header="Open local _folder"
+        Header="{loc:Resource SystemTray_Menu_Item_OpenLocalFolder}"
         Style="{StaticResource DarkMenuItemStyle}"
         Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}" />
 
     <MenuItem
-        Header="_Pause the synchronization"
+        Header="{loc:Resource SystemTray_Menu_Item_PauseSync}"
         IsCheckable="True"
         IsChecked="{Binding SynchronizationPaused}"
         IsEnabled="{Binding ElementName=OpenLocalFolderItemMenu, Path=IsEnabled}"
@@ -56,6 +57,6 @@
 
     <MenuItem
         Command="{Binding ExitCommand}"
-        Header="E_xit"
+        Header="{loc:Resource SystemTray_Menu_Item_Exit}"
         Style="{StaticResource DarkMenuItemStyle}" />
 </ContextMenu>

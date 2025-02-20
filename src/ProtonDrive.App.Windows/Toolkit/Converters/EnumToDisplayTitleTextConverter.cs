@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
+using ProtonDrive.App.Windows.Resources;
 
 namespace ProtonDrive.App.Windows.Toolkit.Converters;
 
@@ -20,9 +21,9 @@ public sealed class EnumToDisplayTitleTextConverter : IValueConverter
 
         var sourceType = value.GetType();
         var valueName = Enum.GetName(sourceType, value) ?? string.Empty;
-        var key = $"{sourceType.Name}_ttl_{valueName}";
+        var key = $"{sourceType.Name}_Title_{valueName}";
 
-        return Resources.Strings.ResourceManager.GetString(key) ?? DependencyProperty.UnsetValue;
+        return Strings.ResourceManager.GetString(key, Strings.Culture) ?? DependencyProperty.UnsetValue;
     }
 
     public object ConvertBack(object? value, Type? targetType, object? parameter, CultureInfo? culture)

@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:onboarding="clr-namespace:ProtonDrive.App.Windows.Views.Onboarding"
     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
@@ -62,7 +63,7 @@
                             Margin="0,10,0,0" />
 
                         <Button
-                            Content="Upgrade"
+                            Content="{loc:Resource Onboarding_UpgradeStorage_Button_Upgrade}"
                             Command="{Binding UpgradeCommand}"
                             BorderBrush="White"
                             Style="{StaticResource Button.DarkTheme.Style}"
@@ -108,7 +109,7 @@
                                     Fill="{StaticResource Offer.DetailIcon.ColorBrush}"
                                     VerticalAlignment="Center" />
                                 <TextBlock
-                                    Text="VPN"
+                                    Text="{loc:Resource Onboarding_UpgradeStorage_Label_Vpn}"
                                     VerticalAlignment="Center"
                                     Margin="7,0,0,0" />
                             </StackPanel>
@@ -121,7 +122,7 @@
                                     Fill="{StaticResource Offer.DetailIcon.ColorBrush}"
                                     VerticalAlignment="Center" />
                                 <TextBlock
-                                    Text="Mail"
+                                    Text="{loc:Resource Onboarding_UpgradeStorage_Label_Mail}"
                                     VerticalAlignment="Center"
                                     Margin="7,0,0,0" />
                             </StackPanel>
@@ -136,7 +137,7 @@
                                     Fill="{StaticResource Offer.DetailIcon.ColorBrush}"
                                     VerticalAlignment="Center" />
                                 <TextBlock
-                                    Text="Calendar"
+                                    Text="{loc:Resource Onboarding_UpgradeStorage_Label_Calendar}"
                                     Margin="7,0,0,0" />
                             </StackPanel>
                         </Border>
@@ -148,7 +149,7 @@
                                     Fill="{StaticResource Offer.DetailIcon.ColorBrush}"
                                     VerticalAlignment="Center" />
                                 <TextBlock
-                                    Text="Password Manager"
+                                    Text="{loc:Resource Onboarding_UpgradeStorage_Label_PasswordManager}"
                                     VerticalAlignment="Center"
                                     Margin="7,0,0,0" />
                             </StackPanel>
@@ -171,7 +172,7 @@
                             Data="{StaticResource Icon.FilledStar}"
                             Fill="White" />
                         <TextBlock
-                            Text="Recommended"
+                            Text="{loc:Resource Onboarding_UpgradeStorage_Label_Recommended}"
                             Margin="12,0,0,0" />
                     </StackPanel>
                 </Border>
@@ -187,7 +188,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock
-            Text="Get more storage"
+            Text="{loc:Resource Onboarding_UpgradeStorage_Title}"
             Style="{StaticResource Heading1Style}" />
 
         <ItemsControl
@@ -218,7 +219,7 @@
         <Button
             AutomationProperties.AutomationId="SkipStorageOffersButton"
             Grid.Row="2"
-            Content="_Not now"
+            Content="{loc:Resource Onboarding_UpgradeStorage_Button_NotNow}"
             Command="{Binding SkipCommand}"
             Style="{StaticResource PrimaryButtonStyle}"
             HorizontalAlignment="Left"

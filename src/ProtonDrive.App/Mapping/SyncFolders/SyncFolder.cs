@@ -18,6 +18,7 @@ public sealed class SyncFolder
 
     public LinkType RootLinkType { get; }
     public SyncFolderType Type { get; }
+    public SyncMethod SyncMethod => GetSyncMethod();
     public string LocalPath { get; }
     public string? RemoteName => Mapping.Remote.RootItemName;
     public string? RemoteShareId => Mapping.Remote.ShareId;
@@ -53,5 +54,12 @@ public sealed class SyncFolder
         return Mapping.Type is MappingType.CloudFiles
             ? Mapping.TryGetAccountRootFolderPath(out var path) ? path : string.Empty
             : Mapping.Local.Path;
+    }
+
+    private SyncMethod GetSyncMethod()
+    {
+        return Mapping.SyncMethod is SyncMethod.OnDemand || Mapping.IsEnablingOnDemandSyncRequested()
+            ? SyncMethod.OnDemand
+            : Mapping.SyncMethod;
     }
 }

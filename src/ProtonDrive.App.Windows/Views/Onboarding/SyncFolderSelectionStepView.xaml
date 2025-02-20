@@ -8,6 +8,7 @@
     xmlns:controls="clr-namespace:ProtonDrive.App.Windows.Controls"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.Onboarding"
     xmlns:mapping="clr-namespace:ProtonDrive.App.Mapping;assembly=ProtonDrive.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -38,11 +39,11 @@
 
         <StackPanel>
             <TextBlock
-                Text="Back up your folders"
+                Text="{loc:Resource Onboarding_SyncFolderSelection_Title}"
                 Style="{StaticResource Heading1Style}" />
 
             <TextBlock
-                Text="Selected folders will sync to Proton Drive. The files will be backed up, and available on your other devices."
+                Text="{loc:Resource Onboarding_SyncFolderSelection_Label_Description}"
                 FontSize="14"
                 TextWrapping="Wrap"
                 Margin="0,15,0,0" />
@@ -93,9 +94,9 @@
 
         <Button
             AutomationProperties.AutomationId="AddMoreFoldersButton"
+            AutomationProperties.HelpText="{loc:Resource Onboarding_SyncFolderSelection_Button_AddMoreFolders_HelpText}"
             Grid.Row="2"
             Command="{Binding AddFoldersViewModel.SelectArbitraryFolderCommand}"
-            AutomationProperties.HelpText="Add another folder to synchronize"
             Background="Transparent"
             BorderBrush="{StaticResource Button.DarkTheme.Border}"
             BorderThickness="1"
@@ -108,7 +109,7 @@
                     Height="16"
                     VerticalAlignment="Center" />
                 <AccessText
-                    Text="_Add more folders"
+                    Text="{loc:Resource Onboarding_SyncFolderSelection_Button_AddMoreFolders}"
                     VerticalAlignment="Center"
                     Margin="10,0,0,0" />
             </StackPanel>
@@ -155,7 +156,7 @@
             <Button
                 x:Name="ContinueButton"
                 AutomationProperties.AutomationId="OnboardingFolderSelectionContinueButton"
-                Content="_Continue"
+                Content="{loc:Resource Onboarding_Button_Continue}"
                 Command="{Binding ContinueCommand}"
                 IsDefault="True"
                 Style="{StaticResource PrimaryButtonStyle}"

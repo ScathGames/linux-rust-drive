@@ -67,9 +67,9 @@ internal sealed class DeviceService : IDeviceService, IStartableService, IStoppa
         return Schedule(InternalSetUpDevicesAsync);
     }
 
-    public Task<Device?> SetUpHostDeviceAsync(CancellationToken cancellationToken)
+    public Task<DeviceSetupResult> SetUpHostDeviceAsync(CancellationToken cancellationToken)
     {
-        return Schedule(InternalSetUpHostDeviceAsync, cancellationToken);
+        return Schedule(InternalSetUpHostDeviceAsync, DeviceSetupResult.Failure, cancellationToken);
     }
 
     public Task RenameHostDeviceAsync(string name)
@@ -214,24 +214,24 @@ internal sealed class DeviceService : IDeviceService, IStartableService, IStoppa
         }
     }
 
-    private async Task<Device?> InternalSetUpHostDeviceAsync(CancellationToken cancellationToken)
+    private async Task<DeviceSetupResult> InternalSetUpHostDeviceAsync(CancellationToken cancellationToken)
     {
         if (TryGetRemoteHostDevice(out var hostDevice))
         {
-            return hostDevice;
+            return new DeviceSetupResult(hostDevice);
         }
 
         if (_status is not DeviceServiceStatus.Succeeded)
         {
             _logger.LogWarning("Device service status is {Status}", _status);
-            return null;
+            return DeviceSetupResult.Failure;
         }
 
         var volumeState = _volumeState;
         if (volumeState.Status is not VolumeServiceStatus.Succeeded || volumeState.Volume is null)
         {
             _logger.LogWarning("Remote volume is not available");
-            return null;
+            return DeviceSetupResult.Failure;
         }
 
         var name = GetDeviceName();
@@ -241,15 +241,23 @@ internal sealed class DeviceService : IDeviceService, IStartableService, IStoppa
         {
             var clientDevice = await _deviceClient.CreateAsync(volumeState.Volume.Id, name, cancellationToken).ConfigureAwait(false);
 
-            _logger.LogInformation("Created remote device \"{Name}\" with ID={DeviceId}, Share ID={ShareId}, Link ID={LinkId}", nameToLog, clientDevice.Id, clientDevice.ShareId, clientDevice.LinkId);
+            _logger.LogInformation(
+                "Created remote device \"{Name}\" with ID={DeviceId}, Share ID={ShareId}, Link ID={LinkId}",
+                nameToLog,
+                clientDevice.Id,
+                clientDevice.ShareId,
+                clientDevice.LinkId);
 
-            return AddOrUpdateDevice(clientDevice, DeviceType.Host);
+            var device = AddOrUpdateDevice(clientDevice, DeviceType.Host);
+            return new DeviceSetupResult(device);
         }
         catch (Exception ex) when (ex.IsDriveClientException())
         {
             _logger.LogError("Failed to create remote device \"{Name}\": {ErrorMessage}", nameToLog, ex.CombinedMessage());
 
-            return null;
+            return ex is ApiException apiException
+                ? new DeviceSetupResult(null, ErrorCode: apiException.ResponseCode)
+                : DeviceSetupResult.Failure;
         }
     }
 
@@ -439,11 +447,11 @@ internal sealed class DeviceService : IDeviceService, IStartableService, IStoppa
 
     [DebuggerHidden]
     [DebuggerStepThrough]
-    private async Task<TResult?> Schedule<TResult>(Func<CancellationToken, Task<TResult>> function, CancellationToken cancellationToken)
+    private async Task<TResult> Schedule<TResult>(Func<CancellationToken, Task<TResult>> function, TResult defaultResult, CancellationToken cancellationToken)
     {
         if (_stopping)
         {
-            return default;
+            return defaultResult;
         }
 
         return await _scheduler.Schedule(() => function(cancellationToken), cancellationToken).ConfigureAwait(false);

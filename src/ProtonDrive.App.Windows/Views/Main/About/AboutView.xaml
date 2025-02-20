@@ -6,6 +6,7 @@
     xmlns:controls="clr-namespace:ProtonDrive.App.Windows.Controls"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.Main.About"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -56,7 +57,7 @@
                             Padding="3,0"
                             Margin="7,0,0,0">
                             <TextBlock
-                                Text="NEW"
+                                Text="{loc:Resource Main_About_ReleaseHistory_Label_New}"
                                 Foreground="{StaticResource PendingBrush}" />
                         </Border>
                     </StackPanel>
@@ -84,7 +85,7 @@
 
         <TextBlock
             Grid.Row="0"
-            Text="About"
+            Text="{loc:Resource Main_About_Title}"
             Style="{StaticResource Heading1Style}" />
 
         <Grid Grid.Row="1">
@@ -113,7 +114,7 @@
                         Grid.Row="0"
                         Orientation="Horizontal">
                         <TextBlock
-                            Text="Current version"
+                            Text="{loc:Resource Main_About_Label_CurrentVersion}"
                             Foreground="{StaticResource GrayBrush}" />
 
                         <TextBlock
@@ -127,7 +128,7 @@
                         Orientation="Horizontal"
                         Margin="0,20,0,0">
                         <TextBlock
-                            Text="Release date"
+                            Text="{loc:Resource Main_About_Label_ReleaseDate}"
                             Foreground="{StaticResource GrayBrush}" />
 
                         <TextBlock
@@ -142,7 +143,7 @@
                         Margin="0,20,0,0">
                         <TextBlock
                             AutomationProperties.AutomationId="UpToDateTextBlock"
-                            Text="Up to date"
+                            Text="{loc:Resource Main_About_AppUpdateStatus_Value_UpToDate}"
                             Foreground="{StaticResource GrayBrush}"
                             VerticalAlignment="Center" />
 
@@ -165,7 +166,7 @@
                             Height="16" />
 
                         <TextBlock
-                            Text="Checking for update..."
+                            Text="{loc:Resource Main_About_AppUpdateStatus_Value_CheckingForUpdate}"
                             VerticalAlignment="Center"
                             Margin="7,0,0,0" />
                     </StackPanel>
@@ -181,7 +182,7 @@
                             Height="16" />
 
                         <TextBlock
-                            Text="Downloading an update..."
+                            Text="{loc:Resource Main_About_AppUpdateStatus_Value_DownloadingAnUpdate}"
                             VerticalAlignment="Center"
                             Margin="7,0,0,0" />
                     </StackPanel>
@@ -193,7 +194,7 @@
                         Margin="0,15,0,0">
                         <TextBlock
                             AutomationProperties.AutomationId="UpdatesAvailableTextBlock"
-                            Text="Updates available"
+                            Text="{loc:Resource Main_About_AppUpdateStatus_Value_UpdatesAvailable}"
                             Foreground="{StaticResource GrayBrush}"
                             VerticalAlignment="Center" />
 
@@ -206,8 +207,8 @@
 
                         <Button
                             AutomationProperties.AutomationId="UpdateNowButton"
-                            AutomationProperties.HelpText="A new version of Proton Drive is available, please update it now."
-                            Content="_Update now"
+                            AutomationProperties.HelpText="{loc:Resource Main_About_Button_UpdateNow_HelpText}"
+                            Content="{loc:Resource Main_About_Button_UpdateNow}"
                             Command="{Binding UpdateCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             VerticalAlignment="Center"
@@ -226,7 +227,7 @@
                             VerticalAlignment="Center" />
 
                         <TextBlock
-                            Text="Failed to check for update"
+                            Text="{loc:Resource Main_About_AppUpdateStatus_Value_UpdateCheckFailed}"
                             FontWeight="SemiBold"
                             Margin="7,0,0,0" />
                     </StackPanel>
@@ -236,13 +237,13 @@
                         Orientation="Horizontal"
                         Margin="0,20,0,0">
                         <Button
-                            Content="_Terms of service"
+                            Content="{loc:Resource Main_About_Button_TermsOfService}"
                             Command="{Binding OpenTermsAndConditionsCommand}"
                             Style="{StaticResource HyperlinkButtonStyle}"
                             VerticalAlignment="Center" />
 
                         <Button
-                            Content="_Privacy policy"
+                            Content="{loc:Resource Main_About_Button_PrivacyPolicy}"
                             Command="{Binding OpenPrivacyPolicyCommand}"
                             Style="{StaticResource HyperlinkButtonStyle}"
                             VerticalAlignment="Center"
@@ -259,7 +260,7 @@
 
             <TextBlock
                 Grid.Row="2"
-                Text="What's new"
+                Text="{loc:Resource Main_About_ReleaseHistory_Title}"
                 Style="{StaticResource Heading2Style}"
                 Margin="0,25,0,0" />
 

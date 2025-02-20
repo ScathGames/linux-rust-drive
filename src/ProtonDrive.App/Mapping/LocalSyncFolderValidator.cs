@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.Shared.Extensions;
+using ProtonDrive.Shared.IO;
 
 namespace ProtonDrive.App.Mapping;
 
@@ -25,17 +26,17 @@ internal sealed class LocalSyncFolderValidator : ILocalSyncFolderValidator
 
     public SyncFolderValidationResult ValidatePath(string path, IReadOnlySet<string> otherPaths)
     {
-        path = EnsureTrailingSeparator(path);
+        path = PathComparison.EnsureTrailingSeparator(path);
 
         if (_nonSyncablePathProvider.Paths
-            .Select(EnsureTrailingSeparator)
+            .Select(PathComparison.EnsureTrailingSeparator)
             .Any(prohibitedPath => path.StartsWith(prohibitedPath, StringComparison.OrdinalIgnoreCase) ||
                                    prohibitedPath.StartsWith(path, StringComparison.OrdinalIgnoreCase)))
         {
             return SyncFolderValidationResult.NonSyncableFolder;
         }
 
-        foreach (var otherPath in otherPaths.Select(EnsureTrailingSeparator))
+        foreach (var otherPath in otherPaths.Select(PathComparison.EnsureTrailingSeparator))
         {
             if (path.StartsWith(otherPath, StringComparison.OrdinalIgnoreCase))
             {
@@ -90,16 +91,11 @@ internal sealed class LocalSyncFolderValidator : ILocalSyncFolderValidator
         }
     }
 
-    private static string EnsureTrailingSeparator(string path)
-    {
-        return !Path.EndsInDirectorySeparator(path) ? path + Path.DirectorySeparatorChar : path;
-    }
-
     private SyncFolderValidationResult ValidateDrive(string path)
     {
-        var drive = _localVolumeInfoProvider.GetDriveType(path);
+        var driveType = _localVolumeInfoProvider.GetDriveType(path);
 
-        return drive switch
+        return driveType switch
         {
             DriveType.Fixed => SyncFolderValidationResult.Succeeded,
             DriveType.Network => SyncFolderValidationResult.NetworkFolderNotSupported,

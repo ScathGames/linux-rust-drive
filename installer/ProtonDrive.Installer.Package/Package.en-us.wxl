@@ -1,8 +1,9 @@
-﻿<!--
-This file contains the declaration of all the localizable strings.
--->
-<WixLocalization xmlns="http://wixtoolset.org/schemas/v4/wxl" Culture="en-US">
+﻿<WixLocalization xmlns="http://wixtoolset.org/schemas/v4/wxl" Culture="en-US">
 
   <String Id="DowngradeError" Value="A newer version of [ProductName] is already installed." />
+  <String Id="AllUsersPropertyError" Value="Setting the ALLUSERS property is not allowed because [ProductName] is a per-user application. Setup will now exit." />
+  <String Id="RequiredX64WindowsError" Value="This application requires Windows for x64 processors." />
+  <String Id="RequiredArm64WindowsError" Value="This application requires Windows for Arm64 processors." />
+  <String Id="RequiredWindows10OrNewerError" Value="This application requires a version of Windows equal to or newer than Windows 10 or Windows Server 2016 v1809." />
 
 </WixLocalization>

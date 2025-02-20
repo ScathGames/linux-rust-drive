@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -6,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -25,6 +26,7 @@ using ProtonDrive.App.Windows.Views.Main;
 using ProtonDrive.App.Windows.Views.SystemTray;
 using ProtonDrive.Shared;
 using ProtonDrive.Shared.Configuration;
+using ProtonDrive.Shared.Localization;
 using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Sync.Windows.FileSystem;
 
@@ -36,6 +38,7 @@ public static class Program
     private static AppCrashMode _appCrashMode;
     private static bool _uninstall;
     private static string? _documentPath;
+    private static bool _isAppRestartRequested;
 
     [STAThread]
     public static void Main(string[] args)
@@ -68,6 +71,10 @@ public static class Program
                 AppActivator.ActivateExistingProcessWindow();
             }
         }
+        else
+        {
+            RestartAppIfRequested();
+        }
     }
 
     private static void ParseArguments(
@@ -93,6 +100,7 @@ public static class Program
     private static void RunApplication()
     {
         using var host = CreateHost();
+
         var updateService = host.Services.GetRequiredService<IUpdateService>();
 
         // Using synchronous call to stay on STA thread.
@@ -100,6 +108,15 @@ public static class Program
         if (TryInstallDownloadedUpdateAsync(updateService).GetAwaiter().GetResult())
         {
             return;
+        }
+
+        var currentLocale = Thread.CurrentThread.CurrentUICulture.Name;
+        var languageProvider = host.Services.GetRequiredService<ILanguageProvider>();
+        var culture = languageProvider.GetCulture();
+
+        if (!currentLocale.Equals(culture, StringComparison.OrdinalIgnoreCase))
+        {
+            Resources.Strings.Culture = new CultureInfo(culture);
         }
 
         var app = host.Services.GetRequiredService<App>();
@@ -115,6 +132,8 @@ public static class Program
         ShowSystemTrayControl(app.MainWindow, systemTrayControl);
 
         app.Run();
+
+        _isAppRestartRequested = app.IsRestartRequested;
     }
 
     private static void AddAppEventHandlers(Application app, IHost host)
@@ -200,8 +219,6 @@ public static class Program
             .AddServices()
             .Build();
 
-        Ioc.Default.ConfigureServices(host.Services);
-
         return host;
     }
 
@@ -235,6 +252,23 @@ public static class Program
     private static Task<bool> TryInstallDownloadedUpdateAsync(IUpdateService updateService)
     {
         return updateService.TryInstallDownloadedUpdateAsync();
+    }
+
+    private static void RestartAppIfRequested()
+    {
+        if (!_isAppRestartRequested)
+        {
+            return;
+        }
+
+        var exePath = Process.GetCurrentProcess().MainModule?.FileName;
+
+        if (string.IsNullOrEmpty(exePath))
+        {
+            return;
+        }
+
+        Process.Start(exePath);
     }
 
     private static void OnUninstallingApp()

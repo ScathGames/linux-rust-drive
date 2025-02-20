@@ -70,8 +70,6 @@ public static class AppServices
 
     public static IServiceCollection AddAppServices(this IServiceCollection services)
     {
-        const string cultureName = "en-US";
-
         return services
                 .AddHostedService<HostedApp>()
                 .AddSingleton<SentryOptionsProvider>()
@@ -94,7 +92,7 @@ public static class AppServices
                         throw new InvalidOperationException("Failed to obtain app feature configuration"))
 
                 .AddSingleton(GetDriveApiConfig)
-                .AddApiClients(cultureName)
+                .AddApiClients()
                 .AddFileSystemClient()
 
                 .AddSingleton<TooManyRequestsBlockedEndpoints>()
@@ -155,8 +153,10 @@ public static class AppServices
                         new ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>(
                             provider.GetRequiredService<IRepositoryFactory>()
                                 .GetCachingRepository<NotificationSettings>("NotificationSettings.json")))
-                .AddSingleton<IRepository<NotificationSettings>>(provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>>())
-                .AddSingleton<IAccountSwitchingHandler>(provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>>())
+                .AddSingleton<IRepository<NotificationSettings>>(
+                    provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>>())
+                .AddSingleton<IAccountSwitchingHandler>(
+                    provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<NotificationSettings>>())
 
                 .AddSingleton(
                     provider => provider.GetRequiredService<IRepositoryFactory>()
@@ -237,6 +237,7 @@ public static class AppServices
                 .AddSingleton<CloudFilesMappingSetupFinalizationStep>()
                 .AddSingleton<HostDeviceFolderMappingFolderValidationStep>()
                 .AddSingleton<HostDeviceFolderMappingFoldersSetupStep>()
+                .AddSingleton<HostDeviceFolderMappingSetupFinalizationStep>()
                 .AddSingleton<ForeignDeviceMappingFolderValidationStep>()
                 .AddSingleton<ForeignDeviceMappingFoldersSetupStep>()
                 .AddSingleton<ForeignDeviceMappingSetupFinalizationStep>()
@@ -245,8 +246,10 @@ public static class AppServices
                 .AddSingleton<SharedWithMeItemMappingValidationStep>()
                 .AddSingleton<SharedWithMeItemMappingSetupStep>()
                 .AddSingleton<SharedWithMeItemMappingSetupFinalizationStep>()
+
                 .AddSingleton<ILocalFolderValidationStep, LocalFolderValidationStep>()
                 .AddSingleton<ILocalSyncFolderValidator, LocalSyncFolderValidator>()
+                .AddSingleton<OnDemandSyncEligibilityValidator>()
                 .AddSingleton<IRemoteFolderValidationStep, RemoteFolderValidationStep>()
                 .AddSingleton<IRemoteSharedWithMeItemValidationStep, RemoteSharedWithMeItemValidationStep>()
 
@@ -309,6 +312,10 @@ public static class AppServices
                 .AddSingleton<IRemoteIdsFromLocalPathProvider>(provider => provider.GetRequiredService<RemoteIdsFromLocalPathProvider>())
                 .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<RemoteIdsFromLocalPathProvider>())
 
+                .AddSingleton<RemoteIdsFromNodeIdProvider>()
+                .AddSingleton<IRemoteIdsFromNodeIdProvider>(provider => provider.GetRequiredService<RemoteIdsFromNodeIdProvider>())
+                .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<RemoteIdsFromNodeIdProvider>())
+
                 .AddSingleton<ResilientSetup>()
                 .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<ResilientSetup>())
                 .AddSingleton<IRemoteSettingsStateAware>(provider => provider.GetRequiredService<ResilientSetup>())
@@ -359,21 +366,17 @@ public static class AppServices
                 .AddSingleton<IRemoteSettingsAware>(provider => provider.GetRequiredService<TelemetryService>())
                 .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<TelemetryService>())
 
-                .AddSingleton<IReadOnlyDictionary<AttemptRetryShareType, AttemptRetryMonitor<long>>>(
-                    _ =>
-                    {
-                        var attemptRetryMonitors = new Dictionary<AttemptRetryShareType, AttemptRetryMonitor<long>>()
-                        {
-                            { AttemptRetryShareType.Main, new AttemptRetryMonitor<long>() },
-                            { AttemptRetryShareType.Device, new AttemptRetryMonitor<long>() },
-                            { AttemptRetryShareType.Standard, new AttemptRetryMonitor<long>() },
-                        };
-                        return attemptRetryMonitors.AsReadOnly();
-                    })
+                .AddSingleton<AttemptRetryMonitors>()
+
                 .AddSingleton<UploadSuccessMeter>()
                 .AddSingleton<ISyncActivityAware>(provider => provider.GetRequiredService<UploadSuccessMeter>())
                 .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<UploadSuccessMeter>())
-                .AddSingleton<GenericUploadMetricsFactory>()
+
+                .AddSingleton<DownloadSuccessMeter>()
+                .AddSingleton<ISyncActivityAware>(provider => provider.GetRequiredService<DownloadSuccessMeter>())
+                .AddSingleton<IMappingsAware>(provider => provider.GetRequiredService<DownloadSuccessMeter>())
+
+                .AddSingleton<GenericFileTransferMetricsFactory>()
 
                 .AddSingleton<ObservabilityService>()
                 .AddSingleton<IRemoteSettingsAware>(provider => provider.GetRequiredService<ObservabilityService>())
@@ -443,27 +446,15 @@ public static class AppServices
 
     private static IServiceCollection AddAppUpdateConfig(this IServiceCollection services)
     {
-        services.AddHttpClient(CheckForUpdateHttpClientName, ConfigureClient)
-            .ConfigureHttpMessageHandlerBuilder(
-                (httpClientHandler, serviceProvider) =>
-                {
-                    httpClientHandler
-                        .AddAutomaticDecompression()
-                        .ConfigureCookies(serviceProvider)
-                        .AddTlsPinning(CheckForUpdateHttpClientName, serviceProvider);
-                })
+        services
+            .AddHttpClient(CheckForUpdateHttpClientName, ConfigureClient)
+            .ApplyHttpClientPrimaryHandler(CheckForUpdateHttpClientName)
             .AddPolicyHandler(GetRetryPolicy)
             .AddTimeoutHandler(provider => provider.GetRequiredService<UpdateConfig>().Timeout);
 
-        services.AddHttpClient(DownloadUpdateHttpClientName, ConfigureClient)
-            .ConfigureHttpMessageHandlerBuilder(
-                (httpClientHandler, serviceProvider) =>
-                {
-                    httpClientHandler
-                    .AddAutomaticDecompression()
-                        .ConfigureCookies(serviceProvider)
-                        .AddTlsPinning(DownloadUpdateHttpClientName, serviceProvider);
-                })
+        services
+            .AddHttpClient(DownloadUpdateHttpClientName, ConfigureClient)
+            .ApplyHttpClientPrimaryHandler(DownloadUpdateHttpClientName)
             .AddPolicyHandler(GetRetryPolicy)
             .AddTimeoutHandler(provider => provider.GetRequiredService<UpdateConfig>().Timeout);
 
@@ -511,11 +502,10 @@ public static class AppServices
     private static DriveApiConfig GetDriveApiConfig(IServiceProvider provider)
     {
         var appConfig = provider.GetRequiredService<AppConfig>();
-        var config = provider.GetRequiredService<IConfiguration>().GetSection("DriveApi").Get<DriveApiConfig>(options => options.BindNonPublicProperties = true);
-        if (config == null)
-        {
-            throw new InvalidOperationException($"Cannot instantiate {nameof(DriveApiConfig)} from the configuration");
-        }
+        var config = provider.GetRequiredService<IConfiguration>()
+                .GetSection("DriveApi")
+                .Get<DriveApiConfig>(options => options.BindNonPublicProperties = true)
+            ?? throw new InvalidOperationException($"Cannot instantiate {nameof(DriveApiConfig)} from the configuration");
 
         config.ClientVersion = config.ClientVersion!
             .Replace("{AppVersion}", appConfig.AppVersion.ToString());

@@ -45,7 +45,9 @@ internal sealed class RemoteIdsFromLocalPathProvider : IRemoteIdsFromLocalPathPr
         }
 
         var localVolumeId = mapping.Local.InternalVolumeId;
-        var remoteId = await _mappedFileSystemIdentityProvider.GetRemoteIdFromLocalIdOrDefaultAsync((localVolumeId, localFileId), cancellationToken).ConfigureAwait(false);
+        var remoteId = await _mappedFileSystemIdentityProvider
+            .GetRemoteIdFromLocalIdOrDefaultAsync((localVolumeId, localFileId), cancellationToken)
+            .ConfigureAwait(false);
 
         return remoteId?.ItemId is not null ? new RemoteIds(mapping.Remote.VolumeId, mapping.Remote.ShareId, LinkId: remoteId.Value.ItemId) : null;
     }

@@ -5,4 +5,5 @@ public enum Feature
     DriveWindowsForceMigrationToVolumeEvents,
     DriveSharingDisabled,
     DriveSharingEditingDisabled,
+    DriveWindowsRemoteNodeRenamingDisabled,
 }

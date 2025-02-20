@@ -32,4 +32,9 @@ public static class PathComparison
 
         return startIndex > 0 && startIndex < potentialDescendant.Length;
     }
+
+    public static string EnsureTrailingSeparator(string path)
+    {
+        return Path.EndsInDirectorySeparator(path) ? path : path + Path.DirectorySeparatorChar;
+    }
 }

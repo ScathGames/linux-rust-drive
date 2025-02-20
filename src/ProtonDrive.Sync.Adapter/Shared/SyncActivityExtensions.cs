@@ -37,6 +37,7 @@ public static class SyncActivityExtensions
         {
             Source = SyncActivitySource.OnDemandFileHydration,
             Id = node.Id,
+            RootId = nodeInfo.Root?.Id,
             ActivityType = SyncActivityType.Download,
             NodeType = NodeType.File,
             Name = nodeInfo.Name,

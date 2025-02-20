@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,6 +16,7 @@ using ProtonDrive.App.Windows.Extensions;
 using ProtonDrive.App.Windows.Services;
 using ProtonDrive.App.Windows.SystemIntegration;
 using ProtonDrive.App.Windows.Toolkit.Threading;
+using ProtonDrive.Shared.Configuration;
 
 namespace ProtonDrive.App.Windows.Views.Main.Computers;
 
@@ -25,7 +27,9 @@ internal sealed class SyncedDevicesViewModel : PageViewModel, IDeviceServiceStat
     private readonly ISyncFolderService _syncFolderService;
     private readonly ILocalFolderService _localFolderService;
     private readonly IDialogService _dialogService;
+    private readonly FeatureFlags _featureFlags;
     private readonly Func<AddFoldersViewModel> _addFolderViewModelFactory;
+    private readonly Func<RemoveSyncFolderConfirmationViewModel> _removeFolderConfirmationViewModelFactory;
     private readonly DispatcherScheduler _scheduler;
     private readonly RelayCommand _editDeviceNameCommand;
 
@@ -41,7 +45,9 @@ internal sealed class SyncedDevicesViewModel : PageViewModel, IDeviceServiceStat
         ISyncFolderService syncFolderService,
         ILocalFolderService localFolderService,
         IDialogService dialogService,
+        FeatureFlags featureFlags,
         Func<AddFoldersViewModel> addFolderViewModelFactory,
+        Func<RemoveSyncFolderConfirmationViewModel> removeFolderConfirmationViewModelFactory,
         DispatcherScheduler scheduler)
     {
         _deviceService = deviceService;
@@ -49,7 +55,9 @@ internal sealed class SyncedDevicesViewModel : PageViewModel, IDeviceServiceStat
         _syncFolderService = syncFolderService;
         _localFolderService = localFolderService;
         _dialogService = dialogService;
+        _featureFlags = featureFlags;
         _addFolderViewModelFactory = addFolderViewModelFactory;
+        _removeFolderConfirmationViewModelFactory = removeFolderConfirmationViewModelFactory;
         _scheduler = scheduler;
 
         AddFoldersCommand = new RelayCommand(AddFolders);
@@ -140,41 +148,46 @@ internal sealed class SyncedDevicesViewModel : PageViewModel, IDeviceServiceStat
             return;
         }
 
-        switch (changeType)
+        Schedule(HandleSyncFolderChange);
+
+        return;
+
+        void HandleSyncFolderChange()
         {
-            case SyncFolderChangeType.Added:
+            switch (changeType)
+            {
+                case SyncFolderChangeType.Added:
 
-                if (!_fileSystemDisplayNameAndIconProvider.TryGetDisplayNameAndIcon(folder.LocalPath, ShellIconSize.Small, out var name, out var icon))
-                {
-                    name = Path.GetFileName(folder.LocalPath);
-                    icon = _fileSystemDisplayNameAndIconProvider.GetFolderIconWithoutAccess(folder.LocalPath, ShellIconSize.Small);
-                }
-
-                Schedule(() => SyncedFolders.Add(new SyncedFolderViewModel(folder, name, icon, _localFolderService, _dialogService, RemoveSyncFolderAsync)));
-                break;
-
-            case SyncFolderChangeType.Updated:
-                Schedule(
-                    () =>
+                    if (!_fileSystemDisplayNameAndIconProvider.TryGetDisplayNameAndIcon(folder.LocalPath, ShellIconSize.Small, out var name, out var icon))
                     {
-                        var syncedFolderToUpdate = SyncedFolders.FirstOrDefault(syncedFolder => syncedFolder.Equals(folder));
+                        name = Path.GetFileName(folder.LocalPath);
+                        icon = _fileSystemDisplayNameAndIconProvider.GetFolderIconWithoutAccess(folder.LocalPath, ShellIconSize.Small);
+                    }
 
-                        if (syncedFolderToUpdate is null)
-                        {
-                            return;
-                        }
+                    SyncedFolders.Add(
+                        new SyncedFolderViewModel(
+                            folder,
+                            name,
+                            icon,
+                            _localFolderService,
+                            _dialogService,
+                            _featureFlags,
+                            _removeFolderConfirmationViewModelFactory,
+                            RemoveSyncFolderAsync,
+                            EnableOnDemandSyncAsync));
+                    break;
 
-                        syncedFolderToUpdate.ErrorCode = folder.ErrorCode;
-                        syncedFolderToUpdate.Status = folder.Status;
-                    });
-                break;
+                case SyncFolderChangeType.Updated:
+                    SyncedFolders.FirstOrDefault(syncedFolder => syncedFolder.Equals(folder))?.Update();
+                    break;
 
-            case SyncFolderChangeType.Removed:
-                Schedule(() => SyncedFolders.RemoveFirst(syncedFolder => syncedFolder.Equals(folder)));
-                break;
+                case SyncFolderChangeType.Removed:
+                    SyncedFolders.RemoveFirst(syncedFolder => syncedFolder.Equals(folder));
+                    break;
 
-            default:
-                throw new ArgumentOutOfRangeException(nameof(changeType), changeType, null);
+                default:
+                    throw new InvalidEnumArgumentException(nameof(changeType), (int)changeType, typeof(SyncFolderChangeType));
+            }
         }
     }
 
@@ -186,6 +199,8 @@ internal sealed class SyncedDevicesViewModel : PageViewModel, IDeviceServiceStat
         }
 
         Schedule(UpdateMappingStatus);
+
+        return;
 
         void UpdateMappingStatus()
         {
@@ -286,6 +301,11 @@ internal sealed class SyncedDevicesViewModel : PageViewModel, IDeviceServiceStat
     private async Task RemoveSyncFolderAsync(SyncFolder syncFolder, CancellationToken cancellationToken)
     {
         await _syncFolderService.RemoveHostDeviceFolderAsync(syncFolder, cancellationToken).ConfigureAwait(true);
+    }
+
+    private async Task EnableOnDemandSyncAsync(SyncFolder syncFolder, CancellationToken cancellationToken)
+    {
+        await _syncFolderService.EnableOnDemandSyncAsync(syncFolder, cancellationToken).ConfigureAwait(true);
     }
 
     private void Schedule(Action action)

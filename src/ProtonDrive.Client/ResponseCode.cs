@@ -61,6 +61,7 @@ public enum ResponseCode
 
     InsufficientQuota = 200001,
     InsufficientSpace = 200002,
+    InsufficientDeviceQuota = 200101,
 
     /// <summary>
     /// Max allowed number of folder children is reached. Adding new children is not allowed.

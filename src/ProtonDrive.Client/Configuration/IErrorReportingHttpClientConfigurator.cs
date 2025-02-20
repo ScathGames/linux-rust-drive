@@ -4,7 +4,7 @@ namespace ProtonDrive.Client.Configuration;
 
 public interface IErrorReportingHttpClientConfigurator
 {
-    HttpClientHandler CreateHttpMessageHandler();
+    HttpMessageHandler CreateHttpMessageHandler();
 
     void ConfigureHttpClient(HttpClient httpClient);
 }

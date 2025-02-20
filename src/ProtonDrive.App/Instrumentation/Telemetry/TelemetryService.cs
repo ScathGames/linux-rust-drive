@@ -84,13 +84,13 @@ internal sealed class TelemetryService : IRemoteSettingsAware, IUserStateAware
 
     private async Task ReportFirstLaunchAsync()
     {
-        const string registryPath = @"Software\Proton\Drive";
+        const string protonDriveRegistryKeyName = @"Software\Proton\Drive";
         const string sourceRegistryValueName = "InstallationInitiator";
         const string reportRegistryValueName = "FirstLaunch";
 
         try
         {
-            using RegistryKey? registryKey = Registry.CurrentUser.OpenSubKey(registryPath, writable: true);
+            using RegistryKey? registryKey = Registry.CurrentUser.OpenSubKey(protonDriveRegistryKeyName, writable: true);
 
             if (registryKey is null)
             {

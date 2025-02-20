@@ -8,6 +8,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ProtonDrive.App.Windows.Interop;
+using ProtonDrive.Shared;
 
 namespace ProtonDrive.App.Windows.SystemIntegration;
 
@@ -21,8 +22,8 @@ internal sealed class Win32FileSystemDisplayNameAndIconProvider : IFileSystemDis
 
         if (!result.HasValue)
         {
-            displayName = default;
-            icon = default;
+            displayName = null;
+            icon = null;
             return false;
         }
 
@@ -64,6 +65,27 @@ internal sealed class Win32FileSystemDisplayNameAndIconProvider : IFileSystemDis
             iconSize)?.Icon;
     }
 
+    public string? GetDisplayNameWithoutAccess(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+        {
+            return null;
+        }
+
+        var displayName = Path.GetFileName(path);
+
+        if (!string.IsNullOrEmpty(displayName))
+        {
+            return displayName;
+        }
+
+        // The path is the root of the volume
+        var rootName = Path.GetPathRoot(path) ?? string.Empty;
+
+        // Stripping the ending path separator from the drive letter ("X:\")
+        return Path.EndsInDirectorySeparator(rootName) ? rootName[..^1] : rootName;
+    }
+
     private static Shell32.SHGFI GetIconSizeFlags(ShellIconSize iconSize)
     {
         return iconSize switch
@@ -89,7 +111,7 @@ internal sealed class Win32FileSystemDisplayNameAndIconProvider : IFileSystemDis
 
         if (systemImageListHandle == IntPtr.Zero)
         {
-            return default;
+            return null;
         }
 
         var icon = GetOrAddIcon(iconSize, info.iIcon, systemImageListHandle);
@@ -112,7 +134,7 @@ internal sealed class Win32FileSystemDisplayNameAndIconProvider : IFileSystemDis
 
         if (systemImageListHandle == IntPtr.Zero)
         {
-            return default;
+            return null;
         }
 
         var icon = GetOrAddIcon(iconSize, info.iIcon, systemImageListHandle);
@@ -132,7 +154,7 @@ internal sealed class Win32FileSystemDisplayNameAndIconProvider : IFileSystemDis
 
                 if (iconHandle == IntPtr.Zero)
                 {
-                    return default;
+                    return null;
                 }
 
                 try

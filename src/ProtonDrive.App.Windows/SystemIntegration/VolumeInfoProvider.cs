@@ -56,7 +56,7 @@ public class VolumeInfoProvider : ILocalVolumeInfoProvider
 
         if (!TryGetDiskFreeSpace(path, out var freeBytesAvailable))
         {
-            return default;
+            return null;
         }
 
         // Returns maximum value in case of cast overflow

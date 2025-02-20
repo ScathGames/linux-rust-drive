@@ -144,6 +144,25 @@ internal class SyncService
             .ConfigureAwait(false);
     }
 
+    async Task<LooseCompoundAltIdentity<string>?> IMappedFileSystemIdentityProvider.GetRemoteIdFromNodeIdOrDefaultAsync(
+        long remoteNodeId,
+        CancellationToken cancellationToken)
+    {
+        await _syncAgentAvailabilityEvent.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+        return await Schedule(
+            async ct =>
+            {
+                if (_syncAgent is null || !_syncAgentAvailabilityEvent.IsSet)
+                {
+                    return null;
+                }
+
+                return await _syncAgent.GetRemoteIdFromNodeIdOrDefaultAsync(remoteNodeId, ct).ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
+    }
+
     IReadOnlyList<string> ISyncRootPathProvider.GetOfTypes(IReadOnlyCollection<MappingType> types)
     {
         return _mappingsSetupState.Mappings
@@ -264,7 +283,8 @@ internal class SyncService
                 }
 
                 // If mappings, that previously were successfully setup, are not anymore, the SyncService should
-                // stop and wait for the MappingSetupService to set them up.
+                // stop and wait for the MappingSetupService to set them up. Includes host device folder mappings,
+                // requested for enabling on-demand sync.
                 var hasNotSucceededMappings = _syncedSucceededMappings.Except(value.Mappings.Where(m => m.HasSetupSucceeded)).Any();
                 if (hasNotSucceededMappings)
                 {
@@ -273,8 +293,9 @@ internal class SyncService
                     _cancellationHandle.Cancel();
                     Schedule(InternalStopAsync);
 
-                    // The mapping setup can proceed while the sync is stopping
-                    return false;
+                    // The sync should stop before the mapping setup proceeds. This is required for setup of host device folders
+                    // for which enabling on-demand sync was requested.
+                    return true;
                 }
 
                 _logger.LogInformation("No mappings removed, continuing synchronization");

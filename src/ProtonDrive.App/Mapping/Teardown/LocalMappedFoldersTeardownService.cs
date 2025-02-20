@@ -73,6 +73,11 @@ public sealed class LocalMappedFoldersTeardownService
                 {
                     case MappingType.HostDeviceFolder:
                         // No protection was added
+                        if (mapping.SyncMethod is SyncMethod.OnDemand || mapping.SyncMethodUpdateStatus is not SyncMethodUpdateStatus.None)
+                        {
+                            succeeded &= _placeholderConverter.TryConvertToRegularFolder(localPath, skipRoot: true);
+                        }
+
                         break;
 
                     case MappingType.CloudFiles:

@@ -22,6 +22,7 @@ public sealed class MappingSetupStatistics : IMappingsAware, IMappingStateAware
             var mappingSetupDetails = new MappingSetupDetails(
                 mapping.Type,
                 mapping.Remote.RootItemType,
+                mapping.SyncMethod,
                 mapping.Status,
                 MappingSetupStatus.None,
                 mapping.Remote.IsReadOnly);
@@ -53,6 +54,7 @@ public sealed class MappingSetupStatistics : IMappingsAware, IMappingStateAware
         var mappingSetupDetails = new MappingSetupDetails(
             mapping.Type,
             mapping.Remote.RootItemType,
+            mapping.SyncMethod,
             mapping.Status,
             mappingSetup.Status,
             mapping.Remote.IsReadOnly);

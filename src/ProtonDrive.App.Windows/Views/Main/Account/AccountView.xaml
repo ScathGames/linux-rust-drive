@@ -8,6 +8,7 @@
     xmlns:behaviors="clr-namespace:ProtonDrive.App.Windows.Toolkit.Behaviors"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.Main.Account"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -42,7 +43,7 @@
                     <TextBlock
                         Grid.Column="1"
                         Grid.Row="0"
-                        Text="You are about to reach your storage limit."
+                        Text="{loc:Resource Main_Account_Storage_Warning_StorageLimit}"
                         FontSize="16"
                         FontWeight="SemiBold"
                         TextTrimming="CharacterEllipsis"
@@ -53,7 +54,7 @@
                         Grid.Row="1"
                         Margin="15,0,0,0">
                         <TextBlock
-                            Text="To ensure uninterrupted syncing, please get more storage now."
+                            Text="{loc:Resource Main_Account_Storage_Info_EnsureMoreStorage}"
                             Foreground="{StaticResource GrayBrush}"
                             VerticalAlignment="Center" />
                     </WrapPanel>
@@ -62,7 +63,7 @@
                         Grid.Column="2"
                         Grid.Row="0"
                         Grid.RowSpan="2"
-                        Content="Upgrade plan"
+                        Content="{loc:Resource Main_Account_Storage_Button_UpgradePlan}"
                         Command="{Binding DataContext.UpgradePlanCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:AccountView}}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         HorizontalAlignment="Left"
@@ -107,12 +108,12 @@
                         Margin="15,0,0,0">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Text" Value="You are about to reach your storage limit." />
+                                <Setter Property="Text" Value="{loc:Resource Main_Account_Storage_Warning_StorageLimit}" />
                                 <Style.Triggers>
                                     <DataTrigger
                                         Binding="{Binding DataContext.UserQuotaStatus, RelativeSource={RelativeSource FindAncestor, AncestorType=local:AccountView}}"
                                         Value="{x:Static account:UserQuotaStatus.LimitExceeded}">
-                                        <Setter Property="Text" Value="Sync stopped. Your account has exceeded the storage capacity." />
+                                        <Setter Property="Text" Value="{loc:Resource Main_Account_Storage_Warning_StorageExceeded}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -124,7 +125,7 @@
                         Grid.Row="1"
                         Margin="15,0,0,0">
                         <TextBlock
-                            Text="To ensure uninterrupted syncing, please get more storage now."
+                            Text="{loc:Resource Main_Account_Storage_Info_EnsureMoreStorage}"
                             Foreground="{StaticResource GrayBrush}"
                             TextTrimming="CharacterEllipsis"
                             VerticalAlignment="Center" />
@@ -134,7 +135,7 @@
                         Grid.Column="2"
                         Grid.Row="0"
                         Grid.RowSpan="2"
-                        Content="Upgrade plan"
+                        Content="{loc:Resource Main_Account_Storage_Button_UpgradePlan}"
                         Command="{Binding DataContext.UpgradePlanCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=local:AccountView}}"
                         Style="{StaticResource PrimaryButtonStyle}"
                         HorizontalAlignment="Left"
@@ -167,15 +168,15 @@
 
             <StackPanel Grid.Row="0">
                 <TextBlock
-                    Text="Account"
+                    Text="{loc:Resource Main_Account_Title}"
                     Style="{StaticResource Heading1Style}"
                     VerticalAlignment="Center" />
             </StackPanel>
 
             <Button
+                AutomationProperties.HelpText="{loc:Resource Main_Account_Account_HelpText}"
                 Grid.Row="1"
                 Command="{Binding ManageAccountCommand}"
-                AutomationProperties.HelpText="Manage your account"
                 Style="{StaticResource SectionButtonStyle}"
                 Margin="0,16,0,0">
                 <Grid>
@@ -205,7 +206,7 @@
                         Margin="15,0,0,0">
                         <TextBlock
                             AutomationProperties.AutomationId="Username"
-                            Text="{Binding Username, Mode=OneWay, FallbackValue='Unknown user'}"
+                            Text="{Binding Username, Mode=OneWay, FallbackValue={loc:Resource Main_Account_Account_Info_UnknownUser}}"
                             ToolTip="{Binding Username, Mode=OneWay, FallbackValue=''}">
                             <b:Interaction.Behaviors>
                                 <behaviors:TextBlockAutoToolTipBehavior />
@@ -224,7 +225,7 @@
                         VerticalAlignment="Center"
                         Margin="15,0,0,0">
                         <AccessText
-                            Text="Manage _account"
+                            Text="{loc:Resource Main_Account_Account_Button_ManageAccount}"
                             Foreground="{StaticResource GrayBrush}"
                             Height="20"
                             VerticalAlignment="Center" />
@@ -243,8 +244,8 @@
                 Margin="0,20,0,0">
 
                 <TextBlock
-                    Text="Storage capacity"
                     AutomationProperties.HeadingLevel="Level2"
+                    Text="{loc:Resource Main_Account_Storage_Title}"
                     FontWeight="SemiBold" />
 
                 <Grid Margin="0,10,0,0">
@@ -267,7 +268,7 @@
                     Foreground="{StaticResource GrayBrush}"
                     Margin="0,6,0,0">
                     <TextBlock.Text>
-                        <MultiBinding StringFormat="{}Total used space: {0} of {1}">
+                        <MultiBinding StringFormat="{loc:Resource Main_Account_Storage_Info_UsedSpaceFormat}">
                             <Binding
                                 Path="UsedSpace"
                                 Converter="{x:Static converters:FileSizeToStringConverter.Instance}" />
@@ -279,8 +280,8 @@
                 </TextBlock>
 
                 <Button
+                    AutomationProperties.HelpText="{loc:Resource Main_Account_Plan_HelpText}"
                     Command="{Binding ManagePlanCommand}"
-                    AutomationProperties.HelpText="See other Proton Drive plans"
                     Style="{StaticResource SectionButtonStyle}"
                     Margin="0,16,0,0">
                     <Grid>
@@ -305,7 +306,7 @@
                                 VerticalAlignment="Center" />
 
                             <TextBlock
-                                Text="Get more storage"
+                                Text="{loc:Resource Main_Account_Plan_Description}"
                                 FontSize="{StaticResource TextBlock.Small.FontSize}"
                                 Foreground="{StaticResource GrayBrush}"
                                 VerticalAlignment="Center" />
@@ -316,7 +317,7 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
                             <AccessText
-                                Text="See _plans"
+                                Text="{loc:Resource Main_Account_Plan_Button_SeePlans}"
                                 Foreground="{StaticResource GrayBrush}"
                                 Height="20"
                                 VerticalAlignment="Center" />
@@ -343,13 +344,13 @@
                 Grid.Row="4"
                 Margin="0,24,0,0">
                 <TextBlock
-                    Text="Security"
                     AutomationProperties.HeadingLevel="Level2"
+                    Text="{loc:Resource Main_Account_Label_Security}"
                     FontWeight="SemiBold" />
 
                 <Button
+                    AutomationProperties.HelpText="{loc:Resource Main_Account_Password_HelpText}"
                     Command="{Binding ChangePasswordCommand}"
-                    AutomationProperties.HelpText="Change your Proton Drive password"
                     Style="{StaticResource SectionButtonStyle}"
                     Margin="0,16,0,0">
                     <Grid>
@@ -370,10 +371,10 @@
                             Grid.Column="1"
                             VerticalAlignment="Center"
                             Margin="15,0,0,0">
-                            <Run Text="Password" />
+                            <Run Text="{loc:Resource Main_Account_Password_Title}" />
                             <LineBreak />
                             <Run
-                                Text="Change the password for your account."
+                                Text="{loc:Resource Main_Account_Password_Description}"
                                 FontSize="{StaticResource TextBlock.Small.FontSize}"
                                 Foreground="{StaticResource GrayBrush}" />
                         </TextBlock>
@@ -383,7 +384,7 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
                             <AccessText
-                                Text="_Change"
+                                Text="{loc:Resource Main_Account_Password_Button_ChangePassword}"
                                 Foreground="{StaticResource GrayBrush}"
                                 Height="20"
                                 VerticalAlignment="Center" />
@@ -397,8 +398,8 @@
                 </Button>
 
                 <Button
+                    AutomationProperties.HelpText="{loc:Resource Main_Account_SessionManagement_HelpText}"
                     Command="{Binding ManageSessionsCommand}"
-                    AutomationProperties.HelpText="Manage your session. After 60 days of inactivity the session will expire."
                     Style="{StaticResource SectionButtonStyle}"
                     Margin="0,16,0,0">
                     <Grid>
@@ -418,10 +419,10 @@
                             Grid.Column="1"
                             TextWrapping="Wrap"
                             Margin="15,0,0,0">
-                            <Run Text="Session management" />
+                            <Run Text="{loc:Resource Main_Account_SessionManagement_Title}" />
                             <LineBreak />
                             <Run
-                                Text="Unless you sign out of your account or change your password, your session will remain active. Sessions expire after 60 days of inactivity."
+                                Text="{loc:Resource Main_Account_SessionManagement_Description}"
                                 FontSize="{StaticResource TextBlock.Small.FontSize}"
                                 Foreground="{StaticResource GrayBrush}" />
                         </TextBlock>
@@ -432,7 +433,7 @@
                             VerticalAlignment="Center"
                             Margin="10,0,0,0">
                             <AccessText
-                                Text="_Manage"
+                                Text="{loc:Resource Main_Account_SessionManagement_Button_Manage}"
                                 Foreground="{StaticResource GrayBrush}"
                                 Height="20"
                                 VerticalAlignment="Center" />
@@ -450,14 +451,14 @@
                 Grid.Row="5"
                 Margin="0,24,0,0">
                 <TextBlock
-                    Text="Account"
                     AutomationProperties.HeadingLevel="Level2"
+                    Text="{loc:Resource Main_Account_Label_Account}"
                     FontWeight="SemiBold" />
 
                 <Button
                     AutomationProperties.AutomationId="SignOutButton"
+                    AutomationProperties.HelpText="{loc:Resource Main_Account_SignOut_HelpText}"
                     Command="{Binding SignOutCommand}"
-                    AutomationProperties.HelpText="Sign out from Proton Drive"
                     Style="{StaticResource SectionButtonStyle}"
                     Margin="0,16,0,0">
                     <StackPanel Orientation="Horizontal">
@@ -469,10 +470,10 @@
 
                         <StackPanel Margin="15,0,0,0">
                             <AccessText
-                                Text="_Sign out"
+                                Text="{loc:Resource Main_Account_SignOut_Title}"
                                 VerticalAlignment="Center" />
                             <TextBlock
-                                Text="Sign out and disable sync. You can sign back in with the same account to resume sync."
+                                Text="{loc:Resource Main_Account_SignOut_Description}"
                                 FontSize="{StaticResource TextBlock.Small.FontSize}"
                                 Foreground="{StaticResource GrayBrush}" />
                         </StackPanel>

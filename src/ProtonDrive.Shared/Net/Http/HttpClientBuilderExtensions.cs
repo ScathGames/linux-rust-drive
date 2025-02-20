@@ -11,22 +11,11 @@ public static class HttpClientBuilderExtensions
     /// Adds and configures an additional <see cref="TimeoutHandler"/> for a named <see cref="HttpClient"/>.
     /// </summary>
     /// <param name="builder">The <see cref="IHttpClientBuilder"/>.</param>
-    /// <param name="timeout">The timeout value.</param>
+    /// <param name="timeoutSelector">A delegate that is used to get a timeout value.</param>
     /// <returns>An <see cref="IHttpClientBuilder"/> that can be used to configure the client.</returns>
-    public static IHttpClientBuilder AddTimeoutHandler(this IHttpClientBuilder builder, TimeSpan timeout)
+    public static IHttpClientBuilder AddTimeoutHandler(this IHttpClientBuilder builder, Func<IServiceProvider, TimeSpan> timeoutSelector)
     {
-        return builder.AddHttpMessageHandler(() => new TimeoutHandler(timeout));
-    }
-
-    /// <summary>
-    /// Adds and configures an additional <see cref="TimeoutHandler"/> for a named <see cref="HttpClient"/>.
-    /// </summary>
-    /// <param name="builder">The <see cref="IHttpClientBuilder"/>.</param>
-    /// <param name="configureTimeout">A delegate that is used to get a timeout value.</param>
-    /// <returns>An <see cref="IHttpClientBuilder"/> that can be used to configure the client.</returns>
-    public static IHttpClientBuilder AddTimeoutHandler(this IHttpClientBuilder builder, Func<IServiceProvider, TimeSpan> configureTimeout)
-    {
-        return builder.AddHttpMessageHandler(provider => new TimeoutHandler(configureTimeout(provider)));
+        return builder.AddHttpMessageHandler(provider => new TimeoutHandler(timeoutSelector(provider)));
     }
 
     /// <summary>

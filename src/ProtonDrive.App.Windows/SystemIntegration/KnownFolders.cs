@@ -42,7 +42,7 @@ internal sealed class KnownFolders : IKnownFolders
 
     public ILookup<string, Guid> IdsByPath { get; }
 
-    private static string? GetPath(Guid knownFolderGuid)
+    public string? GetPath(Guid knownFolderGuid)
     {
         try
         {

@@ -3,6 +3,7 @@
     x:ClassModifier="internal"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:activity="clr-namespace:ProtonDrive.App.Windows.Views.Main.Activity"
     xmlns:bugReport="clr-namespace:ProtonDrive.App.Windows.Views.BugReport"
     xmlns:offer="clr-namespace:ProtonDrive.App.Windows.Views.Offer"
     xmlns:signIn="clr-namespace:ProtonDrive.App.Windows.Views.SignIn"
@@ -35,6 +36,7 @@
                 <ResourceDictionary Source="/Resources/Styles/BadgeStyle.xaml" />
                 <ResourceDictionary Source="/Resources/Styles/BorderStyle.xaml" />
                 <ResourceDictionary Source="/Resources/Styles/ProgressBarStyle.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/ComboBoxStyle.xaml" />
                 <ResourceDictionary Source="/Themes/Generic.CustomChromeWindow.xaml" />
                 <ResourceDictionary Source="/Themes/Generic.ToggleSwitch.xaml" />
                 <ResourceDictionary Source="/Themes/Generic.ProgressRingStyle.xaml" />
@@ -79,6 +81,10 @@
 
             <DataTemplate DataType="{x:Type syncedDevices:AddFoldersViewModel}">
                 <syncedDevices:AddFoldersView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type activity:RenameRemoteNodeViewModel}">
+                <activity:RenameRemoteNodeView />
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type signIn:SessionWorkflowViewModel}">

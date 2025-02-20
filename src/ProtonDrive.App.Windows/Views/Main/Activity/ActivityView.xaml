@@ -9,6 +9,8 @@
     xmlns:controls="clr-namespace:ProtonDrive.App.Windows.Controls"
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:fileSystem="clr-namespace:ProtonDrive.Sync.Shared.FileSystem;assembly=ProtonDrive.Sync.Shared"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:syncActivity="clr-namespace:ProtonDrive.Sync.Shared.SyncActivity;assembly=ProtonDrive.Sync.Shared"
     xmlns:syncShared="clr-namespace:ProtonDrive.Sync.Shared;assembly=ProtonDrive.Sync.Shared"
@@ -63,6 +65,20 @@
                     Foreground="{StaticResource GrayBrush}" />
             </DataTemplate>
 
+            <DataTemplate
+                x:Key="FailedActivityItemActionsCellTemplate"
+                DataType="activity:SyncActivityItemViewModel">
+                <Grid Visibility="{Binding DataContext.IsRemoteNodeRenamingDisabled, RelativeSource={RelativeSource AncestorType=ListView}, Converter={x:Static converters:BooleanToVisibilityConverter.TrueIsCollapsed}}">
+                    <Button
+                        Content="{loc:Resource Main_Activity_Button_Rename}"
+                        CommandParameter="{Binding .}"
+                        Command="{Binding DataContext.FixItemNameCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                        Style="{StaticResource FramedButtonStyle}"
+                        ToolTip="{loc:Resource Main_Activity_Button_Rename_Tooltip}"
+                        Visibility="{Binding ErrorCode, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={x:Static fileSystem:FileSystemErrorCode.InvalidName}}" />
+                </Grid>
+            </DataTemplate>
+
             <Style
                 x:Key="CircularProgressBarStyle"
                 TargetType="{x:Type ProgressBar}">
@@ -112,7 +128,7 @@
                                                 <DataTrigger.Value>
                                                     <sys:Double>1</sys:Double>
                                                 </DataTrigger.Value>
-                                                <Setter Property="Text" Value="Finalizing..." />
+                                                <Setter Property="Text" Value="{loc:Resource Main_Activity_Column_Progress_Tooltip_Finalizing}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -129,7 +145,7 @@
                 <Image
                     AutomationProperties.AutomationId="ItemSuccessfullySyncedIcon"
                     Source="{StaticResource Icon.Success}"
-                    ToolTip="{Binding ActivityTypeDisplayText, Mode=OneWay, Converter={x:Static converters:CapitalizationConverter.Instance}}"
+                    ToolTip="{Binding ActivityTypeDisplayText, Mode=OneWay}"
                     Width="16"
                     Height="16"
                     VerticalAlignment="Center" />
@@ -217,7 +233,7 @@
                     <Border
                         Grid.Column="0"
                         Background="Transparent"
-                        ToolTip="{Binding ActivityTypeDisplayText, Mode=OneWay, Converter={x:Static converters:CapitalizationConverter.Instance}}"
+                        ToolTip="{Binding ActivityTypeDisplayText, Mode=OneWay}"
                         Visibility="{Binding Replica, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsHidden}, ConverterParameter={x:Static syncShared:Replica.Remote}}">
                         <Image
                             Source="{StaticResource Icon.ArrowUp}"
@@ -227,7 +243,7 @@
                     <Border
                         Grid.Column="0"
                         Background="Transparent"
-                        ToolTip="{Binding ActivityTypeDisplayText, Mode=OneWay, Converter={x:Static converters:CapitalizationConverter.Instance}}"
+                        ToolTip="{Binding ActivityTypeDisplayText, Mode=OneWay}"
                         Visibility="{Binding Replica, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsHidden}, ConverterParameter={x:Static syncShared:Replica.Local}}">
                         <Image
                             Source="{StaticResource Icon.ArrowDown}"
@@ -378,7 +394,7 @@
                                         Value="true">
                                         <Setter Property="Text">
                                             <Setter.Value>
-                                                <MultiBinding StringFormat="{}Setting up... ({0} items prepared for sync)">
+                                                <MultiBinding StringFormat="{loc:Resource Main_Activity_Status_Value_SettingUpFormat}">
                                                     <Binding Path="NumberOfInitializedItems" />
                                                 </MultiBinding>
                                             </Setter.Value>
@@ -390,7 +406,7 @@
                                             <Condition Binding="{Binding IsInitializingForTheFirstTime}" Value="True" />
                                             <Condition Binding="{Binding NumberOfInitializedItems}" Value="{x:Null}" />
                                         </MultiDataTrigger.Conditions>
-                                        <Setter Property="Text" Value="Setting up..." />
+                                        <Setter Property="Text" Value="{loc:Resource Main_Activity_Status_Value_SettingUp}" />
                                     </MultiDataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -432,7 +448,7 @@
                         AutomationProperties.AutomationId="ActivityPageTitleText"
                         Grid.Column="0"
                         Grid.Row="0"
-                        Text="Activity"
+                        Text="{loc:Resource Main_Activity_Title}"
                         Style="{StaticResource Heading1Style}"
                         Margin="24,0,0,0" />
 
@@ -458,12 +474,12 @@
                                     <DataTrigger
                                         Binding="{Binding Paused}"
                                         Value="True">
-                                        <Setter Property="Content" Value="_Resume sync" />
+                                        <Setter Property="Content" Value="{loc:Resource Main_Activity_Button_ResumeSync}" />
                                     </DataTrigger>
                                     <DataTrigger
                                         Binding="{Binding Paused}"
                                         Value="False">
-                                        <Setter Property="Content" Value="_Pause sync" />
+                                        <Setter Property="Content" Value="{loc:Resource Main_Activity_Button_PauseSync}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -482,13 +498,13 @@
                         Margin="0,100,0,0" />
 
                     <TextBlock
-                        AutomationProperties.HelpText="Sync is paused"
-                        Text="Sync is paused"
+                        AutomationProperties.HelpText="{loc:Resource Main_Activity_Intro_Paused_HelpText}"
+                        Text="{loc:Resource Main_Activity_Intro_Paused_Title}"
                         Style="{StaticResource Subtitle.DarkTheme.Style}"
                         HorizontalAlignment="Center" />
 
                     <TextBlock
-                        Text="Click &quot;Resume sync&quot; to enable the synchronization"
+                        Text="{loc:Resource Main_Activity_Intro_Paused_Description}"
                         Foreground="{StaticResource GrayBrush}"
                         HorizontalAlignment="Center"
                         Margin="0,10,0,0" />
@@ -505,13 +521,13 @@
                         Margin="0,100,0,0" />
 
                     <TextBlock
-                        AutomationProperties.HelpText="All your files are up to date"
-                        Text="Your files are up to date"
+                        AutomationProperties.HelpText="{loc:Resource Main_Activity_Intro_Idle_HelpText}"
+                        Text="{loc:Resource Main_Activity_Intro_Idle_Title}"
                         Style="{StaticResource Subtitle.DarkTheme.Style}"
                         HorizontalAlignment="Center" />
 
                     <TextBlock
-                        Text="Sync information about files and folders will show up here"
+                        Text="{loc:Resource Main_Activity_Intro_Idle_Description}"
                         Foreground="{StaticResource GrayBrush}"
                         HorizontalAlignment="Center"
                         Margin="0,10,0,0" />
@@ -548,8 +564,8 @@
                     Margin="0,100,0,0" />
 
                 <TextBlock
-                    AutomationProperties.HelpText="Synchronization is getting initialized"
-                    Text="Setting up your drive..."
+                    AutomationProperties.HelpText="{loc:Resource Main_Activity_Intro_Initializing_HelpText}"
+                    Text="{loc:Resource Main_Activity_Intro_Initializing_Title}"
                     Style="{StaticResource Subtitle.DarkTheme.Style}"
                     HorizontalAlignment="Center"
                     Margin="0,20,0,0" />
@@ -559,9 +575,9 @@
                     TextAlignment="Center"
                     HorizontalAlignment="Center"
                     Margin="0,10,0,0">
-                    <Run Text="This process may take a few minutes." />
+                    <Run Text="{loc:Resource Main_Activity_Intro_Initializing_Description_Line1}" />
                     <LineBreak />
-                    <Run Text="You can safely minimize or close the window." />
+                    <Run Text="{loc:Resource Main_Activity_Intro_Initializing_Description_Line2}" />
                 </TextBlock>
             </StackPanel>
 
@@ -574,7 +590,7 @@
                 </Grid.RowDefinitions>
 
                 <ToggleButton
-                    AutomationProperties.HelpText="Display all the errors in a new section"
+                    AutomationProperties.HelpText="{loc:Resource Main_Activity_ErrorHeader_HelpText}"
                     AutomationProperties.Name="DisplayErrorDetailsButton"
                     Grid.Row="0"
                     Cursor="Hand"
@@ -608,7 +624,7 @@
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text">
                                                 <Setter.Value>
-                                                    <MultiBinding StringFormat="{}There are {0} issues">
+                                                    <MultiBinding StringFormat="{loc:Resource Main_Activity_ErrorHeader_Info_MultipleItemsFormat}">
                                                         <Binding Path="FailedItems.Count" />
                                                     </MultiBinding>
                                                 </Setter.Value>
@@ -617,7 +633,7 @@
                                                 <DataTrigger
                                                     Binding="{Binding FailedItems.Count}"
                                                     Value="1">
-                                                    <Setter Property="Text" Value="There is 1 issue" />
+                                                    <Setter Property="Text" Value="{loc:Resource Main_Activity_ErrorHeader_Info_SingleItem}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -625,18 +641,17 @@
                                 </TextBlock>
 
                                 <TextBlock
-                                    Text="Click to learn more about these issues"
+                                    Text="{loc:Resource Main_Activity_ErrorHeader_Description}"
                                     FontSize="{StaticResource TextBlock.Small.FontSize}"
                                     Foreground="{StaticResource GrayBrush}" />
                             </StackPanel>
 
                             <TextBlock
                                 Grid.Column="2"
+                                Text="{loc:Resource Main_Activity_ErrorHeader_Button_ShowMore}"
                                 FontSize="{StaticResource TextBlock.Small.FontSize}"
                                 Foreground="{StaticResource GrayBrush}"
-                                VerticalAlignment="Center">
-                                <Run Text="Show more details" />
-                            </TextBlock>
+                                VerticalAlignment="Center" />
 
                             <Image
                                 Grid.Column="3"
@@ -677,7 +692,7 @@
                         <GridView AllowsColumnReorder="True">
                             <GridViewColumn
                                 CellTemplate="{StaticResource ActivityItemTypeCellTemplate}"
-                                Header="Name"
+                                Header="{loc:Resource Main_Activity_Column_Name}"
                                 HeaderContainerStyle="{StaticResource NonResizableColumnStyle}"
                                 Width="56" />
 
@@ -687,17 +702,17 @@
 
                             <GridViewColumn
                                 CellTemplate="{StaticResource ActivityItemFolderCellTemplate}"
-                                Header="Folder"
+                                Header="{loc:Resource Main_Activity_Column_Folder}"
                                 Width="120" />
 
                             <GridViewColumn
                                 CellTemplate="{StaticResource ActivityItemSizeCellTemplate}"
-                                Header="Size"
+                                Header="{loc:Resource Main_Activity_Column_Size}"
                                 Width="80" />
 
                             <GridViewColumn
                                 CellTemplate="{StaticResource ActivityItemSyncedTimeCellTemplate}"
-                                Header="Synced"
+                                Header="{loc:Resource Main_Activity_Column_Synced}"
                                 Width="120" />
                         </GridView>
                     </ListView.View>
@@ -738,7 +753,7 @@
                         <ToggleButton
                             Cursor="Hand"
                             IsChecked="{Binding IsDisplayingDetails}"
-                            ToolTip="Back to activity">
+                            ToolTip="{loc:Resource Main_Activity_Errors_Title_Tooltip}">
                             <ToggleButton.Style>
                                 <Style
                                     TargetType="ButtonBase"
@@ -753,7 +768,7 @@
                             </ToggleButton.Style>
 
                             <TextBlock
-                                Text="Activity"
+                                Text="{loc:Resource Main_Activity_Title}"
                                 Style="{StaticResource Heading1Style}" />
                         </ToggleButton>
 
@@ -763,7 +778,7 @@
                             Margin="15,0,0,0" />
 
                         <TextBlock
-                            Text="{Binding FailedItems.Count, StringFormat=Sync issues ({0})}"
+                            Text="{Binding FailedItems.Count, StringFormat={loc:Resource Main_Activity_Errors_Title}}"
                             Foreground="{StaticResource Text.DarkTheme.Brush}"
                             Style="{StaticResource Heading1Style}"
                             Margin="15,0,0,0" />
@@ -772,7 +787,7 @@
                     <Button
                         Grid.Column="1"
                         Grid.Row="0"
-                        Content="Retry syncing"
+                        Content="{loc:Resource Main_Activity_Button_Retry}"
                         Command="{Binding RetrySyncCommand}"
                         VerticalAlignment="Top"
                         Margin="0,0,20,0" />
@@ -809,25 +824,25 @@
                         <GridViewColumn
                             x:Name="Column1"
                             CellTemplate="{StaticResource ActivityItemTypeCellTemplate}"
-                            Header="Type"
+                            Header="{loc:Resource Main_Activity_Column_Type}"
                             HeaderContainerStyle="{StaticResource NonResizableColumnStyle}"
                             Width="56" />
 
                         <GridViewColumn
                             x:Name="Column2"
                             CellTemplate="{StaticResource ActivityItemNameCellTemplate}"
-                            Header="Name"
+                            Header="{loc:Resource Main_Activity_Column_Name}"
                             Width="270" />
 
                         <GridViewColumn
                             x:Name="Column3"
                             CellTemplate="{StaticResource ActivityItemFolderCellTemplate}"
-                            Header="Folder"
+                            Header="{loc:Resource Main_Activity_Column_Folder}"
                             Width="120" />
 
                         <GridViewColumn
                             CellTemplate="{StaticResource ActivityItemSyncedErrorMessageCellTemplate}"
-                            Header="Status">
+                            Header="{loc:Resource Main_Activity_Column_Status}">
                             <GridViewColumn.Width>
                                 <MultiBinding Converter="{x:Static converters:LastColumnSizeCalculatingConverter.Instance}">
                                     <Binding
@@ -844,12 +859,23 @@
                                         Source="{x:Reference Column3}" />
                                     <Binding>
                                         <Binding.Source>
+                                            <sys:Double>100</sys:Double>
+                                        </Binding.Source>
+                                    </Binding>
+                                    <Binding>
+                                        <Binding.Source>
                                             <sys:Double>10</sys:Double>
                                         </Binding.Source>
                                     </Binding>
                                 </MultiBinding>
                             </GridViewColumn.Width>
                         </GridViewColumn>
+
+                        <GridViewColumn
+                            x:Name="Column4"
+                            CellTemplate="{StaticResource FailedActivityItemActionsCellTemplate}"
+                            Header=""
+                            Width="100" />
                     </GridView>
                 </ListView.View>
             </ListView>

@@ -138,7 +138,7 @@ internal sealed class SyncFolderService : ISyncFolderService, IMappingsAware, IM
 
         var pathToLog = _logger.GetSensitiveValueForLogging(syncFolder.LocalPath);
         _logger.LogInformation(
-            "Requested to remove host device sync folder \"{Path}\", mapping ID={MappingId}",
+            "Requested to remove host device sync folder \"{Path}\", mapping {MappingId}",
             pathToLog,
             syncFolder.Mapping.Id);
 
@@ -152,6 +152,50 @@ internal sealed class SyncFolderService : ISyncFolderService, IMappingsAware, IM
         }
 
         mappings.Delete(mapping);
+    }
+
+    public async Task EnableOnDemandSyncAsync(SyncFolder syncFolder, CancellationToken cancellationToken)
+    {
+        Ensure.IsTrue(
+            syncFolder.Type is SyncFolderType.HostDeviceFolder,
+            $"Sync folder type must be {SyncFolderType.HostDeviceFolder}",
+            nameof(syncFolder));
+
+        using var mappings = await _mappingRegistry.GetMappingsAsync(cancellationToken).ConfigureAwait(false);
+
+        var pathToLog = _logger.GetSensitiveValueForLogging(syncFolder.LocalPath);
+        _logger.LogInformation(
+            "Requested to enable on-demand sync for host device sync folder \"{Path}\", mapping {MappingId}",
+            pathToLog,
+            syncFolder.Mapping.Id);
+
+        var mapping = mappings.GetActive().FirstOrDefault(m => m == syncFolder.Mapping);
+
+        if (mapping is null)
+        {
+            _logger.LogWarning("Unable to find mapping for host device sync folder \"{Path}\"", pathToLog);
+
+            return;
+        }
+
+        if (mapping.SyncMethod is not SyncMethod.Classic)
+        {
+            _logger.LogWarning("Unable to enable on-demand sync for host device sync folder \"{Path}\", mapping sync method is {SyncMethod}", pathToLog, mapping.SyncMethod);
+
+            return;
+        }
+
+        if (mapping.Status is not MappingStatus.Complete)
+        {
+            _logger.LogWarning("Unable to enable on-demand sync for host device sync folder \"{Path}\", mapping status is {MappingStatus}", pathToLog, mapping.Status);
+
+            return;
+        }
+
+        mapping.SyncMethodUpdateStatus = SyncMethodUpdateStatus.EnablingOnDemandSyncRequested;
+        mapping.IsDirty = true;
+
+        mappings.Update(mapping);
     }
 
     void IMappingsAware.OnMappingsChanged(

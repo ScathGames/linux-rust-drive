@@ -65,4 +65,15 @@ public interface ISyncFolderService
     /// It's optional to await it as the method doesn't raise expected exceptions.
     /// </returns>
     Task RemoveHostDeviceFolderAsync(SyncFolder syncFolder, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Requests to enable on-demand sync for the host device folder.
+    /// </summary>
+    /// <param name="syncFolder">The host device folder to enable on-demand sync.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A task that represents the asynchronous requesting to enable on-demand sync operation.
+    /// It's optional to await it as the method doesn't raise expected exceptions.
+    /// </returns>
+    Task EnableOnDemandSyncAsync(SyncFolder syncFolder, CancellationToken cancellationToken);
 }

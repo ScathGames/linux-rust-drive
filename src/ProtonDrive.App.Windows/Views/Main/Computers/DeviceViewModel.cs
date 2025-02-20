@@ -48,6 +48,9 @@ internal sealed class DeviceViewModel : ObservableObject, IEquatable<Device>
 
     internal void DataItemUpdated()
     {
+        OnPropertyChanged(nameof(ShareId));
+        OnPropertyChanged(nameof(VolumeId));
         OnPropertyChanged(nameof(Name));
+        OnPropertyChanged(nameof(ExistsOnRemote));
     }
 }

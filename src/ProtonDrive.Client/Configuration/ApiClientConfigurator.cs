@@ -21,6 +21,7 @@ using ProtonDrive.Client.Features;
 using ProtonDrive.Client.FileUploading;
 using ProtonDrive.Client.Instrumentation.Observability;
 using ProtonDrive.Client.Instrumentation.Telemetry;
+using ProtonDrive.Client.MediaTypes;
 using ProtonDrive.Client.Notifications;
 using ProtonDrive.Client.Notifications.Contracts;
 using ProtonDrive.Client.Offline;
@@ -36,6 +37,7 @@ using ProtonDrive.Client.Volumes;
 using ProtonDrive.Client.Volumes.Events;
 using ProtonDrive.Shared.Configuration;
 using ProtonDrive.Shared.Devices;
+using ProtonDrive.Shared.Localization;
 using ProtonDrive.Shared.Net.Http.TlsPinning;
 using ProtonDrive.Shared.Offline;
 using ProtonDrive.Shared.Reporting;
@@ -70,10 +72,13 @@ public static class ApiClientConfigurator
 
     public static IServiceCollection AddFileSystemClient(this IServiceCollection services)
     {
+        services.AddSingleton<IFileContentTypeProvider, FileContentTypeProvider>();
+
         services.AddSingleton<Func<FileSystemClientParameters, IFileSystemClient<string>>>(
             sp => fileSystemClientParameters => new RemoteFileSystemClient(
                 sp.GetRequiredService<DriveApiConfig>(),
                 fileSystemClientParameters,
+                sp.GetRequiredService<IFileContentTypeProvider>(),
                 sp.GetRequiredService<IClientInstanceIdentityProvider>(),
                 sp.GetRequiredService<IRemoteNodeService>(),
                 sp.GetRequiredService<ILinkApiClient>(),
@@ -98,14 +103,12 @@ public static class ApiClientConfigurator
         return services;
     }
 
-    public static IServiceCollection AddApiClients(
-        this IServiceCollection services,
-        string locale)
+    public static IServiceCollection AddApiClients(this IServiceCollection services)
     {
         services.AddSingleton<IScheduler, ThreadPoolScheduler>();
         services.AddSingleton<CookieContainer>();
 
-        services.AddSingleton<IErrorReportingHttpClientConfigurator>(provider => new ErrorReportingHttpClientConfigurator(provider, locale));
+        services.AddSingleton<IErrorReportingHttpClientConfigurator>(provider => new ErrorReportingHttpClientConfigurator(provider));
         services.AddSingleton<AuthenticationService>();
         services.AddSingleton<IAuthenticationService>(sp => sp.GetRequiredService<AuthenticationService>());
         services.AddSingleton<ISessionProvider>(sp => sp.GetRequiredService<AuthenticationService>());
@@ -122,10 +125,10 @@ public static class ApiClientConfigurator
         services.AddSingleton<IOfflinePolicyProvider>(sp => sp.GetRequiredService<OfflineService>());
 
         services.AddSingleton<ProtectedSessionRepository>();
-        services.AddSingleton<IProtectedRepository<Session>>(sp => new CachingRepository<Session>(
-            sp.GetRequiredService<ProtectedSessionRepository>()));
-        services.AddSingleton(sp => sp.GetRequiredService<IRepositoryFactory>()
-            .GetRepository<Session>("Session.json"));
+        services.AddSingleton<IProtectedRepository<Session>>(sp => new CachingRepository<Session>(sp.GetRequiredService<ProtectedSessionRepository>()));
+        services.AddSingleton(sp => sp.GetRequiredService<IRepositoryFactory>().GetRepository<Session>("Session.json"));
+        services.AddSingleton<TlsPinningConfigFactory>();
+        services.AddSingleton<TlsPinningHandlerFactory>();
 
         services.AddTransient<AuthorizationHandler>();
         services.AddTransient<OfflineHandler>();
@@ -159,16 +162,16 @@ public static class ApiClientConfigurator
         services.AddSingleton<IContactService, ContactService>();
         services.AddSingleton<ISharedWithMeClient, SharedWithMeClient>();
 
-        services.AddApiHttpClients(AuthHttpClientName, locale, GetAuthBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
+        services.AddApiHttpClients(AuthHttpClientName, GetAuthBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
             .AddApiClient<IAuthenticationApiClient>()
             .AddApiClient<IAuthenticationSessionApiClient>()
             ;
 
-        services.AddApiHttpClients(PaymentsHttpClientName, locale, GetPaymentsBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
+        services.AddApiHttpClients(PaymentsHttpClientName, GetPaymentsBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
             .AddApiClient<IPaymentsApiClient>()
             ;
 
-        services.AddApiHttpClients(CoreHttpClientName, locale, GetCoreBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
+        services.AddApiHttpClients(CoreHttpClientName, GetCoreBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
             .AddApiClient<IUserApiClient>()
             .AddApiClient<IAddressApiClient>()
             .AddApiClient<IKeyApiClient>()
@@ -176,10 +179,10 @@ public static class ApiClientConfigurator
             .AddApiClient<ICoreEventApiClient>()
             ;
 
-        services.AddApiHttpClients(TlsPinningReportHttpClientName, locale, GetCoreBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
+        services.AddApiHttpClients(TlsPinningReportHttpClientName, GetCoreBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout)
             .AddApiClient<ITlsPinningReportApiClient>();
 
-        services.AddApiHttpClients(DriveHttpClientName, locale, GetDriveBaseAddress, GetDriveApiNumberOfRetries, GetDefaultTimeout)
+        services.AddApiHttpClients(DriveHttpClientName, GetDriveBaseAddress, GetDriveApiNumberOfRetries, GetDefaultTimeout)
             .AddApiClient<IVolumeApiClient>()
             .AddApiClient<IVolumeEventApiClient>()
             .AddApiClient<IDeviceApiClient>()
@@ -190,13 +193,12 @@ public static class ApiClientConfigurator
             .AddApiClient<IFileApiClient>()
             ;
 
-        services.AddApiHttpClients(DocsHttpClientName, locale, GetDocsBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout, useOfflinePolicy: false)
+        services.AddApiHttpClients(DocsHttpClientName, GetDocsBaseAddress, GetDefaultNumberOfRetries, GetDefaultTimeout, useOfflinePolicy: false)
             .AddApiClient<IDocumentSanitizationApiClient>()
             ;
 
         services.AddApiHttpClients(
                 DriveHttpClientName + NonCriticalHttpClientNameSuffix,
-                locale,
                 GetDriveBaseAddress,
                 numberOfRetriesSelector: _ => 0,
                 GetDefaultTimeout,
@@ -204,18 +206,17 @@ public static class ApiClientConfigurator
             .AddApiClient<IDriveUserApiClient>()
             ;
 
-        services.AddApiHttpClients(FileRevisionUpdateHttpClientName, locale, GetDriveBaseAddress, GetDriveApiNumberOfRetries, GetRevisionUpdateTimeout)
+        services.AddApiHttpClients(FileRevisionUpdateHttpClientName, GetDriveBaseAddress, GetDriveApiNumberOfRetries, GetRevisionUpdateTimeout)
             .AddApiClient<IFileRevisionUpdateApiClient>()
             ;
 
         // TODO: inject TLS pinning configuration provider to make it apparent that there is more than the base address to differentiate HTTP clients
-        services.AddApiHttpClient(BlocksHttpClientName, locale, GetDriveBaseAddress, GetDriveApiNumberOfRetries, GetBlocksTimeout)
+        services.AddApiHttpClient(BlocksHttpClientName, GetDriveBaseAddress, GetDriveApiNumberOfRetries, GetBlocksTimeout)
             .EnableAuthorization()
             ;
 
         services.AddApiHttpClients(
                 FeatureHttpClientName + NonCriticalHttpClientNameSuffix,
-                locale,
                 GetFeatureBaseAddress,
                 numberOfRetriesSelector: _ => 0,
                 GetDefaultTimeout,
@@ -225,7 +226,6 @@ public static class ApiClientConfigurator
 
         services.AddApiHttpClients(
                 ContactsHttpClientName + NonCriticalHttpClientNameSuffix,
-                locale,
                 GetContactsBaseAddress,
                 numberOfRetriesSelector: _ => 0,
                 GetDefaultTimeout,
@@ -235,7 +235,6 @@ public static class ApiClientConfigurator
 
         services.AddApiHttpClients(
                 DataHttpClientName + NonCriticalHttpClientNameSuffix,
-                locale,
                 GetDataBaseAddress,
                 numberOfRetriesSelector: _ => 0,
                 GetDefaultTimeout,
@@ -302,18 +301,16 @@ public static class ApiClientConfigurator
     private static ApiClientBuilder AddApiHttpClients(
         this IServiceCollection services,
         string name,
-        string locale,
         Func<DriveApiConfig, Uri> baseAddressSelector,
         Func<DriveApiConfig, int> numberOfRetriesSelector,
         Func<DriveApiConfig, TimeSpan> timeoutSelector,
         bool useOfflinePolicy = true)
     {
-        services.AddApiHttpClient(name, locale, baseAddressSelector, numberOfRetriesSelector, timeoutSelector, useOfflinePolicy);
+        services.AddApiHttpClient(name, baseAddressSelector, numberOfRetriesSelector, timeoutSelector, useOfflinePolicy);
 
         // Separate configuration for Refit that excludes the trailing slash
         var refitHttpClientBuilder = services.AddApiHttpClient(
             name + RefitHttpClientNameSuffix,
-            locale,
             driveApiConfig =>
             {
                 var uri = baseAddressSelector.Invoke(driveApiConfig);
@@ -344,7 +341,6 @@ public static class ApiClientConfigurator
     private static IHttpClientBuilder AddApiHttpClient(
         this IServiceCollection services,
         string name,
-        string locale,
         Func<DriveApiConfig, Uri> baseAddressSelector,
         Func<DriveApiConfig, int> numberOfRetriesSelector,
         Func<DriveApiConfig, TimeSpan> timeoutSelector,
@@ -356,15 +352,18 @@ public static class ApiClientConfigurator
                 (provider, httpClient) =>
                 {
                     var config = provider.GetRequiredService<DriveApiConfig>();
+                    var languageProvider = provider.GetRequiredService<ILanguageProvider>();
+                    var culture = languageProvider.GetCulture();
 
                     httpClient.BaseAddress = baseAddressSelector.Invoke(config);
-                    httpClient.DefaultRequestHeaders.AddApiRequestHeaders(config, locale);
+                    httpClient.DefaultRequestHeaders.AddApiRequestHeaders(config, culture);
                     httpClient.DefaultRequestHeaders.TransferEncodingChunked = false;
 
                     // Make sure the HttpClient does not interfere with the TimeoutHandler
                     httpClient.Timeout = Timeout.InfiniteTimeSpan;
                 })
-            .ConfigureHttpClient(name, numberOfRetriesSelector, timeoutSelector, useOfflinePolicy);
+            .ApplyHttpClientPrimaryHandler(name)
+            .ConfigureHttpClient(numberOfRetriesSelector, timeoutSelector, useOfflinePolicy);
     }
 
     /// <summary>

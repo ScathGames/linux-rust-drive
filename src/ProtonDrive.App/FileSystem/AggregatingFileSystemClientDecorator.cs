@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ProtonDrive.Shared;
+using ProtonDrive.Shared.IO;
 using ProtonDrive.Sync.Adapter.OnDemandHydration;
 using ProtonDrive.Sync.Shared.FileSystem;
 
@@ -29,9 +29,9 @@ internal sealed class AggregatingFileSystemClientDecorator<TId> : FileSystemClie
 
     public override void Connect(string syncRootPath, IFileHydrationDemandHandler<TId> fileHydrationDemandHandler)
     {
-        syncRootPath = EnsureTrailingSeparator(syncRootPath);
+        syncRootPath = PathComparison.EnsureTrailingSeparator(syncRootPath);
 
-        if (!syncRootPath.StartsWith(EnsureTrailingSeparator(_aggregatedRootFolder.Path), StringComparison.OrdinalIgnoreCase))
+        if (!syncRootPath.StartsWith(PathComparison.EnsureTrailingSeparator(_aggregatedRootFolder.Path), StringComparison.OrdinalIgnoreCase))
         {
             throw new ArgumentException("Sync root path is outside of the aggregated root folder path", nameof(syncRootPath));
         }
@@ -60,18 +60,13 @@ internal sealed class AggregatingFileSystemClientDecorator<TId> : FileSystemClie
         return base.DisconnectAsync();
     }
 
-    private static string EnsureTrailingSeparator(string path)
-    {
-        return !Path.EndsInDirectorySeparator(path) ? path + Path.DirectorySeparatorChar : path;
-    }
-
     private sealed class DispatchingFileHydrationDemandHandler : IFileHydrationDemandHandler<TId>
     {
         private readonly ConcurrentDictionary<string, IFileHydrationDemandHandler<TId>> _rootPathToHandlerMap = new(StringComparer.OrdinalIgnoreCase);
 
         public Task HandleAsync(IFileHydrationDemand<TId> hydrationDemand, CancellationToken cancellationToken)
         {
-            var folderPath = EnsureTrailingSeparator(hydrationDemand.FileInfo.Path);
+            var folderPath = PathComparison.EnsureTrailingSeparator(hydrationDemand.FileInfo.Path);
 
             var handler = _rootPathToHandlerMap.FirstOrDefault(pair => folderPath.StartsWith(pair.Key, StringComparison.OrdinalIgnoreCase)).Value;
 

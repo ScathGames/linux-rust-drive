@@ -9,7 +9,7 @@ namespace ProtonDrive.Shared.Net.Http.TlsPinning;
 /// Validates the HTTPS server certificate subject public key according to the provided configuration.
 /// Optionally, reports validation errors.
 /// </summary>
-internal sealed class TlsPinningHandler
+public sealed class TlsPinningHandler
 {
     private readonly TlsPinningConfig _config;
     private readonly Lazy<ITlsPinningReportClient> _reportClient;
@@ -18,7 +18,6 @@ internal sealed class TlsPinningHandler
     public TlsPinningHandler(TlsPinningConfig config, Func<ITlsPinningReportClient> reportClientFactory)
     {
         _config = config;
-
         _reportClient = new Lazy<ITlsPinningReportClient>(reportClientFactory);
         _policy = new TlsPinningPolicy(config);
     }

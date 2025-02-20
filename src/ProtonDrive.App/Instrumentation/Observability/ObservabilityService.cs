@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,7 @@ namespace ProtonDrive.App.Instrumentation.Observability;
 internal sealed class ObservabilityService : IRemoteSettingsAware
 {
     private readonly IObservabilityApiClient _observabilityApiClient;
-    private readonly GenericUploadMetricsFactory _genericUploadMetricsFactory;
+    private readonly GenericFileTransferMetricsFactory _genericFileTransferMetricsFactory;
     private readonly ILogger<ObservabilityService> _logger;
     private readonly CancellationHandle _cancellationHandle = new();
     private readonly TimeSpan _period;
@@ -25,11 +26,11 @@ internal sealed class ObservabilityService : IRemoteSettingsAware
     public ObservabilityService(
         AppConfig appConfig,
         IObservabilityApiClient observabilityApiClient,
-        GenericUploadMetricsFactory genericUploadMetricsFactory,
+        GenericFileTransferMetricsFactory genericFileTransferMetricsFactory,
         ILogger<ObservabilityService> logger)
     {
         _observabilityApiClient = observabilityApiClient;
-        _genericUploadMetricsFactory = genericUploadMetricsFactory;
+        _genericFileTransferMetricsFactory = genericFileTransferMetricsFactory;
         _logger = logger;
         _period = appConfig.PeriodicObservabilityReportInterval.RandomizedWithDeviation(0.2);
         _timer = new PeriodicTimer(_period);
@@ -89,14 +90,15 @@ internal sealed class ObservabilityService : IRemoteSettingsAware
     {
         try
         {
-            var uploadMetrics = _genericUploadMetricsFactory.GetMetrics();
+            var uploadMetrics = _genericFileTransferMetricsFactory.GetFileUploadMetrics();
+            var downloadMetrics = _genericFileTransferMetricsFactory.GetFileDownloadMetrics();
 
-            if (uploadMetrics.Count == 0)
+            if (uploadMetrics.Count + downloadMetrics.Count == 0)
             {
                 return;
             }
 
-            var metrics = new ObservabilityMetrics(uploadMetrics);
+            var metrics = new ObservabilityMetrics(uploadMetrics.Concat(downloadMetrics).ToList());
 
             await _observabilityApiClient.SendMetricsAsync(metrics, cancellationToken).ThrowOnFailure().ConfigureAwait(false);
         }

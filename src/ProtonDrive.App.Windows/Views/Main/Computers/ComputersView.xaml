@@ -9,8 +9,10 @@
     xmlns:converters="clr-namespace:ProtonDrive.App.Windows.Toolkit.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:mapping="clr-namespace:ProtonDrive.App.Mapping;assembly=ProtonDrive.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:ProtonDrive.App.Settings;assembly=ProtonDrive.App"
     xmlns:shared="clr-namespace:ProtonDrive.App.Windows.Views.Shared"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance computers:SyncedDevicesViewModel}">
@@ -29,19 +31,19 @@
 
             <TextBlock
                 Grid.Row="0"
-                Text="My computer"
+                Text="{loc:Resource Main_MyComputer_Title}"
                 Style="{StaticResource Heading1Style}" />
 
             <TextBlock
                 AutomationProperties.HeadingLevel="Level2"
                 Grid.Row="1"
-                Text="This device"
+                Text="{loc:Resource Main_MyComputer_Device_Label}"
                 FontWeight="SemiBold"
                 Margin="0,24,0,0" />
 
             <Button
                 AutomationProperties.AutomationId="EditDeviceNameButton"
-                AutomationProperties.HelpText="Rename your device"
+                AutomationProperties.HelpText="{loc:Resource Main_MyComputer_Device_HelpText}"
                 AutomationProperties.Name="RenameDeviceButton"
                 Grid.Row="2"
                 Command="{Binding EditDeviceNameCommand}"
@@ -76,7 +78,7 @@
 
                         <TextBox
                             Name="RenameDeviceTextBox"
-                            AutomationProperties.HelpText="Edit the device name"
+                            AutomationProperties.HelpText="{loc:Resource Main_MyComputer_Device_Rename_HelpText}"
                             Grid.Column="0"
                             Text="{Binding NewDeviceName, FallbackValue='', UpdateSourceTrigger=PropertyChanged}"
                             Background="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type Control}}}"
@@ -108,7 +110,7 @@
                         <Image
                             Grid.Column="1"
                             Source="{StaticResource Icon.Error}"
-                            ToolTip="Invalid device name: the new name must not be empty and must not exceed 255 characters."
+                            ToolTip="{loc:Resource Main_MyComputer_Device_Rename_Error_Tooltip}"
                             Visibility="{Binding IsNewDeviceNameValid, Converter={x:Static converters:BooleanToVisibilityConverter.TrueIsCollapsed}}"
                             Width="16"
                             Height="16"
@@ -123,19 +125,20 @@
                             VerticalAlignment="Center" />
 
                         <Button
-                            AutomationProperties.HelpText="Save the device name"
+                            AutomationProperties.HelpText="{loc:Resource Main_MyComputer_Device_Rename_Button_Save_HelpText}"
                             Grid.Column="3"
-                            Content="_Save"
+                            Content="{loc:Resource Dialog_Button_Save}"
                             Command="{Binding SaveDeviceNameCommand}"
                             IsDefault="True"
                             Style="{StaticResource PrimaryButtonStyle}"
                             VerticalAlignment="Center" />
 
                         <Button
-                            AutomationProperties.HelpText="Cancel device renaming"
+                            AutomationProperties.HelpText="{loc:Resource Main_MyComputer_Device_Rename_Button_Cancel_HelpText}"
                             Grid.Column="4"
-                            Content="_Cancel"
+                            Content="{loc:Resource Dialog_Button_Cancel}"
                             Command="{Binding CancelDeviceNameCommand}"
+                            IsCancel="True"
                             VerticalAlignment="Center"
                             Margin="20,0,0,0" />
                     </Grid>
@@ -156,20 +159,23 @@
 
                     <StackPanel
                         Grid.Column="2"
-                        Orientation="Horizontal"
-                        Visibility="{Binding IsEditing, Converter={x:Static converters:BooleanToVisibilityConverter.TrueIsCollapsed}}"
-                        VerticalAlignment="Center">
-                        <AccessText
-                            Text="_Rename"
-                            Foreground="{StaticResource GrayBrush}"
-                            VerticalAlignment="Center" />
+                        Visibility="{Binding IsEditing, Converter={x:Static converters:BooleanToVisibilityConverter.TrueIsCollapsed}}">
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Visibility="{Binding HostDevice.ExistsOnRemote, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}, FallbackValue={x:Static Visibility.Collapsed}}"
+                            VerticalAlignment="Center">
+                            <AccessText
+                                Text="{loc:Resource Main_MyComputer_Device_Button_Rename}"
+                                Foreground="{StaticResource GrayBrush}"
+                                VerticalAlignment="Center" />
 
-                        <Image
-                            Source="{StaticResource Icon.Pencil}"
-                            Style="{StaticResource FontIconStyle}"
-                            Height="16"
-                            VerticalAlignment="Center"
-                            Margin="10,0,0,0" />
+                            <Image
+                                Source="{StaticResource Icon.Pencil}"
+                                Style="{StaticResource FontIconStyle}"
+                                Height="16"
+                                VerticalAlignment="Center"
+                                Margin="10,0,0,0" />
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </Button>
@@ -179,7 +185,7 @@
                 Visibility="{Binding SyncedFolders.Count, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={StaticResource IntZero}}">
                 <TextBlock
                     AutomationProperties.HeadingLevel="Level2"
-                    Text="Folders syncing from this device"
+                    Text="{loc:Resource Main_MyComputer_Folders_Label}"
                     FontWeight="SemiBold"
                     Margin="0,24,0,0" />
 
@@ -189,7 +195,7 @@
                     Padding="0,0,0,10"
                     Margin="0,24,0,0">
                     <TextBlock
-                        Text="Name"
+                        Text="{loc:Resource Main_MyComputer_Folders_Column_Name}"
                         Margin="7,0,0,0" />
                 </Border>
 
@@ -219,17 +225,33 @@
                                         Height="16"
                                         VerticalAlignment="Center" />
 
-                                    <TextBlock
-                                        AutomationProperties.AutomationId="SyncFolderName"
-                                        Grid.Column="1"
-                                        Text="{Binding Name, Mode=OneTime}"
-                                        TextTrimming="CharacterEllipsis"
-                                        VerticalAlignment="Center"
-                                        Margin="7,0,0,0">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:TextBlockAutoToolTipBehavior />
-                                        </i:Interaction.Behaviors>
-                                    </TextBlock>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock
+                                            AutomationProperties.AutomationId="SyncFolderName"
+                                            Grid.Column="0"
+                                            Text="{Binding Name, Mode=OneTime}"
+                                            TextTrimming="CharacterEllipsis"
+                                            VerticalAlignment="Center"
+                                            Margin="7,0,0,0">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:TextBlockAutoToolTipBehavior />
+                                            </i:Interaction.Behaviors>
+                                        </TextBlock>
+
+                                        <TextBlock
+                                            AutomationProperties.AutomationId="SyncFolderSyncMethod"
+                                            Grid.Column="1"
+                                            Text="{loc:Resource Main_MyComputer_Folders_SyncMethod_Value_OnDemand}"
+                                            Foreground="{StaticResource NeutralBrush}"
+                                            Visibility="{Binding SyncMethod, Converter={x:Static converters:ObjectEqualityToVisibilityConverter.NotEqualIsCollapsed}, ConverterParameter={x:Static settings:SyncMethod.OnDemand}}"
+                                            VerticalAlignment="Center"
+                                            Margin="7,0,0,0" />
+                                    </Grid>
 
                                     <shared:MappingStatusView
                                         Grid.Column="2"
@@ -264,12 +286,18 @@
                                         <MenuItem
                                             AutomationProperties.AutomationId="OpenFolderMenuItem"
                                             Command="{Binding OpenFolderCommand}"
-                                            Header="_Open folder" />
+                                            Header="{loc:Resource Main_MyComputer_Folders_Menu_Item_OpenFolder}" />
 
                                         <MenuItem
                                             AutomationProperties.AutomationId="RemoveFolderMenuItem"
                                             Command="{Binding RemoveFolderCommand}"
-                                            Header="_Remove folder" />
+                                            Header="{loc:Resource Main_MyComputer_Folders_Menu_Item_RemoveFolder}" />
+
+                                        <MenuItem
+                                            AutomationProperties.AutomationId="EnableOnDemandSyncMenuItem"
+                                            Command="{Binding EnableOnDemandSyncCommand}"
+                                            Header="{loc:Resource Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync}"
+                                            Visibility="{Binding RelativeSource={RelativeSource Self}, Path=IsEnabled, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}" />
                                     </MenuItem>
                                 </Menu>
                             </Grid>
@@ -279,8 +307,8 @@
 
                 <Button
                     AutomationProperties.AutomationId="AddFoldersButton"
-                    AutomationProperties.HelpText="Add a new folder to sync"
-                    Content="_Add folders"
+                    AutomationProperties.HelpText="{loc:Resource Main_MyComputer_Folders_Button_Add_HelpText_AddNext}"
+                    Content="{loc:Resource Main_MyComputer_Folders_Button_Add}"
                     Command="{Binding AddFoldersCommand}"
                     HorizontalAlignment="Left"
                     Margin="0,16,0,0" />
@@ -297,14 +325,14 @@
                     Margin="0,20,0,0" />
 
                 <TextBlock
-                    Text="Safely sync your files"
+                    Text="{loc:Resource Main_MyComputer_Folders_Intro_Title}"
                     FontSize="20"
                     HorizontalAlignment="Center"
                     Margin="0,24,0,0" />
 
                 <TextBlock
                     AutomationProperties.AutomationId="EmptySelectionPlaceholderText"
-                    Text="Add folder to start securely syncing files to the cloud"
+                    Text="{loc:Resource Main_MyComputer_Folders_Intro_Description}"
                     FontSize="14"
                     Foreground="{StaticResource GrayBrush}"
                     HorizontalAlignment="Center"
@@ -312,8 +340,8 @@
 
                 <Button
                     AutomationProperties.AutomationId="AddFirstFoldersButton"
-                    AutomationProperties.HelpText="Add your first folders to sync"
-                    Content="_Add folders"
+                    AutomationProperties.HelpText="{loc:Resource Main_MyComputer_Folders_Button_Add_HelpText_AddFirst}"
+                    Content="{loc:Resource Main_MyComputer_Folders_Button_Add}"
                     Command="{Binding AddFoldersCommand}"
                     HorizontalAlignment="Center"
                     Margin="0,24,0,0" />

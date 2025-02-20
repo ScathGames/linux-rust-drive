@@ -63,459 +63,765 @@ namespace ProtonDrive.App.Windows.Resources {
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string AccountDisplayStatus_val_AccountError {
+        internal static string AccountDisplayStatus_Value_AccountError {
             get {
-                return ResourceManager.GetString("AccountDisplayStatus_val_AccountError", resourceCulture);
+                return ResourceManager.GetString("AccountDisplayStatus_Value_AccountError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Failed to sign in.
         /// </summary>
-        internal static string AccountDisplayStatus_val_SessionError {
+        internal static string AccountDisplayStatus_Value_SessionError {
             get {
-                return ResourceManager.GetString("AccountDisplayStatus_val_SessionError", resourceCulture);
+                return ResourceManager.GetString("AccountDisplayStatus_Value_SessionError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Setting up....
         /// </summary>
-        internal static string AccountDisplayStatus_val_SettingUp {
+        internal static string AccountDisplayStatus_Value_SettingUp {
             get {
-                return ResourceManager.GetString("AccountDisplayStatus_val_SettingUp", resourceCulture);
+                return ResourceManager.GetString("AccountDisplayStatus_Value_SettingUp", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Signed out.
         /// </summary>
-        internal static string AccountDisplayStatus_val_SignedOut {
+        internal static string AccountDisplayStatus_Value_SignedOut {
             get {
-                return ResourceManager.GetString("AccountDisplayStatus_val_SignedOut", resourceCulture);
+                return ResourceManager.GetString("AccountDisplayStatus_Value_SignedOut", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Signing in....
         /// </summary>
-        internal static string AccountDisplayStatus_val_SigningIn {
+        internal static string AccountDisplayStatus_Value_SigningIn {
             get {
-                return ResourceManager.GetString("AccountDisplayStatus_val_SigningIn", resourceCulture);
+                return ResourceManager.GetString("AccountDisplayStatus_Value_SigningIn", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Signing out....
         /// </summary>
-        internal static string AccountDisplayStatus_val_SigningOut {
+        internal static string AccountDisplayStatus_Value_SigningOut {
             get {
-                return ResourceManager.GetString("AccountDisplayStatus_val_SigningOut", resourceCulture);
+                return ResourceManager.GetString("AccountDisplayStatus_Value_SigningOut", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Signed in.
         /// </summary>
-        internal static string AccountDisplayStatus_val_Succeeded {
+        internal static string AccountDisplayStatus_Value_Succeeded {
             get {
-                return ResourceManager.GetString("AccountDisplayStatus_val_Succeeded", resourceCulture);
+                return ResourceManager.GetString("AccountDisplayStatus_Value_Succeeded", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Failed to switch account. Restart the app..
         /// </summary>
-        internal static string AccountErrorCode_val_AccountSwitchingFailed {
+        internal static string AccountErrorCode_Value_AccountSwitchingFailed {
             get {
-                return ResourceManager.GetString("AccountErrorCode_val_AccountSwitchingFailed", resourceCulture);
+                return ResourceManager.GetString("AccountErrorCode_Value_AccountSwitchingFailed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Account has unpaid invoices. Go to your dashboard to pay or let your admin know..
         /// </summary>
-        internal static string AccountErrorCode_val_Delinquent {
+        internal static string AccountErrorCode_Value_Delinquent {
             get {
-                return ResourceManager.GetString("AccountErrorCode_val_Delinquent", resourceCulture);
+                return ResourceManager.GetString("AccountErrorCode_Value_Delinquent", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Can’t connect to Proton Drive. Try checking your internet connection..
         /// </summary>
-        internal static string AccountErrorCode_val_DriveAccessFailed {
+        internal static string AccountErrorCode_Value_DriveAccessFailed {
             get {
-                return ResourceManager.GetString("AccountErrorCode_val_DriveAccessFailed", resourceCulture);
+                return ResourceManager.GetString("AccountErrorCode_Value_DriveAccessFailed", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to To access Proton Drive, upgrade your plan.
         /// </summary>
-        internal static string AccountErrorCode_val_NoDriveAccess {
+        internal static string AccountErrorCode_Value_NoDriveAccess {
             get {
-                return ResourceManager.GetString("AccountErrorCode_val_NoDriveAccess", resourceCulture);
+                return ResourceManager.GetString("AccountErrorCode_Value_NoDriveAccess", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string AccountErrorCode_val_None {
+        internal static string AccountErrorCode_Value_None {
             get {
-                return ResourceManager.GetString("AccountErrorCode_val_None", resourceCulture);
+                return ResourceManager.GetString("AccountErrorCode_Value_None", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to creating.
+        ///   Looks up a localized string similar to Creating.
         /// </summary>
-        internal static string Activity_InProgress_SyncActivityType_val_Create {
+        internal static string Activity_Local_InProgress_SyncActivityType_Value_Create {
             get {
-                return ResourceManager.GetString("Activity_InProgress_SyncActivityType_val_Create", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_InProgress_SyncActivityType_Value_Create", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to deleting.
+        ///   Looks up a localized string similar to Deleting.
         /// </summary>
-        internal static string Activity_InProgress_SyncActivityType_val_Delete {
+        internal static string Activity_Local_InProgress_SyncActivityType_Value_Delete {
             get {
-                return ResourceManager.GetString("Activity_InProgress_SyncActivityType_val_Delete", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_InProgress_SyncActivityType_Value_Delete", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to downloading.
+        ///   Looks up a localized string similar to Downloading from Proton Drive.
         /// </summary>
-        internal static string Activity_InProgress_SyncActivityType_val_Download {
+        internal static string Activity_Local_InProgress_SyncActivityType_Value_Download {
             get {
-                return ResourceManager.GetString("Activity_InProgress_SyncActivityType_val_Download", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_InProgress_SyncActivityType_Value_Download", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to fetching updates.
+        ///   Looks up a localized string similar to Fetching updates.
         /// </summary>
-        internal static string Activity_InProgress_SyncActivityType_val_FetchUpdates {
+        internal static string Activity_Local_InProgress_SyncActivityType_Value_FetchUpdates {
             get {
-                return ResourceManager.GetString("Activity_InProgress_SyncActivityType_val_FetchUpdates", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_InProgress_SyncActivityType_Value_FetchUpdates", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to moving.
+        ///   Looks up a localized string similar to Moving.
         /// </summary>
-        internal static string Activity_InProgress_SyncActivityType_val_Move {
+        internal static string Activity_Local_InProgress_SyncActivityType_Value_Move {
             get {
-                return ResourceManager.GetString("Activity_InProgress_SyncActivityType_val_Move", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_InProgress_SyncActivityType_Value_Move", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to renaming.
+        ///   Looks up a localized string similar to Renaming.
         /// </summary>
-        internal static string Activity_InProgress_SyncActivityType_val_Rename {
+        internal static string Activity_Local_InProgress_SyncActivityType_Value_Rename {
             get {
-                return ResourceManager.GetString("Activity_InProgress_SyncActivityType_val_Rename", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_InProgress_SyncActivityType_Value_Rename", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to uploading.
+        ///   Looks up a localized string similar to Uploading to Proton Drive.
         /// </summary>
-        internal static string Activity_InProgress_SyncActivityType_val_Upload {
+        internal static string Activity_Local_InProgress_SyncActivityType_Value_Upload {
             get {
-                return ResourceManager.GetString("Activity_InProgress_SyncActivityType_val_Upload", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_InProgress_SyncActivityType_Value_Upload", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to created.
+        ///   Looks up a localized string similar to Created.
         /// </summary>
-        internal static string Activity_Succeeded_SyncActivityType_val_Create {
+        internal static string Activity_Local_Succeeded_SyncActivityType_Value_Create {
             get {
-                return ResourceManager.GetString("Activity_Succeeded_SyncActivityType_val_Create", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_Succeeded_SyncActivityType_Value_Create", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to deleted.
+        ///   Looks up a localized string similar to Deleted.
         /// </summary>
-        internal static string Activity_Succeeded_SyncActivityType_val_Delete {
+        internal static string Activity_Local_Succeeded_SyncActivityType_Value_Delete {
             get {
-                return ResourceManager.GetString("Activity_Succeeded_SyncActivityType_val_Delete", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_Succeeded_SyncActivityType_Value_Delete", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to downloaded.
+        ///   Looks up a localized string similar to Downloaded from Proton Drive.
         /// </summary>
-        internal static string Activity_Succeeded_SyncActivityType_val_Download {
+        internal static string Activity_Local_Succeeded_SyncActivityType_Value_Download {
             get {
-                return ResourceManager.GetString("Activity_Succeeded_SyncActivityType_val_Download", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_Succeeded_SyncActivityType_Value_Download", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to updates fetched.
+        ///   Looks up a localized string similar to Updates fetched.
         /// </summary>
-        internal static string Activity_Succeeded_SyncActivityType_val_FetchUpdates {
+        internal static string Activity_Local_Succeeded_SyncActivityType_Value_FetchUpdates {
             get {
-                return ResourceManager.GetString("Activity_Succeeded_SyncActivityType_val_FetchUpdates", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_Succeeded_SyncActivityType_Value_FetchUpdates", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to moved.
+        ///   Looks up a localized string similar to Moved.
         /// </summary>
-        internal static string Activity_Succeeded_SyncActivityType_val_Move {
+        internal static string Activity_Local_Succeeded_SyncActivityType_Value_Move {
             get {
-                return ResourceManager.GetString("Activity_Succeeded_SyncActivityType_val_Move", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_Succeeded_SyncActivityType_Value_Move", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to renamed.
+        ///   Looks up a localized string similar to Renamed.
         /// </summary>
-        internal static string Activity_Succeeded_SyncActivityType_val_Rename {
+        internal static string Activity_Local_Succeeded_SyncActivityType_Value_Rename {
             get {
-                return ResourceManager.GetString("Activity_Succeeded_SyncActivityType_val_Rename", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_Succeeded_SyncActivityType_Value_Rename", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to uploaded.
+        ///   Looks up a localized string similar to Uploaded to Proton Drive.
         /// </summary>
-        internal static string Activity_Succeeded_SyncActivityType_val_Upload {
+        internal static string Activity_Local_Succeeded_SyncActivityType_Value_Upload {
             get {
-                return ResourceManager.GetString("Activity_Succeeded_SyncActivityType_val_Upload", resourceCulture);
+                return ResourceManager.GetString("Activity_Local_Succeeded_SyncActivityType_Value_Upload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creating on Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_InProgress_SyncActivityType_Value_Create {
+            get {
+                return ResourceManager.GetString("Activity_Remote_InProgress_SyncActivityType_Value_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deleting from Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_InProgress_SyncActivityType_Value_Delete {
+            get {
+                return ResourceManager.GetString("Activity_Remote_InProgress_SyncActivityType_Value_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Downloading from Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_InProgress_SyncActivityType_Value_Download {
+            get {
+                return ResourceManager.GetString("Activity_Remote_InProgress_SyncActivityType_Value_Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fetching updates from Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_InProgress_SyncActivityType_Value_FetchUpdates {
+            get {
+                return ResourceManager.GetString("Activity_Remote_InProgress_SyncActivityType_Value_FetchUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Moving on Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_InProgress_SyncActivityType_Value_Move {
+            get {
+                return ResourceManager.GetString("Activity_Remote_InProgress_SyncActivityType_Value_Move", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renaming on Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_InProgress_SyncActivityType_Value_Rename {
+            get {
+                return ResourceManager.GetString("Activity_Remote_InProgress_SyncActivityType_Value_Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uploading to Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_InProgress_SyncActivityType_Value_Upload {
+            get {
+                return ResourceManager.GetString("Activity_Remote_InProgress_SyncActivityType_Value_Upload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Created on Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_Succeeded_SyncActivityType_Value_Create {
+            get {
+                return ResourceManager.GetString("Activity_Remote_Succeeded_SyncActivityType_Value_Create", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deleted from Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_Succeeded_SyncActivityType_Value_Delete {
+            get {
+                return ResourceManager.GetString("Activity_Remote_Succeeded_SyncActivityType_Value_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Downloaded from Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_Succeeded_SyncActivityType_Value_Download {
+            get {
+                return ResourceManager.GetString("Activity_Remote_Succeeded_SyncActivityType_Value_Download", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updates fetched from Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_Succeeded_SyncActivityType_Value_FetchUpdates {
+            get {
+                return ResourceManager.GetString("Activity_Remote_Succeeded_SyncActivityType_Value_FetchUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Moved on Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_Succeeded_SyncActivityType_Value_Move {
+            get {
+                return ResourceManager.GetString("Activity_Remote_Succeeded_SyncActivityType_Value_Move", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renamed on Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_Succeeded_SyncActivityType_Value_Rename {
+            get {
+                return ResourceManager.GetString("Activity_Remote_Succeeded_SyncActivityType_Value_Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uploaded to Proton Drive.
+        /// </summary>
+        internal static string Activity_Remote_Succeeded_SyncActivityType_Value_Upload {
+            get {
+                return ResourceManager.GetString("Activity_Remote_Succeeded_SyncActivityType_Value_Upload", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Failed to set up an account.
         /// </summary>
-        internal static string AppDisplayStatus_val_AccountError {
+        internal static string AppDisplayStatus_Value_AccountError {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_AccountError", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_AccountError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Finishing up....
         /// </summary>
-        internal static string AppDisplayStatus_val_FinishingUp {
+        internal static string AppDisplayStatus_Value_FinishingUp {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_FinishingUp", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_FinishingUp", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Offline.
         /// </summary>
-        internal static string AppDisplayStatus_val_Offline {
+        internal static string AppDisplayStatus_Value_Offline {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_Offline", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_Offline", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Setting up....
         /// </summary>
-        internal static string AppDisplayStatus_val_SettingUp {
+        internal static string AppDisplayStatus_Value_SettingUp {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SettingUp", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SettingUp", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Signed out.
         /// </summary>
-        internal static string AppDisplayStatus_val_SignedOut {
+        internal static string AppDisplayStatus_Value_SignedOut {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SignedOut", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SignedOut", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Failed to sign in.
         /// </summary>
-        internal static string AppDisplayStatus_val_SignInError {
+        internal static string AppDisplayStatus_Value_SignInError {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SignInError", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SignInError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Signing in....
         /// </summary>
-        internal static string AppDisplayStatus_val_SigningIn {
+        internal static string AppDisplayStatus_Value_SigningIn {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SigningIn", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SigningIn", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Signing out....
         /// </summary>
-        internal static string AppDisplayStatus_val_SigningOut {
+        internal static string AppDisplayStatus_Value_SigningOut {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SigningOut", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SigningOut", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Failed to set up sync folders.
         /// </summary>
-        internal static string AppDisplayStatus_val_SyncFolderError {
+        internal static string AppDisplayStatus_Value_SyncFolderError {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SyncFolderError", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SyncFolderError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Synchronization failed.
         /// </summary>
-        internal static string AppDisplayStatus_val_SynchronizationError {
+        internal static string AppDisplayStatus_Value_SynchronizationError {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SynchronizationError", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SynchronizationError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Synchronization paused.
         /// </summary>
-        internal static string AppDisplayStatus_val_SynchronizationPaused {
+        internal static string AppDisplayStatus_Value_SynchronizationPaused {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SynchronizationPaused", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SynchronizationPaused", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Some items failed to synchronize.
         /// </summary>
-        internal static string AppDisplayStatus_val_SynchronizationWarning {
+        internal static string AppDisplayStatus_Value_SynchronizationWarning {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_SynchronizationWarning", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_SynchronizationWarning", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Synced.
         /// </summary>
-        internal static string AppDisplayStatus_val_Synchronized {
+        internal static string AppDisplayStatus_Value_Synchronized {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_Synchronized", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_Synchronized", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Synchronizing....
         /// </summary>
-        internal static string AppDisplayStatus_val_Synchronizing {
+        internal static string AppDisplayStatus_Value_Synchronizing {
             get {
-                return ResourceManager.GetString("AppDisplayStatus_val_Synchronizing", resourceCulture);
+                return ResourceManager.GetString("AppDisplayStatus_Value_Synchronizing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Cancel.
+        /// </summary>
+        internal static string BugReport_Button_Cancel {
+            get {
+                return ResourceManager.GetString("BugReport_Button_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel your report.
+        /// </summary>
+        internal static string BugReport_Button_Cancel_HelpText {
+            get {
+                return ResourceManager.GetString("BugReport_Button_Cancel_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Report.
+        /// </summary>
+        internal static string BugReport_Button_Report {
+            get {
+                return ResourceManager.GetString("BugReport_Button_Report", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send your report.
+        /// </summary>
+        internal static string BugReport_Button_Report_HelpText {
+            get {
+                return ResourceManager.GetString("BugReport_Button_Report_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show _logs.
+        /// </summary>
+        internal static string BugReport_Button_ShowLogs {
+            get {
+                return ResourceManager.GetString("BugReport_Button_ShowLogs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Include app logs.
+        /// </summary>
+        internal static string BugReport_CheckBox_IncludeLogs {
+            get {
+                return ResourceManager.GetString("BugReport_CheckBox_IncludeLogs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The report will include the latest 3 log files generated by the app..
+        /// </summary>
+        internal static string BugReport_CheckBox_IncludeLogs_Tooltip {
+            get {
+                return ResourceManager.GetString("BugReport_CheckBox_IncludeLogs_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description. What went wrong? What are the exact steps you performed? (10 characters minimum).
+        /// </summary>
+        internal static string BugReport_Text_Description_HelpText {
+            get {
+                return ResourceManager.GetString("BugReport_Text_Description_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Description.
+        /// </summary>
+        internal static string BugReport_Text_Description_Label {
+            get {
+                return ResourceManager.GetString("BugReport_Text_Description_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (10 characters min).
+        /// </summary>
+        internal static string BugReport_Text_Description_Label_Requirement {
+            get {
+                return ResourceManager.GetString("BugReport_Text_Description_Label_Requirement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What are the exact steps you performed?.
+        /// </summary>
+        internal static string BugReport_Text_Description_Watermark_ExactSteps {
+            get {
+                return ResourceManager.GetString("BugReport_Text_Description_Watermark_ExactSteps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to What went wrong?.
+        /// </summary>
+        internal static string BugReport_Text_Description_Watermark_WhatWentWrong {
+            get {
+                return ResourceManager.GetString("BugReport_Text_Description_Watermark_WhatWentWrong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email (mandatory field).
+        /// </summary>
+        internal static string BugReport_Text_Email_HelpText {
+            get {
+                return ResourceManager.GetString("BugReport_Text_Email_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Email.
+        /// </summary>
+        internal static string BugReport_Text_Email_Label {
+            get {
+                return ResourceManager.GetString("BugReport_Text_Email_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Issue title (mandatory field).
+        /// </summary>
+        internal static string BugReport_Text_IssueTitle_HelpText {
+            get {
+                return ResourceManager.GetString("BugReport_Text_IssueTitle_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Title.
+        /// </summary>
+        internal static string BugReport_Text_IssueTitle_Label {
+            get {
+                return ResourceManager.GetString("BugReport_Text_IssueTitle_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Issue title.
+        /// </summary>
+        internal static string BugReport_Text_IssueTitle_Watermark {
+            get {
+                return ResourceManager.GetString("BugReport_Text_IssueTitle_Watermark", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        internal static string Dialog_Button_Cancel {
+            get {
+                return ResourceManager.GetString("Dialog_Button_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        internal static string Dialog_Button_Ok {
+            get {
+                return ResourceManager.GetString("Dialog_Button_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Save.
+        /// </summary>
+        internal static string Dialog_Button_Save {
+            get {
+                return ResourceManager.GetString("Dialog_Button_Save", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Aborted.
         /// </summary>
-        internal static string FileSystemErrorCode_val_Cancelled {
+        internal static string FileSystemErrorCode_Value_Cancelled {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_Cancelled", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_Cancelled", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Please ensure that your cloud storage provider (e.g., OneDrive) is running and connected..
         /// </summary>
-        internal static string FileSystemErrorCode_val_CloudFileProviderNotRunning {
+        internal static string FileSystemErrorCode_Value_CloudFileProviderNotRunning {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_CloudFileProviderNotRunning", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_CloudFileProviderNotRunning", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Data error (cyclic redundancy check). Please, check your drive (USB, disk etc...) for file system errors and bad sectors..
         /// </summary>
-        internal static string FileSystemErrorCode_val_CyclicRedundancyCheck {
+        internal static string FileSystemErrorCode_Value_CyclicRedundancyCheck {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_CyclicRedundancyCheck", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_CyclicRedundancyCheck", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Could not find a part of the path.
         /// </summary>
-        internal static string FileSystemErrorCode_val_DirectoryNotFound {
+        internal static string FileSystemErrorCode_Value_DirectoryNotFound {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_DirectoryNotFound", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_DirectoryNotFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Name already in use.
         /// </summary>
-        internal static string FileSystemErrorCode_val_DuplicateName {
+        internal static string FileSystemErrorCode_Value_DuplicateName {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_DuplicateName", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_DuplicateName", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Not enough free space.
         /// </summary>
-        internal static string FileSystemErrorCode_val_FreeSpaceExceeded {
+        internal static string FileSystemErrorCode_Value_FreeSpaceExceeded {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_FreeSpaceExceeded", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_FreeSpaceExceeded", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to File or folder has diverged.
         /// </summary>
-        internal static string FileSystemErrorCode_val_IdentityMismatch {
+        internal static string FileSystemErrorCode_Value_IdentityMismatch {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_IdentityMismatch", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_IdentityMismatch", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Verification of data failed.
         /// </summary>
-        internal static string FileSystemErrorCode_val_IntegrityFailure {
+        internal static string FileSystemErrorCode_Value_IntegrityFailure {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_IntegrityFailure", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_IntegrityFailure", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The name contains characters not supported by Windows. Please remove the following characters to allow syncing: \ / : * ? &quot; &lt; &gt; |.
         /// </summary>
-        internal static string FileSystemErrorCode_val_InvalidName {
+        internal static string FileSystemErrorCode_Value_InvalidName {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_InvalidName", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_InvalidName", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to File skipped because it has changed too recently. App will retry automatically.
         /// </summary>
-        internal static string FileSystemErrorCode_val_LastWriteTimeTooRecent {
+        internal static string FileSystemErrorCode_Value_LastWriteTimeTooRecent {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_LastWriteTimeTooRecent", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_LastWriteTimeTooRecent", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to File or folder has diverged.
         /// </summary>
-        internal static string FileSystemErrorCode_val_MetadataMismatch {
+        internal static string FileSystemErrorCode_Value_MetadataMismatch {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_MetadataMismatch", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_MetadataMismatch", resourceCulture);
             }
         }
         
@@ -523,621 +829,2804 @@ namespace ProtonDrive.App.Windows.Resources {
         ///   Looks up a localized string similar to The original file shared with you has been deleted, moved or renamed.
         ///Toggle its sync off and on again to restore it and clear this error..
         /// </summary>
-        internal static string FileSystemErrorCode_val_MissingIndividuallySharedFile {
+        internal static string FileSystemErrorCode_Value_MissingIndividuallySharedFile {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_MissingIndividuallySharedFile", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_MissingIndividuallySharedFile", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Can&apos;t connect to Proton Drive. Try checking your internet connection..
         /// </summary>
-        internal static string FileSystemErrorCode_val_NetworkError {
+        internal static string FileSystemErrorCode_Value_NetworkError {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_NetworkError", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_NetworkError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to File or folder does not exist.
         /// </summary>
-        internal static string FileSystemErrorCode_val_ObjectNotFound {
+        internal static string FileSystemErrorCode_Value_ObjectNotFound {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_ObjectNotFound", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_ObjectNotFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Offline.
         /// </summary>
-        internal static string FileSystemErrorCode_val_Offline {
+        internal static string FileSystemErrorCode_Value_Offline {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_Offline", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_Offline", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to This file is not available locally and cannot be uploaded. To resolve, please delete it and restore a copy from the Proton Drive trash if available..
         /// </summary>
-        internal static string FileSystemErrorCode_val_Partial {
+        internal static string FileSystemErrorCode_Value_Partial {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_Partial", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_Partial", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to File or folder does not exist.
         /// </summary>
-        internal static string FileSystemErrorCode_val_PathNotFound {
+        internal static string FileSystemErrorCode_Value_PathNotFound {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_PathNotFound", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_PathNotFound", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Something went wrong.
         /// </summary>
-        internal static string FileSystemErrorCode_val_RateLimited {
+        internal static string FileSystemErrorCode_Value_RateLimited {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_RateLimited", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_RateLimited", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to File is read-only.
         /// </summary>
-        internal static string FileSystemErrorCode_val_ReadOnlyFile {
+        internal static string FileSystemErrorCode_Value_ReadOnlyFile {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_ReadOnlyFile", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_ReadOnlyFile", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to View-only files and folders can&apos;t be modified. Turn sync off and on under &quot;Shared with me&quot; to resolve..
         /// </summary>
-        internal static string FileSystemErrorCode_val_ReadOnlyRoot {
+        internal static string FileSystemErrorCode_Value_ReadOnlyRoot {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_ReadOnlyRoot", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_ReadOnlyRoot", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Something went wrong.
         /// </summary>
-        internal static string FileSystemErrorCode_val_ServerError {
+        internal static string FileSystemErrorCode_Value_ServerError {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_ServerError", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_ServerError", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to File or folder is being used by another app.
         /// </summary>
-        internal static string FileSystemErrorCode_val_SharingViolation {
+        internal static string FileSystemErrorCode_Value_SharingViolation {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_SharingViolation", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_SharingViolation", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Timed out.
         /// </summary>
-        internal static string FileSystemErrorCode_val_TimedOut {
+        internal static string FileSystemErrorCode_Value_TimedOut {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_TimedOut", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_TimedOut", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Upload aborted because file changed during sync. App will retry automatically.
         /// </summary>
-        internal static string FileSystemErrorCode_val_TransferAbortedDueToFileChange {
+        internal static string FileSystemErrorCode_Value_TransferAbortedDueToFileChange {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_TransferAbortedDueToFileChange", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_TransferAbortedDueToFileChange", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Not enough permissions.
         /// </summary>
-        internal static string FileSystemErrorCode_val_UnauthorizedAccess {
+        internal static string FileSystemErrorCode_Value_UnauthorizedAccess {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_UnauthorizedAccess", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_UnauthorizedAccess", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Something went wrong.
         /// </summary>
-        internal static string FileSystemErrorCode_val_Unknown {
+        internal static string FileSystemErrorCode_Value_Unknown {
             get {
-                return ResourceManager.GetString("FileSystemErrorCode_val_Unknown", resourceCulture);
+                return ResourceManager.GetString("FileSystemErrorCode_Value_Unknown", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t connect to Proton Drive. Try checking your internet connection..
+        ///   Looks up a localized string similar to Name is empty.
         /// </summary>
-        internal static string MappingErrorCode_val_DriveAccessFailed {
+        internal static string FileSystemNameValidationResult_Value_Empty {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_DriveAccessFailed", resourceCulture);
+                return ResourceManager.GetString("FileSystemNameValidationResult_Value_Empty", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Proton Drive device folder has been moved. Set up a new sync folder..
+        ///   Looks up a localized string similar to Name ends with a period.
         /// </summary>
-        internal static string MappingErrorCode_val_DriveFolderDiverged {
+        internal static string FileSystemNameValidationResult_Value_EndsWithPeriod {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_DriveFolderDiverged", resourceCulture);
+                return ResourceManager.GetString("FileSystemNameValidationResult_Value_EndsWithPeriod", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can’t access your Proton Drive files, possibly due to a device folder deletion. Set up a new sync folder..
+        ///   Looks up a localized string similar to Name ends with a space.
         /// </summary>
-        internal static string MappingErrorCode_val_DriveFolderDoesNotExist {
+        internal static string FileSystemNameValidationResult_Value_EndsWithSpace {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_DriveFolderDoesNotExist", resourceCulture);
+                return ResourceManager.GetString("FileSystemNameValidationResult_Value_EndsWithSpace", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can’t access your Proton Drive files, possibly due to a device deletion. Set up a new sync folder..
+        ///   Looks up a localized string similar to Name contains an invalid character.
         /// </summary>
-        internal static string MappingErrorCode_val_DriveHostDeviceDiverged {
+        internal static string FileSystemNameValidationResult_Value_InvalidCharacters {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_DriveHostDeviceDiverged", resourceCulture);
+                return ResourceManager.GetString("FileSystemNameValidationResult_Value_InvalidCharacters", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t access your Proton Drive files, possibly due to a password reset. Set up a new sync folder..
+        ///   Looks up a localized string similar to Name not supported by Windows.
         /// </summary>
-        internal static string MappingErrorCode_val_DriveShareDiverged {
+        internal static string FileSystemNameValidationResult_Value_Reserved {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_DriveShareDiverged", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can’t access your Proton Drive files, possibly due to a password reset. Set up a new sync folder..
-        /// </summary>
-        internal static string MappingErrorCode_val_DriveVolumeDiverged {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_DriveVolumeDiverged", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Free up space or deselect the checkbox.
-        /// </summary>
-        internal static string MappingErrorCode_val_InsufficientLocalFreeSpace {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_InsufficientLocalFreeSpace", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Setting up a sync folder requires an empty Windows or Proton Drive web folder. Please clear one and try again..
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalAndRemoteFoldersNotEmpty {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalAndRemoteFoldersNotEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t access or create local sync folder. We’ll keep retrying..
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFileSystemAccessFailed {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFileSystemAccessFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sync folder was replaced by a new folder in path. Restore the previous sync folder or set up a new sync folder..
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFolderDiverged {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFolderDiverged", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Sync folder not found. It may have been deleted, renamed, or moved. Restore it or set up a new sync folder..
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFolderDoesNotExist {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFolderDoesNotExist", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The selected folder is included by an already synced folder.
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFolderIncludedByAnAlreadySyncedFolder {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFolderIncludedByAnAlreadySyncedFolder", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The selected folder contains an already synced folder.
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFolderIncludesAnAlreadySyncedFolder {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFolderIncludesAnAlreadySyncedFolder", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The local folder is not eligible for synchronization. Set up a new sync folder..
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFolderNonSyncable {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFolderNonSyncable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The local folder must be empty before setting up sync.
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalFolderNotEmpty {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalFolderNotEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unsupported local drive type. Try setting up sync folder on a different local drive..
-        /// </summary>
-        internal static string MappingErrorCode_val_LocalVolumeNotSupported {
-            get {
-                return ResourceManager.GetString("MappingErrorCode_val_LocalVolumeNotSupported", resourceCulture);
+                return ResourceManager.GetString("FileSystemNameValidationResult_Value_Reserved", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string MappingErrorCode_val_None {
+        internal static string FileSystemNameValidationResult_Value_Success {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_None", resourceCulture);
+                return ResourceManager.GetString("FileSystemNameValidationResult_Value_Success", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can’t access shared Proton Drive file or folder. Check if it is still shared with you..
+        ///   Looks up a localized string similar to Name too long.
         /// </summary>
-        internal static string MappingErrorCode_val_RemoteShareWithMeItemDoesNotExist {
+        internal static string FileSystemNameValidationResult_Value_TooLong {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_RemoteShareWithMeItemDoesNotExist", resourceCulture);
+                return ResourceManager.GetString("FileSystemNameValidationResult_Value_TooLong", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Permissions of shared Proton Drive file or folder have changed. Toggle its sync off and on again to resolve..
+        ///   Looks up a localized string similar to Checking for update....
         /// </summary>
-        internal static string MappingErrorCode_val_RemoteShareWithMeItemPermissionsDiverged {
+        internal static string Main_About_AppUpdateStatus_Value_CheckingForUpdate {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_RemoteShareWithMeItemPermissionsDiverged", resourceCulture);
+                return ResourceManager.GetString("Main_About_AppUpdateStatus_Value_CheckingForUpdate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sharing is temporarily unavailable.
+        ///   Looks up a localized string similar to Downloading an update....
         /// </summary>
-        internal static string MappingErrorCode_val_SharingDisabled {
+        internal static string Main_About_AppUpdateStatus_Value_DownloadingAnUpdate {
             get {
-                return ResourceManager.GetString("MappingErrorCode_val_SharingDisabled", resourceCulture);
+                return ResourceManager.GetString("Main_About_AppUpdateStatus_Value_DownloadingAnUpdate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to set up sync folders.
+        ///   Looks up a localized string similar to Failed to check for update.
         /// </summary>
-        internal static string MappingSetupStatus_val_Failed {
+        internal static string Main_About_AppUpdateStatus_Value_UpdateCheckFailed {
             get {
-                return ResourceManager.GetString("MappingSetupStatus_val_Failed", resourceCulture);
+                return ResourceManager.GetString("Main_About_AppUpdateStatus_Value_UpdateCheckFailed", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Updates available.
         /// </summary>
-        internal static string MappingSetupStatus_val_None {
+        internal static string Main_About_AppUpdateStatus_Value_UpdatesAvailable {
             get {
-                return ResourceManager.GetString("MappingSetupStatus_val_None", resourceCulture);
+                return ResourceManager.GetString("Main_About_AppUpdateStatus_Value_UpdatesAvailable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to set up some sync folders.
+        ///   Looks up a localized string similar to Up to date.
         /// </summary>
-        internal static string MappingSetupStatus_val_PartiallySucceeded {
+        internal static string Main_About_AppUpdateStatus_Value_UpToDate {
             get {
-                return ResourceManager.GetString("MappingSetupStatus_val_PartiallySucceeded", resourceCulture);
+                return ResourceManager.GetString("Main_About_AppUpdateStatus_Value_UpToDate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Setting up sync folders....
+        ///   Looks up a localized string similar to _Privacy policy.
         /// </summary>
-        internal static string MappingSetupStatus_val_SettingUp {
+        internal static string Main_About_Button_PrivacyPolicy {
             get {
-                return ResourceManager.GetString("MappingSetupStatus_val_SettingUp", resourceCulture);
+                return ResourceManager.GetString("Main_About_Button_PrivacyPolicy", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to OK.
+        ///   Looks up a localized string similar to _Terms of service.
         /// </summary>
-        internal static string MappingSetupStatus_val_Succeeded {
+        internal static string Main_About_Button_TermsOfService {
             get {
-                return ResourceManager.GetString("MappingSetupStatus_val_Succeeded", resourceCulture);
+                return ResourceManager.GetString("Main_About_Button_TermsOfService", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to New Features.
+        ///   Looks up a localized string similar to _Update now.
         /// </summary>
-        internal static string ReleaseNoteType_val_Feature {
+        internal static string Main_About_Button_UpdateNow {
             get {
-                return ResourceManager.GetString("ReleaseNoteType_val_Feature", resourceCulture);
+                return ResourceManager.GetString("Main_About_Button_UpdateNow", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Bug Fixes.
+        ///   Looks up a localized string similar to A new version of Proton Drive is available, please update it now..
         /// </summary>
-        internal static string ReleaseNoteType_val_Fix {
+        internal static string Main_About_Button_UpdateNow_HelpText {
             get {
-                return ResourceManager.GetString("ReleaseNoteType_val_Fix", resourceCulture);
+                return ResourceManager.GetString("Main_About_Button_UpdateNow_HelpText", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Improvements.
+        ///   Looks up a localized string similar to Current version.
         /// </summary>
-        internal static string ReleaseNoteType_val_Improvement {
+        internal static string Main_About_Label_CurrentVersion {
             get {
-                return ResourceManager.GetString("ReleaseNoteType_val_Improvement", resourceCulture);
+                return ResourceManager.GetString("Main_About_Label_CurrentVersion", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Signing out....
+        ///   Looks up a localized string similar to Release date.
         /// </summary>
-        internal static string SessionStatus_val_Ending {
+        internal static string Main_About_Label_ReleaseDate {
             get {
-                return ResourceManager.GetString("SessionStatus_val_Ending", resourceCulture);
+                return ResourceManager.GetString("Main_About_Label_ReleaseDate", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sign-in failed. Try checking your internet connection..
+        ///   Looks up a localized string similar to NEW.
         /// </summary>
-        internal static string SessionStatus_val_Failed {
+        internal static string Main_About_ReleaseHistory_Label_New {
             get {
-                return ResourceManager.GetString("SessionStatus_val_Failed", resourceCulture);
+                return ResourceManager.GetString("Main_About_ReleaseHistory_Label_New", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Signed out.
+        ///   Looks up a localized string similar to What&apos;s new.
         /// </summary>
-        internal static string SessionStatus_val_NotStarted {
+        internal static string Main_About_ReleaseHistory_Title {
             get {
-                return ResourceManager.GetString("SessionStatus_val_NotStarted", resourceCulture);
+                return ResourceManager.GetString("Main_About_ReleaseHistory_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Signing in....
+        ///   Looks up a localized string similar to About.
         /// </summary>
-        internal static string SessionStatus_val_SigningIn {
+        internal static string Main_About_Title {
             get {
-                return ResourceManager.GetString("SessionStatus_val_SigningIn", resourceCulture);
+                return ResourceManager.GetString("Main_About_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Signed in.
+        ///   Looks up a localized string similar to Manage _account.
         /// </summary>
-        internal static string SessionStatus_val_Started {
+        internal static string Main_Account_Account_Button_ManageAccount {
             get {
-                return ResourceManager.GetString("SessionStatus_val_Started", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Account_Button_ManageAccount", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Signing in....
+        ///   Looks up a localized string similar to Manage your account.
         /// </summary>
-        internal static string SessionStatus_val_Starting {
+        internal static string Main_Account_Account_HelpText {
             get {
-                return ResourceManager.GetString("SessionStatus_val_Starting", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Account_HelpText", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Not enough free space on this device.
+        ///   Looks up a localized string similar to Unknown user.
         /// </summary>
-        internal static string SyncFolderValidationResult_ttl_InsufficientLocalFreeSpace {
+        internal static string Main_Account_Account_Info_UnknownUser {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_ttl_InsufficientLocalFreeSpace", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Account_Info_UnknownUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The folder is included by an already synced folder.
+        ///   Looks up a localized string similar to Account.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_FolderIncludedByAnAlreadySyncedFolder {
+        internal static string Main_Account_Label_Account {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_FolderIncludedByAnAlreadySyncedFolder", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Label_Account", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The folder contains an already synced folder.
+        ///   Looks up a localized string similar to Security.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_FolderIncludesAnAlreadySyncedFolder {
+        internal static string Main_Account_Label_Security {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_FolderIncludesAnAlreadySyncedFolder", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Label_Security", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Free up space or deselect the checkbox..
+        ///   Looks up a localized string similar to _Change.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_InsufficientLocalFreeSpace {
+        internal static string Main_Account_Password_Button_ChangePassword {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_InsufficientLocalFreeSpace", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Password_Button_ChangePassword", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t access the folder.
+        ///   Looks up a localized string similar to Change the password for your account..
         /// </summary>
-        internal static string SyncFolderValidationResult_val_LocalFileSystemAccessFailed {
+        internal static string Main_Account_Password_Description {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_LocalFileSystemAccessFailed", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Password_Description", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The folder cannot be found.
+        ///   Looks up a localized string similar to Change your Proton Drive password.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_LocalFolderDoesNotExist {
+        internal static string Main_Account_Password_HelpText {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_LocalFolderDoesNotExist", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Password_HelpText", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The folder must be empty before setting up sync.
+        ///   Looks up a localized string similar to Password.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_LocalFolderNotEmpty {
+        internal static string Main_Account_Password_Title {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_LocalFolderNotEmpty", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Password_Title", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unsupported drive type.
+        ///   Looks up a localized string similar to See _plans.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_LocalVolumeNotSupported {
+        internal static string Main_Account_Plan_Button_SeePlans {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_LocalVolumeNotSupported", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Plan_Button_SeePlans", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Syncing folders from network drives is not supported.
+        ///   Looks up a localized string similar to Get more storage.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_NetworkFolderNotSupported {
+        internal static string Main_Account_Plan_Description {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_NetworkFolderNotSupported", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Plan_Description", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The folder is not eligible for sync.
+        ///   Looks up a localized string similar to See other Proton Drive plans.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_NonSyncableFolder {
+        internal static string Main_Account_Plan_HelpText {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_NonSyncableFolder", resourceCulture);
+                return ResourceManager.GetString("Main_Account_Plan_HelpText", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to _Manage.
         /// </summary>
-        internal static string SyncFolderValidationResult_val_Succeeded {
+        internal static string Main_Account_SessionManagement_Button_Manage {
             get {
-                return ResourceManager.GetString("SyncFolderValidationResult_val_Succeeded", resourceCulture);
+                return ResourceManager.GetString("Main_Account_SessionManagement_Button_Manage", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fetching updates....
+        ///   Looks up a localized string similar to Unless you sign out of your account or change your password, your session will remain active. Sessions expire after 60 days of inactivity..
         /// </summary>
-        internal static string SyncStatus_val_DetectingUpdates {
+        internal static string Main_Account_SessionManagement_Description {
             get {
-                return ResourceManager.GetString("SyncStatus_val_DetectingUpdates", resourceCulture);
+                return ResourceManager.GetString("Main_Account_SessionManagement_Description", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error.
+        ///   Looks up a localized string similar to Manage your session. After 60 days of inactivity the session will expire..
         /// </summary>
-        internal static string SyncStatus_val_Failed {
+        internal static string Main_Account_SessionManagement_HelpText {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Failed", resourceCulture);
+                return ResourceManager.GetString("Main_Account_SessionManagement_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session management.
+        /// </summary>
+        internal static string Main_Account_SessionManagement_Title {
+            get {
+                return ResourceManager.GetString("Main_Account_SessionManagement_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sign out and disable sync. You can sign back in with the same account to resume sync..
+        /// </summary>
+        internal static string Main_Account_SignOut_Description {
+            get {
+                return ResourceManager.GetString("Main_Account_SignOut_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sign out from Proton Drive.
+        /// </summary>
+        internal static string Main_Account_SignOut_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Account_SignOut_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Sign out.
+        /// </summary>
+        internal static string Main_Account_SignOut_Title {
+            get {
+                return ResourceManager.GetString("Main_Account_SignOut_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upgrade plan.
+        /// </summary>
+        internal static string Main_Account_Storage_Button_UpgradePlan {
+            get {
+                return ResourceManager.GetString("Main_Account_Storage_Button_UpgradePlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To ensure uninterrupted syncing, please get more storage now..
+        /// </summary>
+        internal static string Main_Account_Storage_Info_EnsureMoreStorage {
+            get {
+                return ResourceManager.GetString("Main_Account_Storage_Info_EnsureMoreStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total used space: {0} of {1}.
+        /// </summary>
+        internal static string Main_Account_Storage_Info_UsedSpaceFormat {
+            get {
+                return ResourceManager.GetString("Main_Account_Storage_Info_UsedSpaceFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Storage capacity.
+        /// </summary>
+        internal static string Main_Account_Storage_Title {
+            get {
+                return ResourceManager.GetString("Main_Account_Storage_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync stopped. Your account has exceeded the storage capacity..
+        /// </summary>
+        internal static string Main_Account_Storage_Warning_StorageExceeded {
+            get {
+                return ResourceManager.GetString("Main_Account_Storage_Warning_StorageExceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are about to reach your storage limit..
+        /// </summary>
+        internal static string Main_Account_Storage_Warning_StorageLimit {
+            get {
+                return ResourceManager.GetString("Main_Account_Storage_Warning_StorageLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account.
+        /// </summary>
+        internal static string Main_Account_Title {
+            get {
+                return ResourceManager.GetString("Main_Account_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Pause sync.
+        /// </summary>
+        internal static string Main_Activity_Button_PauseSync {
+            get {
+                return ResourceManager.GetString("Main_Activity_Button_PauseSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rename.
+        /// </summary>
+        internal static string Main_Activity_Button_Rename {
+            get {
+                return ResourceManager.GetString("Main_Activity_Button_Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rename this item to fix the synchronization issue.
+        /// </summary>
+        internal static string Main_Activity_Button_Rename_Tooltip {
+            get {
+                return ResourceManager.GetString("Main_Activity_Button_Rename_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Resume sync.
+        /// </summary>
+        internal static string Main_Activity_Button_ResumeSync {
+            get {
+                return ResourceManager.GetString("Main_Activity_Button_ResumeSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retry syncing.
+        /// </summary>
+        internal static string Main_Activity_Button_Retry {
+            get {
+                return ResourceManager.GetString("Main_Activity_Button_Retry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Folder.
+        /// </summary>
+        internal static string Main_Activity_Column_Folder {
+            get {
+                return ResourceManager.GetString("Main_Activity_Column_Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string Main_Activity_Column_Name {
+            get {
+                return ResourceManager.GetString("Main_Activity_Column_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finalizing....
+        /// </summary>
+        internal static string Main_Activity_Column_Progress_Tooltip_Finalizing {
+            get {
+                return ResourceManager.GetString("Main_Activity_Column_Progress_Tooltip_Finalizing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Size.
+        /// </summary>
+        internal static string Main_Activity_Column_Size {
+            get {
+                return ResourceManager.GetString("Main_Activity_Column_Size", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Status.
+        /// </summary>
+        internal static string Main_Activity_Column_Status {
+            get {
+                return ResourceManager.GetString("Main_Activity_Column_Status", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Synced.
         /// </summary>
-        internal static string SyncStatus_val_Idle {
+        internal static string Main_Activity_Column_Synced {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Idle", resourceCulture);
+                return ResourceManager.GetString("Main_Activity_Column_Synced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string Main_Activity_Column_Type {
+            get {
+                return ResourceManager.GetString("Main_Activity_Column_Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show more details.
+        /// </summary>
+        internal static string Main_Activity_ErrorHeader_Button_ShowMore {
+            get {
+                return ResourceManager.GetString("Main_Activity_ErrorHeader_Button_ShowMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click to learn more about these issues.
+        /// </summary>
+        internal static string Main_Activity_ErrorHeader_Description {
+            get {
+                return ResourceManager.GetString("Main_Activity_ErrorHeader_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Display all the errors in a new section.
+        /// </summary>
+        internal static string Main_Activity_ErrorHeader_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Activity_ErrorHeader_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are {0} issues.
+        /// </summary>
+        internal static string Main_Activity_ErrorHeader_Info_MultipleItemsFormat {
+            get {
+                return ResourceManager.GetString("Main_Activity_ErrorHeader_Info_MultipleItemsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is 1 issue.
+        /// </summary>
+        internal static string Main_Activity_ErrorHeader_Info_SingleItem {
+            get {
+                return ResourceManager.GetString("Main_Activity_ErrorHeader_Info_SingleItem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync issues ({0}).
+        /// </summary>
+        internal static string Main_Activity_Errors_Title {
+            get {
+                return ResourceManager.GetString("Main_Activity_Errors_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Back to activity.
+        /// </summary>
+        internal static string Main_Activity_Errors_Title_Tooltip {
+            get {
+                return ResourceManager.GetString("Main_Activity_Errors_Title_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync information about files and folders will show up here.
+        /// </summary>
+        internal static string Main_Activity_Intro_Idle_Description {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Idle_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your files are up to date.
+        /// </summary>
+        internal static string Main_Activity_Intro_Idle_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Idle_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your files are up to date.
+        /// </summary>
+        internal static string Main_Activity_Intro_Idle_Title {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Idle_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This process may take a few minutes..
+        /// </summary>
+        internal static string Main_Activity_Intro_Initializing_Description_Line1 {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Initializing_Description_Line1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can safely minimize or close the window..
+        /// </summary>
+        internal static string Main_Activity_Intro_Initializing_Description_Line2 {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Initializing_Description_Line2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronization is getting initialized.
+        /// </summary>
+        internal static string Main_Activity_Intro_Initializing_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Initializing_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setting up your drive....
+        /// </summary>
+        internal static string Main_Activity_Intro_Initializing_Title {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Initializing_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click &quot;Resume sync&quot; to enable the synchronization.
+        /// </summary>
+        internal static string Main_Activity_Intro_Paused_Description {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Paused_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync is paused.
+        /// </summary>
+        internal static string Main_Activity_Intro_Paused_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Paused_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync is paused.
+        /// </summary>
+        internal static string Main_Activity_Intro_Paused_Title {
+            get {
+                return ResourceManager.GetString("Main_Activity_Intro_Paused_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current name:.
+        /// </summary>
+        internal static string Main_Activity_Rename_CurrentName_Label {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_CurrentName_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This item&apos;s name includes characters not supported on Windows..
+        /// </summary>
+        internal static string Main_Activity_Rename_Description {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name already in use.
+        /// </summary>
+        internal static string Main_Activity_Rename_NewName_Error_AlreadyExists {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_NewName_Error_AlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something went wrong.
+        /// </summary>
+        internal static string Main_Activity_Rename_NewName_Error_Failed {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_NewName_Error_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name contains invalid characters.
+        /// </summary>
+        internal static string Main_Activity_Rename_NewName_Error_InvalidCharacters {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_NewName_Error_InvalidCharacters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name is required.
+        /// </summary>
+        internal static string Main_Activity_Rename_NewName_Error_Required {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_NewName_Error_Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New name:.
+        /// </summary>
+        internal static string Main_Activity_Rename_NewName_Label {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_NewName_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renaming....
+        /// </summary>
+        internal static string Main_Activity_Rename_Status_Value_Renaming {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_Status_Value_Renaming", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please remove the following to continue syncing:.
+        /// </summary>
+        internal static string Main_Activity_Rename_Suggestion {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_Suggestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to / : * ? &gt; &lt; &quot; |.
+        /// </summary>
+        internal static string Main_Activity_Rename_Suggestion_CharacterList {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_Suggestion_CharacterList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Renaming item.
+        /// </summary>
+        internal static string Main_Activity_Rename_Title {
+            get {
+                return ResourceManager.GetString("Main_Activity_Rename_Title", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Setting up....
         /// </summary>
-        internal static string SyncStatus_val_Initializing {
+        internal static string Main_Activity_Status_Value_SettingUp {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Initializing", resourceCulture);
+                return ResourceManager.GetString("Main_Activity_Status_Value_SettingUp", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Offline.
+        ///   Looks up a localized string similar to Setting up... ({0} items prepared for sync).
         /// </summary>
-        internal static string SyncStatus_val_Offline {
+        internal static string Main_Activity_Status_Value_SettingUpFormat {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Offline", resourceCulture);
+                return ResourceManager.GetString("Main_Activity_Status_Value_SettingUpFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Paused.
+        ///   Looks up a localized string similar to {0} days ago.
         /// </summary>
-        internal static string SyncStatus_val_Paused {
+        internal static string Main_Activity_TimeElapsed_DaysAgoFormat {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Paused", resourceCulture);
+                return ResourceManager.GetString("Main_Activity_TimeElapsed_DaysAgoFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Synchronizing....
+        ///   Looks up a localized string similar to {0} hours ago.
         /// </summary>
-        internal static string SyncStatus_val_Synchronizing {
+        internal static string Main_Activity_TimeElapsed_HoursAgoFormat {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Synchronizing", resourceCulture);
+                return ResourceManager.GetString("Main_Activity_TimeElapsed_HoursAgoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} minutes ago.
+        /// </summary>
+        internal static string Main_Activity_TimeElapsed_MinutesAgoFormat {
+            get {
+                return ResourceManager.GetString("Main_Activity_TimeElapsed_MinutesAgoFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a day ago.
+        /// </summary>
+        internal static string Main_Activity_TimeElapsed_OneDayAgo {
+            get {
+                return ResourceManager.GetString("Main_Activity_TimeElapsed_OneDayAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to an hour ago.
+        /// </summary>
+        internal static string Main_Activity_TimeElapsed_OneHourAgo {
+            get {
+                return ResourceManager.GetString("Main_Activity_TimeElapsed_OneHourAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a minute ago.
+        /// </summary>
+        internal static string Main_Activity_TimeElapsed_OneMinuteAgo {
+            get {
+                return ResourceManager.GetString("Main_Activity_TimeElapsed_OneMinuteAgo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Activity.
+        /// </summary>
+        internal static string Main_Activity_Title {
+            get {
+                return ResourceManager.GetString("Main_Activity_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Rename.
+        /// </summary>
+        internal static string Main_MyComputer_Device_Button_Rename {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Device_Button_Rename", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rename your device.
+        /// </summary>
+        internal static string Main_MyComputer_Device_HelpText {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Device_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This device.
+        /// </summary>
+        internal static string Main_MyComputer_Device_Label {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Device_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel device renaming.
+        /// </summary>
+        internal static string Main_MyComputer_Device_Rename_Button_Cancel_HelpText {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Device_Rename_Button_Cancel_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save the device name.
+        /// </summary>
+        internal static string Main_MyComputer_Device_Rename_Button_Save_HelpText {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Device_Rename_Button_Save_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid device name: the new name must not be empty and must not exceed 255 characters..
+        /// </summary>
+        internal static string Main_MyComputer_Device_Rename_Error_Tooltip {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Device_Rename_Error_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rename your device.
+        /// </summary>
+        internal static string Main_MyComputer_Device_Rename_HelpText {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Device_Rename_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Add more folders.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_Button_AddMore {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_Button_AddMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adding a folder will back up all of its data to Proton Drive..
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_Description {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saving folders....
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_Info_Saving {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_Info_Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add folders.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_Title {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} folder(s) cannot be synced because included in a folder already synced to Proton Drive.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_FolderIncludedByAnAlreadySyncedFolderFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_FolderIncludedByAnAlreadySynce" +
+                        "dFolderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} folder(s) cannot be synced because have a subfolder already synced to Proton Drive.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_FolderIncludesAnAlreadySyncedFolderFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_FolderIncludesAnAlreadySyncedF" +
+                        "olderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} folder(s) cannot be accessed.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_LocalFileSystemAccessFailedFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_LocalFileSystemAccessFailedFor" +
+                        "mat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} folder(s) cannot be found or cannot be opened.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_LocalFolderDoesNotExistFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_LocalFolderDoesNotExistFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} folder(s) cannot be synced because located on a non-supported Drive.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_LocalVolumeNotSupportedFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_LocalVolumeNotSupportedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} folder(s) cannot be synced because network folders are not supported.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_NetworkFolderNotSupportedFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_NetworkFolderNotSupportedForma" +
+                        "t", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} folder(s) cannot be synced because they are system folder(s).
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_NonSyncableFolderFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_NonSyncableFolderFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to add {0} folder(s).
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_UnableToAddFoldersFormat {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_UnableToAddFoldersFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to add 1 folder.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_AddFolders_ValidationError_UnableToAddOneFolder {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_AddFolders_ValidationError_UnableToAddOneFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Add folders.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Button_Add {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Button_Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add your first folders to sync.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Button_Add_HelpText_AddFirst {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Button_Add_HelpText_AddFirst", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a new folder to sync.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Button_Add_HelpText_AddNext {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Button_Add_HelpText_AddNext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Column_Name {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Column_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add folder to start securely syncing files to the cloud.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Intro_Description {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Intro_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Safely sync your files.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Intro_Title {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Intro_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Folders syncing from this device.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Label {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Enable on-demand sync.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Open folder.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Menu_Item_OpenFolder {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Menu_Item_OpenFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove folder.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_Menu_Item_RemoveFolder {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_Menu_Item_RemoveFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove folder.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_RemoveConfirmation_Button_Confirm {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_RemoveConfirmation_Button_Confirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Any files added to &apos;{0}&apos; folder will no longer be synced and this folder will be moved to Trash in Proton Drive..
+        /// </summary>
+        internal static string Main_MyComputer_Folders_RemoveConfirmation_Message_1 {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_RemoveConfirmation_Message_1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Existing files will remain on your computer..
+        /// </summary>
+        internal static string Main_MyComputer_Folders_RemoveConfirmation_Message_2 {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_RemoveConfirmation_Message_2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove folder?.
+        /// </summary>
+        internal static string Main_MyComputer_Folders_RemoveConfirmation_Title {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_RemoveConfirmation_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to (on-demand).
+        /// </summary>
+        internal static string Main_MyComputer_Folders_SyncMethod_Value_OnDemand {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Folders_SyncMethod_Value_OnDemand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to My Computer.
+        /// </summary>
+        internal static string Main_MyComputer_Title {
+            get {
+                return ResourceManager.GetString("Main_MyComputer_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Change.
+        /// </summary>
+        internal static string Main_Settings_AccountRootFolder_Button_Change {
+            get {
+                return ResourceManager.GetString("Main_Settings_AccountRootFolder_Button_Change", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change your Proton Drive root folder..
+        /// </summary>
+        internal static string Main_Settings_AccountRootFolder_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Settings_AccountRootFolder_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location.
+        /// </summary>
+        internal static string Main_Settings_AccountRootFolder_Title {
+            get {
+                return ResourceManager.GetString("Main_Settings_AccountRootFolder_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Proton Drive folder:.
+        /// </summary>
+        internal static string Main_Settings_Label_AccountRootFolder {
+            get {
+                return ResourceManager.GetString("Main_Settings_Label_AccountRootFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General.
+        /// </summary>
+        internal static string Main_Settings_Label_General {
+            get {
+                return ResourceManager.GetString("Main_Settings_Label_General", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restart now.
+        /// </summary>
+        internal static string Main_Settings_Language_Button_Restart {
+            get {
+                return ResourceManager.GetString("Main_Settings_Language_Button_Restart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please restart the application to apply your language change.
+        /// </summary>
+        internal static string Main_Settings_Language_Message_PleaseRestart {
+            get {
+                return ResourceManager.GetString("Main_Settings_Language_Message_PleaseRestart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        internal static string Main_Settings_Language_Title {
+            get {
+                return ResourceManager.GetString("Main_Settings_Language_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Proton Drive on Windows startup.
+        /// </summary>
+        internal static string Main_Settings_OpenOnStartup_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Settings_OpenOnStartup_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open on startup.
+        /// </summary>
+        internal static string Main_Settings_OpenOnStartup_Title {
+            get {
+                return ResourceManager.GetString("Main_Settings_OpenOnStartup_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string Main_Settings_Title {
+            get {
+                return ResourceManager.GetString("Main_Settings_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_Name {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_Permissions {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_Permissions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions granted to you by the owner.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_Permissions_Tooltip {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_Permissions_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Editor.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_Permissions_Value_Editor {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_Permissions_Value_Editor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Viewer.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_Permissions_Value_Viewer {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_Permissions_Value_Viewer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared by.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_SharedBy {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_SharedBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared on.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_SharedOn {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_SharedOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync.
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_Sync {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_Sync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable to make the shared file or folder accessible from your computer.
+        ///Contents of files will be downloaded on demand only..
+        /// </summary>
+        internal static string Main_SharedWithMe_Column_Sync_Info_Tooltip {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Column_Sync_Info_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to load data.
+        /// </summary>
+        internal static string Main_SharedWithMe_Error_FailedToLoad {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Error_FailedToLoad", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} items failed to be loaded.
+        /// </summary>
+        internal static string Main_SharedWithMe_Error_FailedToLoad_Items_Plural {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Error_FailedToLoad_Items_Plural", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} item failed to be loaded.
+        /// </summary>
+        internal static string Main_SharedWithMe_Error_FailedToLoad_Items_Singular {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Error_FailedToLoad_Items_Singular", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Files and folders that are shared with you will appear here.
+        /// </summary>
+        internal static string Main_SharedWithMe_Intro_Description {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Intro_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nothing shared yet.
+        /// </summary>
+        internal static string Main_SharedWithMe_Intro_Title {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Intro_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Open folder.
+        /// </summary>
+        internal static string Main_SharedWithMe_Menu_Item_OpenFolder {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Menu_Item_OpenFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Remove me.
+        /// </summary>
+        internal static string Main_SharedWithMe_Menu_Item_RemoveMe {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Menu_Item_RemoveMe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dismiss shared with me onboarding.
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Button_Close_HelpText {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Button_Close_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get _started.
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Button_GetStarted {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Button_GetStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Easily sync files and folders shared with you to your computer..
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Description {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select files or folders to sync..
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Point_1 {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Point_1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 1..
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Point_1_Label {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Point_1_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access shared files in your Proton Drive folder..
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Point_2 {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Point_2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 2..
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Point_2_Label {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Point_2_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit them, upload new ones, and access them offline..
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Point_3 {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Point_3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 3..
+        /// </summary>
+        internal static string Main_SharedWithMe_Onboarding_Point_3_Label {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Onboarding_Point_3_Label", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} of {1} items synced.
+        /// </summary>
+        internal static string Main_SharedWithMe_Status_ItemsSynced_Plural {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Status_ItemsSynced_Plural", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} of {1} item synced.
+        /// </summary>
+        internal static string Main_SharedWithMe_Status_ItemsSynced_Singular {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Status_ItemsSynced_Singular", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared with me.
+        /// </summary>
+        internal static string Main_SharedWithMe_Title {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to To add new items, please stop syncing some of the old ones..
+        /// </summary>
+        internal static string Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Advice {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Advice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can only sync {0} items at once..
+        /// </summary>
+        internal static string Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Limit {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Limit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sharing is temporarily unavailable.
+        /// </summary>
+        internal static string Main_SharedWithMe_Warning_SharingUnavailable {
+            get {
+                return ResourceManager.GetString("Main_SharedWithMe_Warning_SharingUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_About {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menu item: About.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_About_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_About_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Account {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Account", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menu item: Account.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Account_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Account_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Activity.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Activity {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Activity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menu item: Activity.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Activity_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Activity_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Help.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Help {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menu item: Help.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Help_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Help_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to My computer.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_MyComputer {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_MyComputer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menu item: My computer.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_MyComputer_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_MyComputer_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Settings {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menu item: Settings.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_Settings_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_Settings_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shared with me.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_SharedWithMe {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_SharedWithMe", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Menu item: Shared with me.
+        /// </summary>
+        internal static string Main_Sidebar_NavigationMenu_Item_SharedWithMe_HelpText {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_NavigationMenu_Item_SharedWithMe_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get the _deal.
+        /// </summary>
+        internal static string Main_Sidebar_Offer_Button_GetDeal {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_Offer_Button_GetDeal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get more storage.
+        /// </summary>
+        internal static string Main_Sidebar_Storage_Button_GetMoreStorage {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_Storage_Button_GetMoreStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Space info not available.
+        /// </summary>
+        internal static string Main_Sidebar_Storage_Info_StorageNotAvailable {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_Storage_Info_StorageNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} of {1} used.
+        /// </summary>
+        internal static string Main_Sidebar_Storage_Info_UsedSpaceFormat {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_Storage_Info_UsedSpaceFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Storage.
+        /// </summary>
+        internal static string Main_Sidebar_Storage_Title {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_Storage_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage storage.
+        /// </summary>
+        internal static string Main_Sidebar_Storage_Tooltip {
+            get {
+                return ResourceManager.GetString("Main_Sidebar_Storage_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Proton Drive.
+        /// </summary>
+        internal static string Main_Window_Title {
+            get {
+                return ResourceManager.GetString("Main_Window_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t connect to Proton Drive. Try checking your internet connection..
+        /// </summary>
+        internal static string MappingErrorCode_Value_DriveAccessFailed {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_DriveAccessFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Proton Drive folder has been moved. Set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_DriveFolderDiverged {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_DriveFolderDiverged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can’t access your Proton Drive files, possibly due to a device folder deletion. Set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_DriveFolderDoesNotExist {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_DriveFolderDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can’t access your Proton Drive files, possibly due to a device deletion. Set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_DriveHostDeviceDiverged {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_DriveHostDeviceDiverged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t access your Proton Drive files, possibly due to a password reset. Set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_DriveShareDiverged {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_DriveShareDiverged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can’t access your Proton Drive files, possibly due to a password reset. Set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_DriveVolumeDiverged {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_DriveVolumeDiverged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The maximum number of synced computers has been reached. Delete unnecessary computers from Proton Drive on web..
+        /// </summary>
+        internal static string MappingErrorCode_Value_InsufficientDeviceQuota {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_InsufficientDeviceQuota", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Free up space or deselect the checkbox.
+        /// </summary>
+        internal static string MappingErrorCode_Value_InsufficientLocalFreeSpace {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_InsufficientLocalFreeSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setting up a sync folder requires an empty Windows or Proton Drive web folder. Please clear one and try again..
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalAndRemoteFoldersNotEmpty {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalAndRemoteFoldersNotEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t access or create local sync folder. We’ll keep retrying..
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFileSystemAccessFailed {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFileSystemAccessFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync folder was replaced by a new folder in path. Restore the previous sync folder or set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFolderDiverged {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFolderDiverged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync folder not found. It may have been deleted, renamed, or moved. Restore it or set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFolderDoesNotExist {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFolderDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The selected folder is included by an already synced folder.
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFolderIncludedByAnAlreadySyncedFolder {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFolderIncludedByAnAlreadySyncedFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The selected folder contains an already synced folder.
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFolderIncludesAnAlreadySyncedFolder {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFolderIncludesAnAlreadySyncedFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The local folder is not eligible for synchronization. Set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFolderNonSyncable {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFolderNonSyncable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The local folder is not eligible for on-demand sync.
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFolderNonSyncableOnDemand {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFolderNonSyncableOnDemand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The local folder must be empty before setting up sync.
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalFolderNotEmpty {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalFolderNotEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sync folder was unexpectedly unregistered. Set up a new sync folder..
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalOnDemandSyncRootNotRegistered {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalOnDemandSyncRootNotRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported local drive type. Try setting up sync folder on a different local drive..
+        /// </summary>
+        internal static string MappingErrorCode_Value_LocalVolumeNotSupported {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_LocalVolumeNotSupported", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
-        internal static string SyncStatus_val_Terminated {
+        internal static string MappingErrorCode_Value_None {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Terminated", resourceCulture);
+                return ResourceManager.GetString("MappingErrorCode_Value_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can’t access shared Proton Drive file or folder. Check if it is still shared with you..
+        /// </summary>
+        internal static string MappingErrorCode_Value_RemoteShareWithMeItemDoesNotExist {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_RemoteShareWithMeItemDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permissions of shared Proton Drive file or folder have changed. Toggle its sync off and on again to resolve..
+        /// </summary>
+        internal static string MappingErrorCode_Value_RemoteShareWithMeItemPermissionsDiverged {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_RemoteShareWithMeItemPermissionsDiverged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sharing is temporarily unavailable.
+        /// </summary>
+        internal static string MappingErrorCode_Value_SharingDisabled {
+            get {
+                return ResourceManager.GetString("MappingErrorCode_Value_SharingDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to set up sync folders.
+        /// </summary>
+        internal static string MappingSetupStatus_Value_Failed {
+            get {
+                return ResourceManager.GetString("MappingSetupStatus_Value_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string MappingSetupStatus_Value_None {
+            get {
+                return ResourceManager.GetString("MappingSetupStatus_Value_None", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to set up some sync folders.
+        /// </summary>
+        internal static string MappingSetupStatus_Value_PartiallySucceeded {
+            get {
+                return ResourceManager.GetString("MappingSetupStatus_Value_PartiallySucceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setting up sync folders....
+        /// </summary>
+        internal static string MappingSetupStatus_Value_SettingUp {
+            get {
+                return ResourceManager.GetString("MappingSetupStatus_Value_SettingUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        internal static string MappingSetupStatus_Value_Succeeded {
+            get {
+                return ResourceManager.GetString("MappingSetupStatus_Value_Succeeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Change.
+        /// </summary>
+        internal static string Onboarding_AccountRootFolderSelection_Button_ChangeFolder {
+            get {
+                return ResourceManager.GetString("Onboarding_AccountRootFolderSelection_Button_ChangeFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change your Proton Drive root folder..
+        /// </summary>
+        internal static string Onboarding_AccountRootFolderSelection_Button_ChangeFolder_HelpText {
+            get {
+                return ResourceManager.GetString("Onboarding_AccountRootFolderSelection_Button_ChangeFolder_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid sync folder.
+        /// </summary>
+        internal static string Onboarding_AccountRootFolderSelection_Error_InvalidSyncFolder {
+            get {
+                return ResourceManager.GetString("Onboarding_AccountRootFolderSelection_Error_InvalidSyncFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access my files and other synced devices here.
+        /// </summary>
+        internal static string Onboarding_AccountRootFolderSelection_Label_Description {
+            get {
+                return ResourceManager.GetString("Onboarding_AccountRootFolderSelection_Label_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Location.
+        /// </summary>
+        internal static string Onboarding_AccountRootFolderSelection_Label_Location {
+            get {
+                return ResourceManager.GetString("Onboarding_AccountRootFolderSelection_Label_Location", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your Proton Drive folder.
+        /// </summary>
+        internal static string Onboarding_AccountRootFolderSelection_Title {
+            get {
+                return ResourceManager.GetString("Onboarding_AccountRootFolderSelection_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Continue.
+        /// </summary>
+        internal static string Onboarding_Button_Continue {
+            get {
+                return ResourceManager.GetString("Onboarding_Button_Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Finish setup.
+        /// </summary>
+        internal static string Onboarding_Button_FinishSetup {
+            get {
+                return ResourceManager.GetString("Onboarding_Button_FinishSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Add more folders.
+        /// </summary>
+        internal static string Onboarding_SyncFolderSelection_Button_AddMoreFolders {
+            get {
+                return ResourceManager.GetString("Onboarding_SyncFolderSelection_Button_AddMoreFolders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add another folder to synchronize.
+        /// </summary>
+        internal static string Onboarding_SyncFolderSelection_Button_AddMoreFolders_HelpText {
+            get {
+                return ResourceManager.GetString("Onboarding_SyncFolderSelection_Button_AddMoreFolders_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected folders will sync to Proton Drive. The files will be backed up, and available on your other devices..
+        /// </summary>
+        internal static string Onboarding_SyncFolderSelection_Label_Description {
+            get {
+                return ResourceManager.GetString("Onboarding_SyncFolderSelection_Label_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Back up your folders.
+        /// </summary>
+        internal static string Onboarding_SyncFolderSelection_Title {
+            get {
+                return ResourceManager.GetString("Onboarding_SyncFolderSelection_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Not now.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Button_NotNow {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Button_NotNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Upgrade.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Button_Upgrade {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Button_Upgrade", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calendar.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Label_Calendar {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Label_Calendar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mail.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Label_Mail {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Label_Mail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password Manager.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Label_PasswordManager {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Label_PasswordManager", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Recommended.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Label_Recommended {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Label_Recommended", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VPN.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Label_Vpn {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Label_Vpn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get more storage.
+        /// </summary>
+        internal static string Onboarding_UpgradeStorage_Title {
+            get {
+                return ResourceManager.GetString("Onboarding_UpgradeStorage_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Features.
+        /// </summary>
+        internal static string ReleaseNoteType_Value_Feature {
+            get {
+                return ResourceManager.GetString("ReleaseNoteType_Value_Feature", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bug Fixes.
+        /// </summary>
+        internal static string ReleaseNoteType_Value_Fix {
+            get {
+                return ResourceManager.GetString("ReleaseNoteType_Value_Fix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Improvements.
+        /// </summary>
+        internal static string ReleaseNoteType_Value_Improvement {
+            get {
+                return ResourceManager.GetString("ReleaseNoteType_Value_Improvement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signing out....
+        /// </summary>
+        internal static string SessionStatus_Value_Ending {
+            get {
+                return ResourceManager.GetString("SessionStatus_Value_Ending", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sign-in failed. Try checking your internet connection..
+        /// </summary>
+        internal static string SessionStatus_Value_Failed {
+            get {
+                return ResourceManager.GetString("SessionStatus_Value_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signed out.
+        /// </summary>
+        internal static string SessionStatus_Value_NotStarted {
+            get {
+                return ResourceManager.GetString("SessionStatus_Value_NotStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signing in....
+        /// </summary>
+        internal static string SessionStatus_Value_SigningIn {
+            get {
+                return ResourceManager.GetString("SessionStatus_Value_SigningIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signed in.
+        /// </summary>
+        internal static string SessionStatus_Value_Started {
+            get {
+                return ResourceManager.GetString("SessionStatus_Value_Started", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signing in....
+        /// </summary>
+        internal static string SessionStatus_Value_Starting {
+            get {
+                return ResourceManager.GetString("SessionStatus_Value_Starting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Authenticate.
+        /// </summary>
+        internal static string SignIn_Button_Authenticate {
+            get {
+                return ResourceManager.GetString("SignIn_Button_Authenticate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Back.
+        /// </summary>
+        internal static string SignIn_Button_Back {
+            get {
+                return ResourceManager.GetString("SignIn_Button_Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Create account.
+        /// </summary>
+        internal static string SignIn_Button_CreateAccount {
+            get {
+                return ResourceManager.GetString("SignIn_Button_CreateAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Forgot your password?.
+        /// </summary>
+        internal static string SignIn_Button_ForgotPassword {
+            get {
+                return ResourceManager.GetString("SignIn_Button_ForgotPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Sign in.
+        /// </summary>
+        internal static string SignIn_Button_SignIn {
+            get {
+                return ResourceManager.GetString("SignIn_Button_SignIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Or sign-in as another user.
+        /// </summary>
+        internal static string SignIn_Button_SignInAsAnotherUser {
+            get {
+                return ResourceManager.GetString("SignIn_Button_SignInAsAnotherUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Unlock.
+        /// </summary>
+        internal static string SignIn_Button_Unlock {
+            get {
+                return ResourceManager.GetString("SignIn_Button_Unlock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Signing in to your account.
+        /// </summary>
+        internal static string SignIn_Message_SigningIn {
+            get {
+                return ResourceManager.GetString("SignIn_Message_SigningIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the code from your authenticator app.
+        /// </summary>
+        internal static string SignIn_Text_2FACode {
+            get {
+                return ResourceManager.GetString("SignIn_Text_2FACode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Password.
+        /// </summary>
+        internal static string SignIn_Text_Password {
+            get {
+                return ResourceManager.GetString("SignIn_Text_Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Second password.
+        /// </summary>
+        internal static string SignIn_Text_SecondPassword {
+            get {
+                return ResourceManager.GetString("SignIn_Text_SecondPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email or _username.
+        /// </summary>
+        internal static string SignIn_Text_Username {
+            get {
+                return ResourceManager.GetString("SignIn_Text_Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        internal static string SignIn_Text_Username_HelpText {
+            get {
+                return ResourceManager.GetString("SignIn_Text_Username_HelpText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password is required.
+        /// </summary>
+        internal static string SignIn_Text_ValidationError_PasswordRequired {
+            get {
+                return ResourceManager.GetString("SignIn_Text_ValidationError_PasswordRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your session has expired. Sign in to continue..
+        /// </summary>
+        internal static string SignIn_Text_ValidationError_SessionExpired {
+            get {
+                return ResourceManager.GetString("SignIn_Text_ValidationError_SessionExpired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Something went wrong.
+        /// </summary>
+        internal static string SignIn_Text_ValidationError_SomethingWentWrong {
+            get {
+                return ResourceManager.GetString("SignIn_Text_ValidationError_SomethingWentWrong", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username is required.
+        /// </summary>
+        internal static string SignIn_Text_ValidationError_UsernameRequired {
+            get {
+                return ResourceManager.GetString("SignIn_Text_ValidationError_UsernameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Two-factor authentication.
+        /// </summary>
+        internal static string SignIn_Title_2FA {
+            get {
+                return ResourceManager.GetString("SignIn_Title_2FA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not enough free space on this device.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Title_InsufficientLocalFreeSpace {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Title_InsufficientLocalFreeSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder is included by an already synced folder.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_FolderIncludedByAnAlreadySyncedFolder {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_FolderIncludedByAnAlreadySyncedFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder contains an already synced folder.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_FolderIncludesAnAlreadySyncedFolder {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_FolderIncludesAnAlreadySyncedFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Free up space or deselect the checkbox..
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_InsufficientLocalFreeSpace {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_InsufficientLocalFreeSpace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t access the folder.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_LocalFileSystemAccessFailed {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_LocalFileSystemAccessFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder cannot be found.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_LocalFolderDoesNotExist {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_LocalFolderDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder must be empty before setting up sync.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_LocalFolderNotEmpty {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_LocalFolderNotEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported drive type.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_LocalVolumeNotSupported {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_LocalVolumeNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Syncing folders from network drives is not supported.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_NetworkFolderNotSupported {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_NetworkFolderNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The folder is not eligible for sync.
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_NonSyncableFolder {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_NonSyncableFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string SyncFolderValidationResult_Value_Succeeded {
+            get {
+                return ResourceManager.GetString("SyncFolderValidationResult_Value_Succeeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fetching updates....
+        /// </summary>
+        internal static string SyncStatus_Value_DetectingUpdates {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_DetectingUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string SyncStatus_Value_Failed {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synced.
+        /// </summary>
+        internal static string SyncStatus_Value_Idle {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_Idle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setting up....
+        /// </summary>
+        internal static string SyncStatus_Value_Initializing {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_Initializing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Offline.
+        /// </summary>
+        internal static string SyncStatus_Value_Offline {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_Offline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paused.
+        /// </summary>
+        internal static string SyncStatus_Value_Paused {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_Paused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronizing....
+        /// </summary>
+        internal static string SyncStatus_Value_Synchronizing {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_Synchronizing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string SyncStatus_Value_Terminated {
+            get {
+                return ResourceManager.GetString("SyncStatus_Value_Terminated", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Terminating....
         /// </summary>
-        internal static string SyncStatus_val_Terminating {
+        internal static string SyncStatus_Value_Terminating {
             get {
-                return ResourceManager.GetString("SyncStatus_val_Terminating", resourceCulture);
+                return ResourceManager.GetString("SyncStatus_Value_Terminating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to E_xit.
+        /// </summary>
+        internal static string SystemTray_Menu_Item_Exit {
+            get {
+                return ResourceManager.GetString("SystemTray_Menu_Item_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open in _browser.
+        /// </summary>
+        internal static string SystemTray_Menu_Item_OpenInBrowser {
+            get {
+                return ResourceManager.GetString("SystemTray_Menu_Item_OpenInBrowser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open local _folder.
+        /// </summary>
+        internal static string SystemTray_Menu_Item_OpenLocalFolder {
+            get {
+                return ResourceManager.GetString("SystemTray_Menu_Item_OpenLocalFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Open Proton Drive.
+        /// </summary>
+        internal static string SystemTray_Menu_Item_OpenProtonDrive {
+            get {
+                return ResourceManager.GetString("SystemTray_Menu_Item_OpenProtonDrive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Pause the synchronization.
+        /// </summary>
+        internal static string SystemTray_Menu_Item_PauseSync {
+            get {
+                return ResourceManager.GetString("SystemTray_Menu_Item_PauseSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Sign in.
+        /// </summary>
+        internal static string SystemTray_Menu_Item_SignIn {
+            get {
+                return ResourceManager.GetString("SystemTray_Menu_Item_SignIn", resourceCulture);
             }
         }
     }

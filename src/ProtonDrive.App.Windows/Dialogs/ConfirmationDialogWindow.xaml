@@ -50,7 +50,7 @@
             <Button
                 AutomationProperties.AutomationId="ConfirmDialogButton"
                 Grid.Column="0"
-                Content="{Binding ConfirmButtonText, Mode=OneWay, FallbackValue='Ok'}"
+                Content="{Binding ConfirmButtonText, Mode=OneWay}"
                 CommandParameter="{Binding ElementName=Dialog}"
                 Command="{Binding ConfirmAndCloseCommand, Mode=OneWay}"
                 IsDefault="True"
@@ -59,7 +59,7 @@
             <Button
                 AutomationProperties.AutomationId="CancelDialogButton"
                 Grid.Column="1"
-                Content="{Binding CancelButtonText, Mode=OneWay, FallbackValue='Cancel'}"
+                Content="{Binding CancelButtonText, Mode=OneWay}"
                 IsCancel="True"
                 Margin="20,0,0,0" />
         </Grid>

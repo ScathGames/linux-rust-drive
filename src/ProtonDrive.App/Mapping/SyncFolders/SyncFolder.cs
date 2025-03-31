@@ -18,13 +18,17 @@ public sealed class SyncFolder
 
     public LinkType RootLinkType { get; }
     public SyncFolderType Type { get; }
-    public SyncMethod SyncMethod => GetSyncMethod();
+    public SyncMethod SyncMethod => Mapping.SyncMethod;
     public string LocalPath { get; }
     public string? RemoteName => Mapping.Remote.RootItemName;
     public string? RemoteShareId => Mapping.Remote.ShareId;
     public bool RemoteIsReadOnly => Mapping.Remote.IsReadOnly;
     public MappingSetupStatus Status => _state.Status;
     public MappingErrorCode ErrorCode => _state.ErrorCode;
+    public bool IsStorageOptimizationEnabled => Mapping.Local.StorageOptimization?.IsEnabled ?? false;
+    public StorageOptimizationStatus StorageOptimizationStatus => Mapping.Local.StorageOptimization?.Status ?? StorageOptimizationStatus.Succeeded;
+    public StorageOptimizationErrorCode StorageOptimizationErrorCode => Mapping.Local.StorageOptimization?.ErrorCode ?? StorageOptimizationErrorCode.None;
+    public string? ConflictingProviderName => Mapping.Local.StorageOptimization?.ConflictingProviderName;
 
     internal RemoteToLocalMapping Mapping { get; }
 
@@ -54,12 +58,5 @@ public sealed class SyncFolder
         return Mapping.Type is MappingType.CloudFiles
             ? Mapping.TryGetAccountRootFolderPath(out var path) ? path : string.Empty
             : Mapping.Local.Path;
-    }
-
-    private SyncMethod GetSyncMethod()
-    {
-        return Mapping.SyncMethod is SyncMethod.OnDemand || Mapping.IsEnablingOnDemandSyncRequested()
-            ? SyncMethod.OnDemand
-            : Mapping.SyncMethod;
     }
 }

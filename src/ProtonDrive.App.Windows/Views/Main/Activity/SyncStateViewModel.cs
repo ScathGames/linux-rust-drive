@@ -298,8 +298,7 @@ internal sealed class SyncStateViewModel
     {
         _scheduler.Schedule(
             () =>
-                IsRemoteNodeRenamingDisabled = features.Any(x => x.Feature is Feature.DriveWindowsRemoteNodeRenamingDisabled && x.IsEnabled)
-        );
+                IsRemoteNodeRenamingDisabled = features.IsEnabled(Feature.DriveWindowsRemoteNodeRenamingDisabled));
     }
 
     private static bool ItemSyncHasFailed(object item)

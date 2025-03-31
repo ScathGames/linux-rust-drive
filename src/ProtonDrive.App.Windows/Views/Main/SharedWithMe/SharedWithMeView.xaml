@@ -22,23 +22,8 @@
             <system:Double x:Key="PermissionsColumnDefaultWidth">100</system:Double>
             <system:Double x:Key="InviterColumnDefaultWidth">170</system:Double>
             <system:Double x:Key="CreationDateColumnDefaultWidth">100</system:Double>
-            <system:Double x:Key="ActionsColumnDefaultWidth">120</system:Double>
+            <system:Double x:Key="ActionsColumnDefaultWidth">85</system:Double>
             <system:Double x:Key="MoreActionsColumnDefaultWidth">50</system:Double>
-
-            <Style x:Key="SwitchButtonFocusVisualStyle">
-                <Setter Property="Control.Template">
-                    <Setter.Value>
-                        <ControlTemplate>
-                            <Border
-                                BorderBrush="White"
-                                BorderThickness="2"
-                                CornerRadius="{StaticResource Button.CornerRadius}"
-                                SnapsToDevicePixels="True"
-                                Margin="-6,-4" />
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
 
             <Style x:Key="ListItemFocusVisualStyle">
                 <Setter Property="Control.Template">
@@ -141,7 +126,6 @@
                         AutomationProperties.Name="IsSyncEnabled"
                         CommandParameter="{Binding}"
                         Command="{Binding ToggleSyncCommand}"
-                        FocusVisualStyle="{StaticResource SwitchButtonFocusVisualStyle}"
                         Foreground="{StaticResource GrayBrush}"
                         IsChecked="{Binding IsSyncEnabled, Mode=OneWay}" />
 

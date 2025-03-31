@@ -7,11 +7,16 @@ namespace ProtonDrive.App.Windows.Controls;
 /// <summary>
 /// Light implementation of a switch toggle button
 /// </summary>
-public class ToggleSwitch : ToggleButton
+internal sealed class ToggleSwitch : ToggleButton
 {
-    // TODO: Localization
-    private const string DefaultOnContent = "On";
-    private const string DefaultOffContent = "Off";
+    private const string DefaultOnContent = "";
+    private const string DefaultOffContent = "";
+
+    public static readonly DependencyProperty ContentPlacementProperty = DependencyProperty.Register(
+        nameof(ContentPlacement),
+        typeof(ToggleSwitchContentPlacement),
+        typeof(ToggleSwitch),
+        new PropertyMetadata(ToggleSwitchContentPlacement.Right));
 
     public static readonly DependencyProperty OnContentProperty = DependencyProperty.Register(
         nameof(OnContent),
@@ -29,6 +34,12 @@ public class ToggleSwitch : ToggleButton
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(ToggleSwitch), new FrameworkPropertyMetadata(typeof(ToggleSwitch)));
         ToolTipService.ShowOnDisabledProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(true));
+    }
+
+    public ToggleSwitchContentPlacement ContentPlacement
+    {
+        get => (ToggleSwitchContentPlacement)GetValue(ContentPlacementProperty);
+        set => SetValue(ContentPlacementProperty, value);
     }
 
     public object OnContent

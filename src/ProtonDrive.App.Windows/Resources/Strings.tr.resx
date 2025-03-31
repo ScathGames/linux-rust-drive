@@ -330,7 +330,7 @@
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="BugReport_CheckBox_IncludeLogs_Tooltip">
-    <value>Bildirime, uygulama tarafından oluşturulmuş son 3 günlük dosyası eklenecek.</value>
+    <value>Bildirime kurulum günlüğü ve son uygulama günlüğü dosyaları eklenecek</value>
   </data>
   <data name="BugReport_Text_Description_HelpText">
     <value>Açıklama. Sorun neydi? Yaptığınız işlemlerin tümü nelerdir? (en az 10 karakter)</value>
@@ -454,6 +454,27 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
   <data name="FileSystemErrorCode_Value_Unknown">
     <value>Bir sorun çıktı</value>
   </data>
+  <data name="FileSystemNameValidationResult_Value_Empty">
+    <value>Ad boş olamaz</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_EndsWithPeriod">
+    <value>Ad bir nokta ile bitiyor</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_EndsWithSpace">
+    <value>Ad bir boşluk ile bitiyor</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_InvalidCharacters">
+    <value>Ad içinde geçersiz karakterler var</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_Reserved">
+    <value>Ad Windows tarafından desteklenmiyor</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_Success">
+    <value></value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_TooLong">
+    <value>Ad çok uzun</value>
+  </data>
   <data name="Main_About_AppUpdateStatus_Value_CheckingForUpdate">
     <value>Güncelleme denetleniyor...</value>
   </data>
@@ -470,7 +491,7 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
     <value>Güncelleme yayınlanmış</value>
   </data>
   <data name="Main_About_Button_PrivacyPolicy">
-    <value>Gi_zlilik ilkesi</value>
+    <value>_Gizlilik ilkesi</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_About_Button_TermsOfService">
@@ -584,6 +605,12 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
     <value>_Eşitlemeyi duraklat</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
+  <data name="Main_Activity_Button_Rename">
+    <value>Yeniden adlandır</value>
+  </data>
+  <data name="Main_Activity_Button_Rename_Tooltip">
+    <value>Eşitleme sorununu gidermek için bu ögeyi yeniden adlandırın</value>
+  </data>
   <data name="Main_Activity_Button_ResumeSync">
     <value>Eşitlemeyi _sürdür</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
@@ -663,11 +690,62 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
   <data name="Main_Activity_Intro_Paused_Title">
     <value>Eşitleme duraklatıldı</value>
   </data>
+  <data name="Main_Activity_Rename_CurrentName_Label">
+    <value>Geçerli ad:</value>
+  </data>
+  <data name="Main_Activity_Rename_Description">
+    <value>Bu ögenin adında Windows tarafından desteklenmeyen karakterler var.</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_AlreadyExists">
+    <value>Ad zaten kullanılıyor</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_Failed">
+    <value>Bir sorun çıktı</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_InvalidCharacters">
+    <value>Ad içinde geçersiz karakterler var</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_Required">
+    <value>Adın yazılması zorunludur</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Label">
+    <value>Yeni ad:</value>
+  </data>
+  <data name="Main_Activity_Rename_Status_Value_Renaming">
+    <value>Yeniden adlandırılıyor...</value>
+  </data>
+  <data name="Main_Activity_Rename_Suggestion">
+    <value>Eşitlemeyi sürdürmek için lütfen şunları kaldırın:</value>
+  </data>
+  <data name="Main_Activity_Rename_Suggestion_CharacterList">
+    <value>/ : * ? &gt; &lt; " |</value>
+  </data>
+  <data name="Main_Activity_Rename_Title">
+    <value>Öge yeniden adlandırılıyor</value>
+  </data>
   <data name="Main_Activity_Status_Value_SettingUp">
     <value>Kuruluyor...</value>
   </data>
   <data name="Main_Activity_Status_Value_SettingUpFormat">
     <value>Kuruluyor... ({0} öge eşitlemeye hazırlandı)</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_DaysAgoFormat">
+    <value>{0} gün önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_HoursAgoFormat">
+    <value>{0} saat önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_MinutesAgoFormat">
+    <value>{0} dakika önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneDayAgo">
+    <value>bir gün önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneHourAgo">
+    <value>bir saat önce</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneMinuteAgo">
+    <value>bir dakika önce</value>
   </data>
   <data name="Main_Activity_Title">
     <value>Etkinlik</value>
@@ -720,7 +798,7 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
     <value>{0} klasör bulunamadı veya açılamadı</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_LocalVolumeNotSupportedFormat">
-    <value>Desteklenmeyen bir Drive üzerinde bulunduğundan {0} klasör eşitlenemedi</value>
+    <value>Desteklenmeyen bir sürücüde bulunduğundan {0} klasör eşitlenemedi</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_NetworkFolderNotSupportedFormat">
     <value>Ağ klasörleri desteklenmediğinden {0} klasör eşitlenemedi</value>
@@ -747,6 +825,13 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
   <data name="Main_MyComputer_Folders_Column_Name">
     <value>Ad</value>
   </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization">
+    <value>Depolama alanını iyileştir</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization_Info_Tooltip">
+    <value>İsteğe bağlı eşitlemeyi açarak depolama alanı kullanımını iyileştirin.
+Dosyaların bu aygıtta yalnızca onları açtığınızda ya da her zaman bulunmasını seçin. Bu seçeneği istediğiniz zaman kapatabilirsiniz.</value>
+  </data>
   <data name="Main_MyComputer_Folders_Intro_Description">
     <value>Dosyaları bulutla güvenle eşitlemek için klasör ekleyin</value>
   </data>
@@ -755,10 +840,6 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
   </data>
   <data name="Main_MyComputer_Folders_Label">
     <value>Bu aygıtta eşitlenen klasörler</value>
-  </data>
-  <data name="Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync">
-    <value>İsteğe _bağlı eşitlemeyi aç</value>
-    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_MyComputer_Folders_Menu_Item_OpenFolder">
     <value>_Klasörü aç</value>
@@ -771,17 +852,80 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
   <data name="Main_MyComputer_Folders_RemoveConfirmation_Button_Confirm">
     <value>Klasörü kaldır</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_1">
-    <value>{0} klasörüne eklenen dosyalar artık eşitlenmeyecek ve bu klasör Proton Drive Çöp Kutusu içine taşınacak.</value>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_1">
+    <value>"{0}" klasörüne eklenen dosyalar artık eşitlenmeyecek ve bu klasör Proton Drive Çöp Kutusu içine taşınacak.</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_2">
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_2">
     <value>Var olan dosyalar bilgisayarınızda kalmayı sürdürecek.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_1">
+    <value>“{0}” klasöründeki bazı dosyalar yalnızca bulutta depolanabilir. Bu klasörün kaldırılması eşitlenmesini durduracak ve bu klasör Proton Drive Çöp Kutusu içine taşınacak.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_2">
+    <value>Bilgisayarınızdaki tüm dosyaların yerel bir kopyasını tutmak için önce bu klasör için depolama alanını iyileştir seçeneğini kapatın. Depolama alanını iyileştirme seçeneği zaten kapalıysa, açıp yeniden kapatın. İndirme işleminin tamamlanmasını bekleyin (Dosya Gezgini üzerinden durumu kontrol edebilirsiniz), ardından Bilgisayarım bölümünden klasörün eşitlenmesini kaldırın.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_1">
+    <value>Daha önce indirilmiş olan dosyalar aygıtınızda kalacak.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_2">
+    <value>Yalnızca bulutta depolanan dosyalar aygıtınızdan kaldırılacak.</value>
   </data>
   <data name="Main_MyComputer_Folders_RemoveConfirmation_Title">
     <value>Klasör kaldırılsın mı?</value>
   </data>
-  <data name="Main_MyComputer_Folders_SyncMethod_Value_OnDemand">
-    <value>(isteğe bağlı)</value>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_1">
+    <value>“{0}” klasöründeki dosyalar artık her zaman aygıt üzerinde tutulacak. Tüm dosyaların indirilmesi birkaç dakika sürebilir (Dosya Gezgini üzerinden durumu kontrol edebilirsiniz).</value>
+    <comment>Placeholder {0}: folder name</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_2">
+    <value>Yine de her dosyanın ayarlarından el ile yer açabilirsiniz.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Title">
+    <value>Tüm dosyalar her zaman bu aygıtta tutuluyor</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_1">
+    <value>{1} nedeniyle depolama alanını iyileştirmek için “{0}” klasöründe isteğe bağlı eşitleme kullanılamaz .</value>
+    <comment>Placeholder {0}: folder name. Placeholder {1}: the reason text, one of resources with "StorageOptimizationErrorCode_Value_..." key.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_2">
+    <value>Dosyalarınız Proton Drive ile eşitlenmeyi sürdürür ve hem bilgisayarınızdan hem de buluttan kullanılabilir.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Title">
+    <value>Depolama alanı iyileştirmesi kullanılamıyor</value>
+  </data>
+  <data name="Main_MyComputer_OnboardingPage_Button_Close_HelpText">
+    <value>Bilgisayarımı hazırlamayı atla</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Button_Next">
+    <value>_Sonraki</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Description">
+    <value>Sabit disk alanından kazanmak için isteğe bağlı eşitlemeyi açın. Dosyalar yalnızca onları açtığınızda veya “Her zaman bu aygıtta tut” seçeneğini işaretlediğinizde yerel depolama alanında yer kaplar.</value>
+    <comment>"Always keep on this device" is the exact text displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Title">
+    <value>Depolama alanını iyileştir</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Button_GetStarted">
+    <value>_Başlayalım</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1">
+    <value>Proton Drive ile eşitlenen herhangi bir dosya veya klasöre sağ tıklayın</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1_Label">
+    <value>1.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2">
+    <value>Çevrim dışı tutmak için "Her zaman bu aygıtta tut", yalnızca bulutta tutmak için "Yer aç" seçeneğine tıklayın..</value>
+    <comment>"Always keep on this device" and "Free up space" are the exact texts displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2_Label">
+    <value>2.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Title">
+    <value>Depolama alanı yönetimi</value>
   </data>
   <data name="Main_MyComputer_Title">
     <value>Bilgisayarım</value>
@@ -802,6 +946,12 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
   <data name="Main_Settings_Label_General">
     <value>Genel</value>
   </data>
+  <data name="Main_Settings_Language_Button_Restart">
+    <value>Yeniden başlat</value>
+  </data>
+  <data name="Main_Settings_Language_Message_PleaseRestart">
+    <value>Dil değişikliğinin uygulanması için lütfen uygulamayı yeniden başlatın</value>
+  </data>
   <data name="Main_Settings_Language_Title">
     <value>Dil</value>
   </data>
@@ -810,12 +960,6 @@ Geri yüklemek ve bu hatayı gidermek için eşitlemeyi kapatıp yeniden açın.
   </data>
   <data name="Main_Settings_OpenOnStartup_Title">
     <value>Başlangıçta açılsın</value>
-  </data>
-  <data name="Main_Settings_Language_Button_Restart">
-    <value>Şimdi yeniden başlat</value>
-  </data>
-  <data name="Main_Settings_Language_Message_PleaseRestart">
-    <value>Lütfen dil değişikliğini uygulamak için uygulamayı yeniden başlatın</value>
   </data>
   <data name="Main_Settings_Title">
     <value>Ayarlar</value>
@@ -906,7 +1050,7 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
     <value>{0} / {1} öge eşitlendi</value>
   </data>
   <data name="Main_SharedWithMe_Title">
-    <value>Benimle paylaşılanlar</value>
+    <value>Benimle paylaşılan</value>
   </data>
   <data name="Main_SharedWithMe_Warning_MaxNumberOfSyncedItems_Advice">
     <value>Yeni ögeler eklemek için lütfen bazı eski ögeleri eşitlemeyi bırakın.</value>
@@ -954,10 +1098,31 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
     <value>Menü ögesi: Ayarlar</value>
   </data>
   <data name="Main_Sidebar_NavigationMenu_Item_SharedWithMe">
-    <value>Benimle paylaşılanlar</value>
+    <value>Benimle paylaşılan</value>
   </data>
   <data name="Main_Sidebar_NavigationMenu_Item_SharedWithMe_HelpText">
     <value>Menü ögesi: Benimle paylaşılanlar</value>
+  </data>
+  <data name="Main_Sidebar_Notification_ExceededQuota_Description">
+    <value>Eşitleme durduruldu: Hesabınızın depolama alanı sınırına ulaşıldı</value>
+  </data>
+  <data name="Main_Sidebar_Notification_ExceedingQuota_Description">
+    <value>Depolama alanı sınırınıza ulaşmak üzeresiniz</value>
+  </data>
+  <data name="Main_Sidebar_Notification_GetStarted_Description">
+    <value>Başlayalım</value>
+  </data>
+  <data name="Main_Sidebar_Notification_NewVersion_Description">
+    <value>Yeni bir Proton Drive sürümü yayınlanmış!</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SharingUnavailable_Description">
+    <value>Paylaşım geçici olarak kullanılamıyor</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SyncFoldersFailure_Description">
+    <value>Bir klasör eşitlenemedi</value>
+  </data>
+  <data name="Main_Sidebar_Notification_UpdateRequired_Description">
+    <value>Proton Drive kullanmayı sürdürmek için son sürüme güncellemelisiniz</value>
   </data>
   <data name="Main_Sidebar_Offer_Button_GetDeal">
     <value>_Tekliften yararlan</value>
@@ -980,6 +1145,12 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
   </data>
   <data name="Main_Window_Title">
     <value>Proton Drive</value>
+  </data>
+  <data name="MappingErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists">
+    <value>Bu klasörde, isteğe bağlı olarak eşitlenen bir alt klasör var. Yeni bir eşitleme klasörü ayarlayın.</value>
+  </data>
+  <data name="MappingErrorCode_Value_ConflictingOnDemandSyncRootExists">
+    <value>Bu klasör zaten isteğe bağlı olarak eşitleniyor. Yeni bir eşitleme klasörü ayarlayın.</value>
   </data>
   <data name="MappingErrorCode_Value_DriveAccessFailed">
     <value>Proton Drive bağlantısı kurulamadı. İnternet bağlantınızı denetleyin.</value>
@@ -1018,7 +1189,7 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
     <value>Eşitleme klasörü bulunamadı. Silinmiş, yeniden adlandırılmış veya taşınmış olabilir. Eşitleme klasörünü geri yükleyin ya da yeni bir eşitleme klasörü oluşturun.</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludedByAnAlreadySyncedFolder">
-    <value>Seçilmiş klasör, zaten eşitlenen bir klasörün içinde bulunuyor</value>
+    <value>Seçilmiş klasör eşitlenen başka bir klasörde zaten bulunuyor</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludesAnAlreadySyncedFolder">
     <value>Seçilmiş klasör içinde zaten eşitlenen bir klasör bulunuyor</value>
@@ -1029,14 +1200,14 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
   <data name="MappingErrorCode_Value_LocalFolderNotEmpty">
     <value>Eşitleme kurulmadan önce yerel klasör boş olmalıdır</value>
   </data>
-  <data name="MappingErrorCode_Value_LocalOnDemandSyncRootNotRegistered">
-    <value>Eşitleme klasörü beklenmedik bir şekilde kayıttan kaldırılmış. Yeni bir eşitleme klasörü oluşturun.</value>
-  </data>
   <data name="MappingErrorCode_Value_LocalVolumeNotSupported">
     <value>Yerel sürücü türü desteklenmiyor. Eşitleme klasörünü farklı bir yerel sürücüde kurmayı deneyin.</value>
   </data>
   <data name="MappingErrorCode_Value_None">
     <value></value>
+  </data>
+  <data name="MappingErrorCode_Value_OnDemandSyncRootNotRegistered">
+    <value>Eşitleme klasörünün kaydı beklenmedik bir şekilde kaldırıldı. Yeni bir eşitleme klasörü ayarlayın.</value>
   </data>
   <data name="MappingErrorCode_Value_RemoteShareWithMeItemDoesNotExist">
     <value>Paylaşılan Proton Drive dosyasına veya klasörüne erişilemiyor. Sizinle hala paylaşılıp paylaşılmadığını kontrol edin.</value>
@@ -1103,7 +1274,7 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
     <value>Klasörlerinizi yedekleyin</value>
   </data>
   <data name="Onboarding_UpgradeStorage_Button_NotNow">
-    <value>Şimdi _değil</value>
+    <value>_Şimdi değil</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Onboarding_UpgradeStorage_Button_Upgrade">
@@ -1217,6 +1388,29 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
   <data name="SignIn_Title_2FA">
     <value>İki adımlı doğrulama</value>
   </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists">
+    <value>{0} ile isteğe bağlı olarak eşitlenen bir alt klasörü var</value>
+    <comment>Placeholder {0}: An application name</comment>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingOnDemandSyncRootExists">
+    <value>zaten {0} ile isteğe bağlı olarak eşitleniyor</value>
+    <comment>Placeholder {0}: An application name</comment>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_NetworkVolumeNotSupported">
+    <value>ağ sürücüleri desteklenmiyor</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_None">
+    <value></value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_RemovableVolumeNotSupported">
+    <value>çıkarılabilir sürücüler desteklenmiyor</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_Unknown">
+    <value>isteğe bağlı eşitleme açılamadı</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_VolumeNotSupported">
+    <value>yerel sürücü türü desteklenmiyor</value>
+  </data>
   <data name="SyncFolderValidationResult_Title_InsufficientLocalFreeSpace">
     <value>Bu aygıtta yeterli boş alan yok</value>
   </data>
@@ -1266,7 +1460,7 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
     <value>Çevrim dışı</value>
   </data>
   <data name="SyncStatus_Value_Paused">
-    <value>Duraklatıldı</value>
+    <value>Duraklatılmış</value>
   </data>
   <data name="SyncStatus_Value_Synchronizing">
     <value>Eşitleniyor...</value>
@@ -1299,22 +1493,10 @@ Dosyaların içeriği yalnızca istek yapıldığında indirilir.</value>
     <value>_Oturum aç</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
-  <data name="Main_Activity_TimeElapsed_OneMinuteAgo" xml:space="preserve">
-    <value>bir dakika önce</value>
+  <data name="ToggleSwitch_Off">
+    <value>Kapalı</value>
   </data>
-  <data name="Main_Activity_TimeElapsed_OneHourAgo" xml:space="preserve">
-    <value>bir saat önce</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_OneDayAgo" xml:space="preserve">
-    <value>bir gün önce</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_MinutesAgoFormat" xml:space="preserve">
-    <value>{0} dakika önce</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_HoursAgoFormat" xml:space="preserve">
-    <value>{0} saat önce</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_DaysAgoFormat" xml:space="preserve">
-    <value>{0} gün önce</value>
+  <data name="ToggleSwitch_On">
+    <value>Açık</value>
   </data>
 </root>

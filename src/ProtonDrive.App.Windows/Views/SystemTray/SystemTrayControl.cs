@@ -20,7 +20,6 @@ internal sealed class SystemTrayControl : IDisposable
     private readonly NotifyIcon _wrappedControl = new();
     private readonly SystemTrayContextMenuView _contextMenu = new();
     private readonly AppIconStatusToIconConverter _iconConverter = new();
-    private readonly EnumToDisplayTextConverter _enumConverter = EnumToDisplayTextConverter.Instance;
 
     public SystemTrayControl(SystemTrayViewModel dataContext)
     {
@@ -81,7 +80,7 @@ internal sealed class SystemTrayControl : IDisposable
 
     private void UpdateTooltip()
     {
-        _wrappedControl.Text = AppName + CommaSeparator + _enumConverter.Convert(_dataContext.AppDisplayStatus, null, null, null);
+        _wrappedControl.Text = AppName + CommaSeparator + EnumToDisplayTextConverter.Convert(_dataContext.AppDisplayStatus);
     }
 
     private void UpdateIcon()

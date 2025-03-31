@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using ProtonDrive.App.Localization;
 using ProtonDrive.App.Windows.SystemIntegration;
-using ProtonDrive.Shared.Localization;
 
 namespace ProtonDrive.App.Windows.Views.Main.Settings;
 
@@ -13,8 +11,6 @@ internal class SettingsViewModel : PageViewModel
 {
     private readonly IOperatingSystemIntegrationService _operatingSystemIntegrationService;
     private readonly ILanguageService _languageService;
-    private readonly string? _initialSelectedCulture;
-    private readonly string _uiCulture;
 
     private bool _appIsOpeningOnStartup;
     private bool _languageHasChanged;
@@ -23,19 +19,16 @@ internal class SettingsViewModel : PageViewModel
     public SettingsViewModel(
         IApp app,
         IOperatingSystemIntegrationService operatingSystemIntegrationService,
-        AccountRootSyncFolderViewModel accountRotSyncFolder,
-        ILanguageService languageService,
-        ILanguageProvider languageProvider)
+        AccountRootSyncFolderViewModel accountRootSyncFolder,
+        ILanguageService languageService)
     {
-        AccountRootSyncFolder = accountRotSyncFolder;
+        AccountRootSyncFolder = accountRootSyncFolder;
         _operatingSystemIntegrationService = operatingSystemIntegrationService;
         _languageService = languageService;
         _appIsOpeningOnStartup = _operatingSystemIntegrationService.GetRunApplicationOnStartup();
 
         SupportedLanguages = languageService.GetSupportedLanguages().ToList();
-        _uiCulture = languageProvider.GetCulture();
-        _selectedLanguage = GetSelectedLanguageOrDefault();
-        _initialSelectedCulture = _selectedLanguage.CultureName;
+        _selectedLanguage = languageService.CurrentLanguage;
 
         RestartAppCommand = new AsyncRelayCommand(app.RestartAsync);
     }
@@ -57,7 +50,7 @@ internal class SettingsViewModel : PageViewModel
     public bool LanguageHasChanged
     {
         get => _languageHasChanged;
-        set => SetProperty(ref _languageHasChanged, value);
+        private set => SetProperty(ref _languageHasChanged, value);
     }
 
     public bool AppIsOpeningOnStartup
@@ -84,23 +77,7 @@ internal class SettingsViewModel : PageViewModel
 
     private void OnSelectedLanguageChanged(Language value)
     {
-        _languageService.CurrentLanguage = value.CultureName;
-        LanguageHasChanged = !string.Equals(value.CultureName, _initialSelectedCulture ?? _uiCulture, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private Language GetSelectedLanguageOrDefault()
-    {
-        if (_languageService.CurrentLanguage is null)
-        {
-            return GetDefaultLanguage();
-        }
-
-        return SupportedLanguages.FirstOrDefault(x => string.Equals(x.CultureName, _languageService.CurrentLanguage, StringComparison.OrdinalIgnoreCase))
-            ?? GetDefaultLanguage();
-
-        Language GetDefaultLanguage()
-        {
-            return SupportedLanguages.First(x => x.CultureName is null);
-        }
+        _languageService.CurrentLanguage = value;
+        LanguageHasChanged = _languageService.HasLanguageChanged;
     }
 }

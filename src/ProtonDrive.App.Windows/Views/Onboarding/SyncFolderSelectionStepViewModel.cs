@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Onboarding;
-using ProtonDrive.App.Windows.Views.Main.Computers;
+using ProtonDrive.App.Windows.Views.Main.MyComputer;
 
 namespace ProtonDrive.App.Windows.Views.Onboarding;
 
@@ -65,7 +65,7 @@ internal sealed class SyncFolderSelectionStepViewModel : OnboardingStepViewModel
         {
             await DelayBeforeSwitchingStepAsync().ConfigureAwait(true);
 
-            await AddFoldersViewModel.SaveCommand.ExecuteAsync(default).ConfigureAwait(false);
+            await AddFoldersViewModel.SaveCommand.ExecuteAsync(null).ConfigureAwait(false);
 
             _onboardingService.CompleteStep(OnboardingStep.SyncFolderSelection);
         }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Settings;
 using ProtonDrive.App.SystemIntegration;
+using ProtonDrive.Shared.Telemetry;
 
 namespace ProtonDrive.App.Mapping.Setup.HostDeviceFolders;
 
@@ -11,15 +12,21 @@ internal sealed class HostDeviceFolderMappingSetupFinalizationStep
 {
     private readonly OnDemandSyncEligibilityValidator _onDemandSyncEligibilityValidator;
     private readonly IOnDemandSyncRootRegistry _onDemandSyncRootRegistry;
+    private readonly ILocalStorageOptimizationStep _storageOptimizationStep;
+    private readonly IErrorCounter _errorCounter;
     private readonly ILogger<HostDeviceFolderMappingSetupFinalizationStep> _logger;
 
     public HostDeviceFolderMappingSetupFinalizationStep(
         OnDemandSyncEligibilityValidator onDemandSyncEligibilityValidator,
         IOnDemandSyncRootRegistry onDemandSyncRootRegistry,
+        ILocalStorageOptimizationStep storageOptimizationStep,
+        IErrorCounter errorCounter,
         ILogger<HostDeviceFolderMappingSetupFinalizationStep> logger)
     {
         _onDemandSyncEligibilityValidator = onDemandSyncEligibilityValidator;
         _onDemandSyncRootRegistry = onDemandSyncRootRegistry;
+        _storageOptimizationStep = storageOptimizationStep;
+        _errorCounter = errorCounter;
         _logger = logger;
     }
 
@@ -32,38 +39,80 @@ internal sealed class HostDeviceFolderMappingSetupFinalizationStep
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Upon requesting to enable on-demand sync for the host device folder, the mapping sync method is still classic
-        if (mapping.SyncMethod is not SyncMethod.OnDemand && !mapping.IsEnablingOnDemandSyncRequested())
+        // Upon requesting to optimize storage, the mapping sync method can still be classic
+        if (mapping.SyncMethod is not SyncMethod.OnDemand && !mapping.IsStorageOptimizationPending())
         {
             return MappingErrorCode.None;
         }
 
-        if (mapping.IsEnablingOnDemandSyncRequested() &&
+        if (mapping.SyncMethod is not SyncMethod.OnDemand && mapping.IsStorageOptimizationPending() &&
             ValidateOnDemandSyncEligibility(mapping) is { } validationResult)
         {
             _logger.LogWarning("The local sync folder is not eligible for on-demand sync: {ErrorCode}", validationResult);
 
-            mapping.SetEnablingOnDemandSyncFailed();
-            return validationResult;
+            mapping.SetEnablingOnDemandSyncFailed(validationResult);
+
+            _errorCounter.Add(ErrorScope.StorageOptimization, new LocalStorageOptimizationException(mapping));
+
+            return MappingErrorCode.None;
         }
 
-        if (await AddOnDemandSyncRootAsync(mapping).ConfigureAwait(false) is { } errorCode)
+        if (await TryAddOnDemandSyncRootAsync(mapping).ConfigureAwait(false) is { } resultInfo)
         {
-            mapping.SetEnablingOnDemandSyncFailed();
-            return errorCode;
+            if (mapping.SyncMethod is SyncMethod.OnDemand)
+            {
+                return resultInfo.ErrorCode;
+            }
+
+            var errorInfo = ToStorageOptimizationErrorInfo(resultInfo.ErrorCode, resultInfo.ConflictingProviderName);
+
+            mapping.SetEnablingOnDemandSyncFailed(errorInfo.ErrorCode, errorInfo.ConflictingProviderName);
+
+            _errorCounter.Add(ErrorScope.StorageOptimization, new LocalStorageOptimizationException(mapping));
+
+            return MappingErrorCode.None;
         }
 
         mapping.SetEnablingOnDemandSyncSucceeded();
+
+        OptimizeStorage(mapping);
+
         return MappingErrorCode.None;
     }
 
-    private MappingErrorCode? ValidateOnDemandSyncEligibility(RemoteToLocalMapping mapping)
+    private static (StorageOptimizationErrorCode ErrorCode, string? ConflictingProviderName) ToStorageOptimizationErrorInfo(MappingErrorCode errorCode, string? conflictingProviderName)
+    {
+        return errorCode switch
+        {
+            MappingErrorCode.ConflictingOnDemandSyncRootExists => (StorageOptimizationErrorCode.ConflictingOnDemandSyncRootExists, conflictingProviderName),
+            MappingErrorCode.ConflictingDescendantOnDemandSyncRootExists => (StorageOptimizationErrorCode.ConflictingDescendantOnDemandSyncRootExists, conflictingProviderName),
+            _ => (StorageOptimizationErrorCode.Unknown, null),
+        };
+    }
+
+    private StorageOptimizationErrorCode? ValidateOnDemandSyncEligibility(RemoteToLocalMapping mapping)
     {
         return _onDemandSyncEligibilityValidator.Validate(mapping.Local.Path);
     }
 
-    private Task<MappingErrorCode?> AddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
+    private Task<MappingErrorInfo?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
         return _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping);
+    }
+
+    private void OptimizeStorage(RemoteToLocalMapping mapping)
+    {
+        var errorCode = _storageOptimizationStep.Execute(mapping);
+
+        if (errorCode is null)
+        {
+            mapping.SetStorageOptimizationSucceeded();
+        }
+        else
+        {
+            mapping.SetStorageOptimizationFailed();
+
+            _errorCounter.Add(ErrorScope.StorageOptimization, new LocalStorageOptimizationException(mapping));
+        }
     }
 }

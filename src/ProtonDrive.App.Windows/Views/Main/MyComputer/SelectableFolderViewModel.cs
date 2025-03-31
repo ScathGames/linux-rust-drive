@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ProtonDrive.App.Mapping;
 using ProtonDrive.App.Windows.SystemIntegration;
 
-namespace ProtonDrive.App.Windows.Views.Main.Computers;
+namespace ProtonDrive.App.Windows.Views.Main.MyComputer;
 
 internal sealed class SelectableFolderViewModel : ObservableObject
 {

@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Devices;
-using ProtonDrive.App.Mapping.Setup;
 using ProtonDrive.App.Services;
 using ProtonDrive.App.Settings;
 using ProtonDrive.App.SystemIntegration;
@@ -24,6 +23,7 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
     private readonly ISyncFolderPathProvider _syncFolderPathProvider;
     private readonly ILocalFolderService _localFolderService;
     private readonly IMappingRegistry _mappingRegistry;
+    private readonly INumberSuffixedNameGenerator _numberSuffixedNameGenerator;
     private readonly ILogger<DeviceMappingMaintenanceService> _logger;
     private readonly CoalescingAction _mappingMaintenance;
 
@@ -36,11 +36,13 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
         ISyncFolderPathProvider syncFolderPathProvider,
         ILocalFolderService localFolderService,
         IMappingRegistry mappingRegistry,
+        INumberSuffixedNameGenerator numberSuffixedNameGenerator,
         ILogger<DeviceMappingMaintenanceService> logger)
     {
         _syncFolderPathProvider = syncFolderPathProvider;
         _localFolderService = localFolderService;
         _mappingRegistry = mappingRegistry;
+        _numberSuffixedNameGenerator = numberSuffixedNameGenerator;
         _logger = logger;
 
         _mappingMaintenance = _logger.GetCoalescingActionWithExceptionsLoggingAndCancellationHandling(MaintainMappingsAsync, nameof(DeviceMappingMaintenanceService));
@@ -247,16 +249,16 @@ internal sealed class DeviceMappingMaintenanceService : IStoppableService, IDevi
 
     private string GetUniqueName(string name, HashSet<string> namesInUse, string parentPath)
     {
-        var nameGenerator = new NumberSuffixedNameGenerator(name, NameType.Folder);
-
-        var uniqueName = nameGenerator.GenerateNames().First(
-            candidateName =>
-            {
-                var itemPath = Path.Combine(parentPath, candidateName);
-                return !namesInUse.Contains(candidateName)
-                    && !_localFolderService.FolderExists(itemPath)
-                    && !_localFolderService.FileExists(itemPath);
-            });
+        var uniqueName = _numberSuffixedNameGenerator
+            .GenerateNames(name, NameType.Folder)
+            .First(
+                candidateName =>
+                {
+                    var itemPath = Path.Combine(parentPath, candidateName);
+                    return !namesInUse.Contains(candidateName)
+                        && !_localFolderService.FolderExists(itemPath)
+                        && !_localFolderService.FileExists(itemPath);
+                });
 
         namesInUse.Add(uniqueName);
 

@@ -27,7 +27,7 @@ internal sealed class WinRegistryLanguageRepository : IRepository<LanguageSettin
 
             if (registryKey is null)
             {
-                _logger.LogWarning("Failed to get the culture name: Registry {Key} not found", ProtonDriveRegistryKeyName);
+                _logger.LogWarning("Failed to read app language: Registry key '{Key}' not found", ProtonDriveRegistryKeyName);
                 return null;
             }
 
@@ -40,9 +40,9 @@ internal sealed class WinRegistryLanguageRepository : IRepository<LanguageSettin
 
             return new LanguageSettings(value);
         }
-        catch (Exception ex) when (ex is InvalidOperationException or ObjectDisposedException or SecurityException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is ObjectDisposedException or SecurityException or UnauthorizedAccessException)
         {
-            _logger.LogWarning("Failed to get the culture name: {Message}", ex.Message);
+            _logger.LogWarning("Failed to read app language: {Message}", ex.Message);
             return null;
         }
     }
@@ -55,7 +55,7 @@ internal sealed class WinRegistryLanguageRepository : IRepository<LanguageSettin
 
             if (registryKey is null)
             {
-                _logger.LogWarning("Failed to update app language: Registry {Key} not found", ProtonDriveRegistryKeyName);
+                _logger.LogWarning("Failed to write app language: Registry key '{Key}' not found", ProtonDriveRegistryKeyName);
                 return;
             }
 
@@ -67,9 +67,9 @@ internal sealed class WinRegistryLanguageRepository : IRepository<LanguageSettin
 
             registryKey.SetValue(LanguageValueName, value.CultureName);
         }
-        catch (Exception ex) when (ex is InvalidOperationException or ObjectDisposedException or SecurityException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is ObjectDisposedException or SecurityException or UnauthorizedAccessException)
         {
-            _logger.LogWarning("Failed to update app language: {Message}", ex.Message);
+            _logger.LogWarning("Failed to write app language: {Message}", ex.Message);
         }
     }
 }

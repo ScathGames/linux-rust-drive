@@ -13,7 +13,9 @@ using ProtonDrive.App.Authentication;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.Shared.Configuration;
 using ProtonDrive.Shared.Extensions;
+using ProtonDrive.Shared.IO;
 using ProtonDrive.Sync.Windows.FileSystem;
+using ProtonDrive.Sync.Windows.Shell;
 using Vanara.PInvoke;
 using Windows.Security.Cryptography;
 using Windows.Storage;
@@ -53,16 +55,30 @@ internal class CloudFilterSyncRootRegistry : IOnDemandSyncRootRegistry, ISession
         return TryRemoveAllEntries(NullLogger.Instance);
     }
 
-    public async Task<OnDemandSyncRootVerificationVerdict> VerifyAsync(OnDemandSyncRootInfo root)
+    public async Task<OnDemandSyncRootVerificationResult> VerifyAsync(OnDemandSyncRootInfo root)
     {
         var rootInfo = await CreateSyncRootInfoAsync(root).ConfigureAwait(false);
 
         if (rootInfo == null)
         {
-            return OnDemandSyncRootVerificationVerdict.VerificationFailed;
+            return new OnDemandSyncRootVerificationResult(OnDemandSyncRootVerificationVerdict.VerificationFailed);
         }
 
-        return VerifySyncRoot(rootInfo);
+        var (verdict, conflictingRootInfo) = VerifySyncRoot(rootInfo);
+
+        if (verdict is not OnDemandSyncRootVerificationVerdict.NotRegistered)
+        {
+            return new OnDemandSyncRootVerificationResult(verdict, GetProviderName(conflictingRootInfo));
+        }
+
+        var descendantRootInfo = GetDescendantSyncRoot(rootInfo);
+
+        if (descendantRootInfo is not null)
+        {
+            return new OnDemandSyncRootVerificationResult(OnDemandSyncRootVerificationVerdict.ConflictingDescendantRootExists, GetProviderName(descendantRootInfo));
+        }
+
+        return new OnDemandSyncRootVerificationResult(verdict);
     }
 
     public async Task<bool> TryRegisterAsync(OnDemandSyncRootInfo root)
@@ -103,6 +119,8 @@ internal class CloudFilterSyncRootRegistry : IOnDemandSyncRootRegistry, ISession
 
             foreach (var rootId in syncRootManagerKey.GetSubKeyNames().Where(n => n.StartsWith($"{ProviderName}!")))
             {
+                TryShowShellFolder(rootId, logger);
+
                 succeeded &= TryUnregisterSyncRoot(rootId, logger);
             }
 
@@ -119,8 +137,6 @@ internal class CloudFilterSyncRootRegistry : IOnDemandSyncRootRegistry, ISession
     {
         try
         {
-            TryShowShellFolder(rootId, logger);
-
             StorageProviderSyncRootManager.Unregister(rootId);
 
             logger.LogInformation("On-demand sync root \"{RootId}\" unregistered", rootId);
@@ -189,18 +205,46 @@ internal class CloudFilterSyncRootRegistry : IOnDemandSyncRootRegistry, ISession
     {
         using var directory = FileSystemDirectory.Open(path, FileSystemFileAccess.WriteAttributes, FileShare.ReadWrite);
 
-        long usn = 0;
-
         var result = CldApi.CfSetInSyncState(
             directory.FileHandle,
             CldApi.CF_IN_SYNC_STATE.CF_IN_SYNC_STATE_IN_SYNC,
-            CldApi.CF_SET_IN_SYNC_FLAGS.CF_SET_IN_SYNC_FLAG_NONE,
-            ref usn);
+            CldApi.CF_SET_IN_SYNC_FLAGS.CF_SET_IN_SYNC_FLAG_NONE);
 
         Marshal.ThrowExceptionForHR((int)result);
     }
 
-    private OnDemandSyncRootVerificationVerdict VerifySyncRoot(StorageProviderSyncRootInfo rootInfo)
+    private static void NotifyChanges(string path)
+    {
+        ShellExtensions.NotifyItemUpdate(path);
+    }
+
+    private static string? GetProviderName(StorageProviderSyncRootInfo? rootInfo)
+    {
+        if (rootInfo is null)
+        {
+            return null;
+        }
+
+        var providerName = rootInfo.DisplayNameResource.Trim();
+
+        if (!string.IsNullOrEmpty(providerName))
+        {
+            return providerName;
+        }
+
+        providerName = rootInfo.Id.Split(['!'], 2)[0];
+
+        if (providerName.Length >= rootInfo.Id.Length)
+        {
+            return null;
+        }
+
+        providerName = providerName.Trim();
+
+        return !string.IsNullOrEmpty(providerName) ? providerName : null;
+    }
+
+    private (OnDemandSyncRootVerificationVerdict Verdict, StorageProviderSyncRootInfo? ConflictingRootInfo) VerifySyncRoot(StorageProviderSyncRootInfo rootInfo)
     {
         try
         {
@@ -224,22 +268,53 @@ internal class CloudFilterSyncRootRegistry : IOnDemandSyncRootRegistry, ISession
                 actualInfo.HardlinkPolicy == rootInfo.HardlinkPolicy)
             {
                 _logger.LogInformation("On-demand sync root \"{RootId}\" is valid", rootInfo.Id);
-                return OnDemandSyncRootVerificationVerdict.Valid;
+                return (OnDemandSyncRootVerificationVerdict.Valid, ConflictingRootInfo: null);
+            }
+
+            if (actualInfo.Id != rootInfo.Id)
+            {
+                _logger.LogWarning("On-demand sync root \"{RootId}\" is conflicting with \"{ConflictingRootId}\"", rootInfo.Id, actualInfo.Id);
+
+                return (OnDemandSyncRootVerificationVerdict.ConflictingRootExists, ConflictingRootInfo: actualInfo);
             }
 
             _logger.LogWarning("On-demand sync root \"{RootId}\" is not valid", rootInfo.Id);
-            return OnDemandSyncRootVerificationVerdict.Invalid;
+
+            return (OnDemandSyncRootVerificationVerdict.Invalid, ConflictingRootInfo: null);
         }
         catch (COMException ex) when (ex.ErrorCode == ErrorCodeElementNotFound)
         {
             _logger.LogWarning("On-demand sync root \"{RootId}\" does not exist", rootInfo.Id);
-            return OnDemandSyncRootVerificationVerdict.NotRegistered;
+            return (OnDemandSyncRootVerificationVerdict.NotRegistered, ConflictingRootInfo: null);
         }
         catch (Exception ex) when (ex.IsFileAccessException() || ex is TypeInitializationException || ex is COMException)
         {
             ex.TryGetRelevantFormattedErrorCode(out var errorCode);
             _logger.LogError("Failed to verify on-demand sync root \"{RootId}\": {ErrorCode} {ErrorMessage}.", rootInfo.Id, errorCode, ex.Message);
-            return OnDemandSyncRootVerificationVerdict.VerificationFailed;
+            return (OnDemandSyncRootVerificationVerdict.VerificationFailed, ConflictingRootInfo: null);
+        }
+    }
+
+    private StorageProviderSyncRootInfo? GetDescendantSyncRoot(StorageProviderSyncRootInfo rootInfo)
+    {
+        try
+        {
+            var existingSyncRoots = StorageProviderSyncRootManager.GetCurrentSyncRoots();
+            var descendantRootInfo = existingSyncRoots.FirstOrDefault(x => PathComparison.IsAncestor(rootInfo.Path.Path, x.Path.Path));
+
+            if (descendantRootInfo is null)
+            {
+                return null;
+            }
+
+            _logger.LogWarning("On-demand sync root \"{RootId}\" is conflicting with descendant \"{ConflictingRootId}\"", rootInfo.Id, descendantRootInfo.Id);
+            return descendantRootInfo;
+        }
+        catch (Exception ex) when (ex.IsFileAccessException() || ex is TypeInitializationException || ex is COMException)
+        {
+            ex.TryGetRelevantFormattedErrorCode(out var errorCode);
+            _logger.LogError("Failed to get descendants of on-demand sync root \"{RootId}\": {ErrorCode} {ErrorMessage}.", rootInfo.Id, errorCode, ex.Message);
+            return null;
         }
     }
 
@@ -254,6 +329,8 @@ internal class CloudFilterSyncRootRegistry : IOnDemandSyncRootRegistry, ISession
             AdjustVisibility(rootInfo, shellFolderVisibility);
 
             SetInSync(rootInfo.Path.Path);
+
+            NotifyChanges(rootInfo.Path.Path);
 
             _logger.LogInformation("On-demand sync root \"{RootId}\" registered", rootInfo.Id);
             return true;
@@ -363,6 +440,8 @@ internal class CloudFilterSyncRootRegistry : IOnDemandSyncRootRegistry, ISession
 
         if (TryUnregisterSyncRoot(rootId, _logger))
         {
+            NotifyChanges(root.Path);
+
             return true;
         }
 

@@ -101,6 +101,8 @@ public static class Program
     {
         using var host = CreateHost();
 
+        host.Services.GetRequiredService<AppLifecycleLogger>().LogAppStart();
+
         var updateService = host.Services.GetRequiredService<IUpdateService>();
 
         // Using synchronous call to stay on STA thread.
@@ -110,7 +112,7 @@ public static class Program
             return;
         }
 
-        var currentLocale = Thread.CurrentThread.CurrentUICulture.Name;
+        var currentLocale = CultureInfo.CurrentUICulture.Name;
         var languageProvider = host.Services.GetRequiredService<ILanguageProvider>();
         var culture = languageProvider.GetCulture();
 
@@ -132,6 +134,8 @@ public static class Program
         ShowSystemTrayControl(app.MainWindow, systemTrayControl);
 
         app.Run();
+
+        host.Services.GetRequiredService<AppLifecycleLogger>().LogAppExit();
 
         _isAppRestartRequested = app.IsRestartRequested;
     }
@@ -225,6 +229,7 @@ public static class Program
     private static MainWindow CreateMainWindow(IHost host)
     {
         var mainViewModel = host.Services.GetRequiredService<MainWindowViewModel>();
+
         return new MainWindow
         {
             DataContext = mainViewModel,

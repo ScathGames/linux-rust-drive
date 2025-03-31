@@ -45,7 +45,7 @@ public class LoggingNotifyingAppUpdateDecorator : INotifyingAppUpdate
 
     public async Task<bool> TryInstallDownloadedUpdateAsync()
     {
-        _logger.LogInformation("Requested to try to install downloaded update");
+        _logger.LogDebug("Requested to try to install downloaded update");
 
         var updateInstallationStarted = await _origin.TryInstallDownloadedUpdateAsync().ConfigureAwait(false);
 

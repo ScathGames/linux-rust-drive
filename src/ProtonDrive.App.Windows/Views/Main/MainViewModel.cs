@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ProtonDrive.App.Account;
 using ProtonDrive.App.Authentication;
 using ProtonDrive.App.Features;
@@ -13,8 +13,8 @@ using ProtonDrive.App.Notifications.Offers;
 using ProtonDrive.App.Onboarding;
 using ProtonDrive.App.Update;
 using ProtonDrive.App.Windows.Configuration.Hyperlinks;
+using ProtonDrive.App.Windows.Resources;
 using ProtonDrive.App.Windows.Services;
-using ProtonDrive.App.Windows.Toolkit.Threading;
 using ProtonDrive.App.Windows.Views.BugReport;
 using ProtonDrive.App.Windows.Views.Main.Account;
 using ProtonDrive.App.Windows.Views.Offer;
@@ -22,11 +22,14 @@ using ProtonDrive.App.Windows.Views.Shared;
 using ProtonDrive.App.Windows.Views.Shared.Navigation;
 using ProtonDrive.App.Windows.Views.Shared.Notification;
 using ProtonDrive.Shared.Features;
+using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Windows.Views.Main;
 
 internal sealed class MainViewModel
-    : ObservableObject, IApplicationPages, IUserStateAware, ISessionStateAware, IAccountStateAware, ISyncFoldersAware, IFeatureFlagsAware, ISharedWithMeOnboardingStateAware, IOffersAware
+    : ObservableObject,
+        IApplicationPages, IUserStateAware, ISessionStateAware, IAccountStateAware, ISyncFoldersAware, IFeatureFlagsAware,
+        IStorageOptimizationOnboardingStateAware, IOffersAware
 {
     private readonly IApp _app;
     private readonly PageViewModelFactory _pageViewModelFactory;
@@ -35,16 +38,12 @@ internal sealed class MainViewModel
     private readonly IDialogService _dialogService;
     private readonly IExternalHyperlinks _externalHyperlinks;
     private readonly IUpgradeStoragePlanAvailabilityVerifier _upgradeStoragePlanAvailabilityVerifier;
-    private readonly DispatcherScheduler _scheduler;
-    private readonly RelayCommand _reportBugCommand;
-    private readonly RelayCommand _getMoreStorageCommand;
-    private readonly RelayCommand _openOfferCommand;
-    private readonly RelayCommand _openWebDashboardCommand;
+    private readonly IScheduler _scheduler;
 
     private readonly NotificationBadge _newVersionNotificationBadge;
     private readonly NotificationBadge _syncFoldersFailureNotificationBadge;
     private readonly NotificationBadge _sharedWithMeFeatureDisabledNotificationBadge;
-    private readonly NotificationBadge _sharedWithMeOnboardingNotificationBadge;
+    private readonly NotificationBadge _storageOptimizationOnboardingNotificationBadge;
     private readonly NotificationBadge _updateRequiredNotificationBadge;
     private readonly NotificationBadge _warningLevel1QuotaNotificationBadge;
     private readonly NotificationBadge _warningLevel2QuotaNotificationBadge;
@@ -59,15 +58,17 @@ internal sealed class MainViewModel
     private PageViewModel _page;
     private NotificationBadge? _settingsNotificationBadge;
     private NotificationBadge? _myComputerNotificationBadge;
+    private NotificationBadge? _storageOptimizationOnboardingBadge;
     private NotificationBadge? _sharedWithMeNotificationBadge;
     private NotificationBadge? _updateNotificationBadge;
     private NotificationBadge? _quotaNotificationBadge;
-    private NotificationBadge? _sharedWithMeOnboardingBadge;
     private UserState? _user;
     private SessionState _sessionState = SessionState.None;
     private AccountState _accountState = AccountState.None;
     private Notifications.Offers.Offer? _offer;
     private bool _sharingFeatureIsDisabled;
+    private bool _isStorageOptimizationFeatureBadgeEnabled;
+    private bool _isStorageOptimizationOnboarding;
 
     public MainViewModel(
         IApp app,
@@ -80,7 +81,7 @@ internal sealed class MainViewModel
         IUpdateService updateService,
         IExternalHyperlinks externalHyperlinks,
         IUpgradeStoragePlanAvailabilityVerifier upgradeStoragePlanAvailabilityVerifier,
-        DispatcherScheduler scheduler)
+        [FromKeyedServices("Dispatcher")] IScheduler scheduler)
     {
         _app = app;
         _pageViewModelFactory = pageViewModelFactory;
@@ -92,43 +93,43 @@ internal sealed class MainViewModel
         _scheduler = scheduler;
 
         _updateRequiredNotificationBadge = new NotificationBadge(
-                   "!",
-                   "To keep using Proton Drive, you'll need to update to the latest version.",
-                   NotificationBadgeSeverity.Alert);
+            "!",
+            Strings.Main_Sidebar_Notification_UpdateRequired_Description,
+            NotificationBadgeSeverity.Alert);
 
         _newVersionNotificationBadge = new NotificationBadge(
-                   "!",
-                   "A new version of Proton Drive is available!",
-                   NotificationBadgeSeverity.Warning);
+            "!",
+            Strings.Main_Sidebar_Notification_NewVersion_Description,
+            NotificationBadgeSeverity.Warning);
 
         _syncFoldersFailureNotificationBadge = new NotificationBadge(
             "!",
-            "Root sync folder failed to sync",
+            Strings.Main_Sidebar_Notification_SyncFoldersFailure_Description,
             NotificationBadgeSeverity.Warning);
 
         _sharedWithMeFeatureDisabledNotificationBadge = new NotificationBadge(
             "!",
-            "Sharing is temporarily unavailable",
+            Strings.Main_Sidebar_Notification_SharingUnavailable_Description,
             NotificationBadgeSeverity.Warning);
 
         _exceededQuotaNotificationBadge = new NotificationBadge(
             "!",
-            "Sync stopped. Your account has exceeded the storage capacity.",
+            Strings.Main_Sidebar_Notification_ExceededQuota_Description,
             NotificationBadgeSeverity.Alert);
 
         _warningLevel2QuotaNotificationBadge = new NotificationBadge(
             "!",
-            "You are about to reach your storage limit.",
+            Strings.Main_Sidebar_Notification_ExceedingQuota_Description,
             NotificationBadgeSeverity.Alert);
 
         _warningLevel1QuotaNotificationBadge = new NotificationBadge(
             "!",
-            "You are about to reach your storage limit.",
+            Strings.Main_Sidebar_Notification_ExceedingQuota_Description,
             NotificationBadgeSeverity.Warning);
 
-        _sharedWithMeOnboardingNotificationBadge = new NotificationBadge(
+        _storageOptimizationOnboardingNotificationBadge = new NotificationBadge(
             "New",
-            "Get started",
+            Strings.Main_Sidebar_Notification_GetStarted_Description,
             NotificationBadgeSeverity.Info);
 
         AppState = stateViewModel;
@@ -136,10 +137,10 @@ internal sealed class MainViewModel
         OpenAccountPageCommand = new RelayCommand(() => CurrentMenuItem = ApplicationPage.Account);
         updateService.StateChanged += OnUpdateServiceStateChanged;
 
-        _reportBugCommand = new RelayCommand(ReportBug);
-        _getMoreStorageCommand = new RelayCommand(GetMoreStorage, CanGetMoreStorage);
-        _openOfferCommand = new RelayCommand(OpenOffer, CanOpenOffer);
-        _openWebDashboardCommand = new RelayCommand(OpenWebDashboard);
+        ReportBugCommand = new RelayCommand(ReportBug);
+        GetMoreStorageCommand = new RelayCommand(GetMoreStorage, CanGetMoreStorage);
+        OpenOfferCommand = new RelayCommand(OpenOffer, CanOpenOffer);
+        OpenWebDashboardCommand = new RelayCommand(OpenWebDashboard);
 
         _page = ToPageViewModel(CurrentMenuItem);
     }
@@ -159,10 +160,10 @@ internal sealed class MainViewModel
     }
 
     public ICommand OpenAccountPageCommand { get; }
-    public ICommand OpenWebDashboardCommand => _openWebDashboardCommand;
-    public ICommand GetMoreStorageCommand => _getMoreStorageCommand;
-    public ICommand OpenOfferCommand => _openOfferCommand;
-    public ICommand ReportBugCommand => _reportBugCommand;
+    public ICommand OpenWebDashboardCommand { get; }
+    public IRelayCommand GetMoreStorageCommand { get; }
+    public IRelayCommand OpenOfferCommand { get; }
+    public ICommand ReportBugCommand { get; }
 
     public PageViewModel Page
     {
@@ -183,7 +184,7 @@ internal sealed class MainViewModel
         {
             if (SetProperty(ref _user, value))
             {
-                _scheduler.Schedule(RefreshCommandsAndStatuses);
+                Schedule(RefreshCommandsAndStatuses);
             }
         }
     }
@@ -196,16 +197,16 @@ internal sealed class MainViewModel
         private set => SetProperty(ref _myComputerNotificationBadge, value);
     }
 
+    public NotificationBadge? StorageOptimizationOnboardingBadge
+    {
+        get => _storageOptimizationOnboardingBadge;
+        private set => SetProperty(ref _storageOptimizationOnboardingBadge, value);
+    }
+
     public NotificationBadge? SharedWithMeNotificationBadge
     {
         get => _sharedWithMeNotificationBadge;
         private set => SetProperty(ref _sharedWithMeNotificationBadge, value);
-    }
-
-    public NotificationBadge? SharedWithMeOnboardingBadge
-    {
-        get => _sharedWithMeOnboardingBadge;
-        private set => SetProperty(ref _sharedWithMeOnboardingBadge, value);
     }
 
     public NotificationBadge? SettingsNotificationBadge
@@ -252,11 +253,12 @@ internal sealed class MainViewModel
 
     public void Show(ApplicationPage page)
     {
-        _scheduler.Schedule(() =>
-        {
-            _app.ActivateAsync();
-            ShowPage(page);
-        });
+        Schedule(
+            () =>
+            {
+                _app.ActivateAsync();
+                ShowPage(page);
+            });
     }
 
     public void OnUserStateChanged(UserState value)
@@ -268,28 +270,34 @@ internal sealed class MainViewModel
     public void OnSessionStateChanged(SessionState value)
     {
         _sessionState = value;
-        _scheduler.Schedule(RefreshCommandsAndStatuses);
+        Schedule(RefreshCommandsAndStatuses);
     }
 
     public void OnAccountStateChanged(AccountState value)
     {
         _accountState = value;
-        _scheduler.Schedule(RefreshCommandsAndStatuses);
+        Schedule(RefreshCommandsAndStatuses);
     }
 
     void ISyncFoldersAware.OnSyncFolderChanged(SyncFolderChangeType changeType, SyncFolder folder)
     {
-        _scheduler.Schedule(() => RefreshSyncFolderNotificationBadges(changeType, folder));
+        Schedule(() => RefreshSyncFolderNotificationBadges(changeType, folder));
     }
 
     void IFeatureFlagsAware.OnFeatureFlagsChanged(IReadOnlyCollection<(Feature Feature, bool IsEnabled)> features)
     {
-        _scheduler.Schedule(() => RefreshSharedWithMeNotificationBadge(features));
+        _isStorageOptimizationFeatureBadgeEnabled =
+            features.IsEnabled(Feature.DriveWindowsStorageOptimizationNewFeatureBadge) &&
+            !features.IsEnabled(Feature.DriveWindowsStorageOptimizationDisabled);
+
+        Schedule(() => RefreshSharedWithMeNotificationBadge(features));
+        Schedule(RefreshStorageOptimizationOnboardingBadge);
     }
 
-    void ISharedWithMeOnboardingStateAware.SharedWithMeOnboardingStateChanged(OnboardingStatus value)
+    void IStorageOptimizationOnboardingStateAware.StorageOptimizationOnboardingStateChanged(StorageOptimizationOnboardingStep step)
     {
-        _scheduler.Schedule(() => RefreshSharedWithMeOnboardingBadge(value));
+        _isStorageOptimizationOnboarding = step is not StorageOptimizationOnboardingStep.None;
+        Schedule(RefreshStorageOptimizationOnboardingBadge);
     }
 
     void IOffersAware.OnActiveOfferChanged(Notifications.Offers.Offer? offer)
@@ -297,22 +305,25 @@ internal sealed class MainViewModel
         _offer = offer;
         OfferTitle = offer?.Title;
 
-        _scheduler.Schedule(() =>
-        {
-            _getMoreStorageCommand.NotifyCanExecuteChanged();
-            _openOfferCommand.NotifyCanExecuteChanged();
-        });
+        Schedule(
+            () =>
+            {
+                GetMoreStorageCommand.NotifyCanExecuteChanged();
+                OpenOfferCommand.NotifyCanExecuteChanged();
+            });
     }
 
     private void RefreshSharedWithMeNotificationBadge(IReadOnlyCollection<(Feature Feature, bool IsEnabled)> features)
     {
-        _sharingFeatureIsDisabled = features.Any(x => x.Feature is Feature.DriveSharingDisabled or Feature.DriveSharingEditingDisabled && x.IsEnabled);
+        _sharingFeatureIsDisabled = features.IsEnabled(Feature.DriveSharingDisabled) || features.IsEnabled(Feature.DriveSharingEditingDisabled);
         SharedWithMeNotificationBadge = GetSharedWithMeNotificationBadge();
     }
 
-    private void RefreshSharedWithMeOnboardingBadge(OnboardingStatus onboardingStatus)
+    private void RefreshStorageOptimizationOnboardingBadge()
     {
-        SharedWithMeOnboardingBadge = onboardingStatus is OnboardingStatus.Completed ? default : _sharedWithMeOnboardingNotificationBadge;
+        StorageOptimizationOnboardingBadge = _isStorageOptimizationFeatureBadgeEnabled && _isStorageOptimizationOnboarding
+            ? _storageOptimizationOnboardingNotificationBadge
+            : null;
     }
 
     private NotificationBadge? GetSharedWithMeNotificationBadge()
@@ -326,7 +337,7 @@ internal sealed class MainViewModel
         // but some mappings failed to set up, the notification badge is kept but updated.
         return _failedSyncFoldersByType.TryGetValue(SyncFolderType.SharedWithMeItem, out var failures) && failures.Count > 0
             ? _syncFoldersFailureNotificationBadge
-            : default;
+            : null;
     }
 
     private void RefreshSyncFolderNotificationBadges(SyncFolderChangeType changeType, SyncFolder folder)
@@ -340,7 +351,7 @@ internal sealed class MainViewModel
         }
 
         var folderFailedToSetup = changeType is not SyncFolderChangeType.Removed
-                                  && folder.Status is MappingSetupStatus.Failed or MappingSetupStatus.PartiallySucceeded;
+            && folder.Status is MappingSetupStatus.Failed or MappingSetupStatus.PartiallySucceeded;
 
         if (!_failedSyncFoldersByType.TryGetValue(folder.Type, out var failedFolders))
         {
@@ -371,11 +382,11 @@ internal sealed class MainViewModel
             switch (folderType)
             {
                 case SyncFolderType.HostDeviceFolder:
-                    MyComputerNotificationBadge = isVisible ? _syncFoldersFailureNotificationBadge : default;
+                    MyComputerNotificationBadge = isVisible ? _syncFoldersFailureNotificationBadge : null;
                     break;
 
                 case SyncFolderType.AccountRoot:
-                    SettingsNotificationBadge = isVisible ? _syncFoldersFailureNotificationBadge : default;
+                    SettingsNotificationBadge = isVisible ? _syncFoldersFailureNotificationBadge : null;
                     break;
 
                 case SyncFolderType.SharedWithMeItem:
@@ -428,7 +439,7 @@ internal sealed class MainViewModel
         AccountDisplayStatus = GetAccountDisplayStatus();
         ErrorCode = _accountState.ErrorCode;
 
-        _getMoreStorageCommand.NotifyCanExecuteChanged();
+        GetMoreStorageCommand.NotifyCanExecuteChanged();
     }
 
     private AccountDisplayStatus GetAccountDisplayStatus()
@@ -514,5 +525,10 @@ internal sealed class MainViewModel
     private void OpenWebDashboard()
     {
         _externalHyperlinks.Dashboard.Open();
+    }
+
+    private void Schedule(Action action)
+    {
+        _scheduler.Schedule(action);
     }
 }

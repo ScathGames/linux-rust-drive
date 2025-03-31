@@ -2,8 +2,10 @@
 
 public enum Feature
 {
-    DriveWindowsForceMigrationToVolumeEvents,
     DriveSharingDisabled,
     DriveSharingEditingDisabled,
+    DriveWindowsForceMigrationToVolumeEvents,
     DriveWindowsRemoteNodeRenamingDisabled,
+    DriveWindowsStorageOptimizationNewFeatureBadge,
+    DriveWindowsStorageOptimizationDisabled,
 }

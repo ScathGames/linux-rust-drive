@@ -51,8 +51,9 @@ internal sealed class ForeignDeviceMappingSetupFinalizationStep
                _syncFolderProtector.ProtectFolder(foreignDeviceFolderPath, FolderProtectionType.Leaf);
     }
 
-    private Task<MappingErrorCode?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
+    private async Task<MappingErrorCode?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        return _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping);
+        var errorInfo = await _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping).ConfigureAwait(false);
+        return errorInfo?.ErrorCode;
     }
 }

@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ProtonDrive.App.Devices;
 using ProtonDrive.App.Mapping;
 
-namespace ProtonDrive.App.Windows.Views.Main.Computers;
+namespace ProtonDrive.App.Windows.Views.Main.MyComputer;
 
 internal sealed class DeviceViewModel : ObservableObject, IEquatable<Device>
 {

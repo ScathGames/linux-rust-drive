@@ -26,4 +26,9 @@ public enum ErrorScope
     /// Error occurred when attempting to set up a mapping folder
     /// </summary>
     MappingSetup,
+
+    /// <summary>
+    /// Error occured when attempting to enable or disable local storage optimization
+    /// </summary>
+    StorageOptimization,
 }

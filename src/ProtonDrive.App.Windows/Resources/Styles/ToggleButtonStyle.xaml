@@ -126,6 +126,9 @@
         TargetType="{x:Type ToggleButton}"
         BasedOn="{StaticResource MenuToggleButtonStyle}">
         <Style.Setters>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Padding" Value="18,6,6,6" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -135,6 +138,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{StaticResource Button.CornerRadius}"
+                                MinHeight="{TemplateBinding MinHeight}"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter
                                     TextBlock.FontSize="{TemplateBinding FontSize}"

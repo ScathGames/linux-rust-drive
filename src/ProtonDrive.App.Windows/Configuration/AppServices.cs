@@ -22,6 +22,7 @@ using ProtonDrive.App.Sync;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Volumes;
 using ProtonDrive.App.Windows.Configuration.Hyperlinks;
+using ProtonDrive.App.Windows.Dialogs;
 using ProtonDrive.App.Windows.InterProcessCommunication;
 using ProtonDrive.App.Windows.Services;
 using ProtonDrive.App.Windows.SystemIntegration;
@@ -31,7 +32,7 @@ using ProtonDrive.App.Windows.Views.Main;
 using ProtonDrive.App.Windows.Views.Main.About;
 using ProtonDrive.App.Windows.Views.Main.Account;
 using ProtonDrive.App.Windows.Views.Main.Activity;
-using ProtonDrive.App.Windows.Views.Main.Computers;
+using ProtonDrive.App.Windows.Views.Main.MyComputer;
 using ProtonDrive.App.Windows.Views.Main.Settings;
 using ProtonDrive.App.Windows.Views.Main.SharedWithMe;
 using ProtonDrive.App.Windows.Views.Offer;
@@ -43,9 +44,11 @@ using ProtonDrive.App.Windows.Views.SystemTray;
 using ProtonDrive.Shared.Localization;
 using ProtonDrive.Shared.Offline;
 using ProtonDrive.Shared.Repository;
+using ProtonDrive.Shared.Security.Cryptography;
 using ProtonDrive.Shared.Threading;
 using ProtonDrive.Sync.Shared.FileSystem;
 using ProtonDrive.Sync.Windows.FileSystem.Client;
+using ProtonDrive.Sync.Windows.Security.Cryptography;
 
 namespace ProtonDrive.App.Windows.Configuration;
 
@@ -57,12 +60,12 @@ internal static class AppServices
             services =>
                 services
                     .AddSingleton(appArguments)
+                    .AddSingleton<AppLifecycleLogger>()
                     .AddSingleton<AppLifecycleService>()
                     .AddSingleton<App>()
                     .AddSingleton<IApp>(provider => provider.GetRequiredService<App>())
                     .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<App>())
-                    .AddSingleton<IOnboardingStateAware>(provider => provider.GetRequiredService<App>())
-                    .AddSingleton<IDialogService>(provider => provider.GetRequiredService<App>()));
+                    .AddSingleton<IOnboardingStateAware>(provider => provider.GetRequiredService<App>()));
     }
 
     public static IHostBuilder AddServices(this IHostBuilder builder)
@@ -82,6 +85,7 @@ internal static class AppServices
 
             .AddSingleton(new DispatcherScheduler(Dispatcher.CurrentDispatcher))
             .AddKeyedSingleton<IScheduler>("Dispatcher", (sp, _) => sp.GetRequiredService<DispatcherScheduler>())
+
             .AddSingleton<IFileSystemDisplayNameAndIconProvider, Win32FileSystemDisplayNameAndIconProvider>()
             .AddSingleton<IFileSystemItemTypeProvider>(_ => new CachingFileSystemItemTypeProvider(new Win32FileSystemItemTypeProvider()))
             .AddSingleton<IOperatingSystemIntegrationService, OperatingSystemIntegrationService>()
@@ -92,10 +96,12 @@ internal static class AppServices
             .AddSingleton<IPlaceholderToRegularItemConverter, PlaceholderToRegularItemConverter>()
             .AddSingleton<INonSyncablePathProvider, NonSyncablePathProvider>()
             .AddSingleton<INotificationService, SystemToastNotificationService>()
+            .AddSingleton<IDialogService, DialogService>()
             .AddSingleton<IUrlOpener, UrlOpener>()
             .AddSingleton<IForkingSessionUrlOpener, ForkingSessionUrlOpener>()
             .AddSingleton<IExternalHyperlinks, ExternalHyperlinks>()
             .AddSingleton<IClipboard, SystemClipboard>()
+            .AddSingleton<IDataProtectionProvider, DataProtectionProvider>()
             .AddSingleton<ISyncFolderStructureProtector>(
                 provider =>
                     new SafeSyncFolderStructureProtectorDecorator(
@@ -158,21 +164,35 @@ internal static class AppServices
             .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<MainViewModel>())
             .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<MainViewModel>())
             .AddSingleton<IFeatureFlagsAware>(provider => provider.GetRequiredService<MainViewModel>())
-            .AddSingleton<ISharedWithMeOnboardingStateAware>(provider => provider.GetRequiredService<MainViewModel>())
+            .AddSingleton<IStorageOptimizationOnboardingStateAware>(provider => provider.GetRequiredService<MainViewModel>())
             .AddSingleton<IOffersAware>(provider => provider.GetRequiredService<MainViewModel>())
 
-            .AddTransient<AddedFolderValidationResultMessageBuilder>()
+            .AddTransient<AddFoldersValidationResultMessageBuilder>()
             .AddTransient<AddFoldersViewModel>()
             .AddTransient<Func<AddFoldersViewModel>>(provider => provider.GetRequiredService<AddFoldersViewModel>)
 
-            .AddSingleton<SyncedDevicesViewModel>()
-            .AddSingleton<IDeviceServiceStateAware>(provider => provider.GetRequiredService<SyncedDevicesViewModel>())
-            .AddSingleton<IDevicesAware>(provider => provider.GetRequiredService<SyncedDevicesViewModel>())
-            .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<SyncedDevicesViewModel>())
-            .AddSingleton<IMappingStateAware>(provider => provider.GetRequiredService<SyncedDevicesViewModel>())
+            .AddSingleton<MyComputerViewModel>()
+            .AddSingleton<IDeviceServiceStateAware>(provider => provider.GetRequiredService<MyComputerViewModel>())
+            .AddSingleton<IDevicesAware>(provider => provider.GetRequiredService<MyComputerViewModel>())
+            .AddSingleton<IMappingStateAware>(provider => provider.GetRequiredService<MyComputerViewModel>())
+            .AddSingleton<IStorageOptimizationOnboardingStateAware>(provider => provider.GetRequiredService<MyComputerViewModel>())
+            .AddSingleton<IFeatureFlagsAware>(provider => provider.GetRequiredService<MyComputerViewModel>())
 
-            .AddTransient<RemoveSyncFolderConfirmationViewModel>()
-            .AddTransient<Func<RemoveSyncFolderConfirmationViewModel>>(provider => provider.GetRequiredService<RemoveSyncFolderConfirmationViewModel>)
+            .AddSingleton<FolderListViewModel>()
+            .AddSingleton<ISyncFoldersAware>(provider => provider.GetRequiredService<FolderListViewModel>())
+            .AddSingleton<IFeatureFlagsAware>(provider => provider.GetRequiredService<FolderListViewModel>())
+
+            .AddTransient<RemoveClassicFolderConfirmationViewModel>()
+            .AddSingleton<Func<RemoveClassicFolderConfirmationViewModel>>(provider => provider.GetRequiredService<RemoveClassicFolderConfirmationViewModel>)
+
+            .AddTransient<RemoveOnDemandFolderConfirmationViewModel>()
+            .AddSingleton<Func<RemoveOnDemandFolderConfirmationViewModel>>(provider => provider.GetRequiredService<RemoveOnDemandFolderConfirmationViewModel>)
+
+            .AddTransient<StorageOptimizationTurnedOffNotificationViewModel>()
+            .AddSingleton<Func<StorageOptimizationTurnedOffNotificationViewModel>>(provider => provider.GetRequiredService<StorageOptimizationTurnedOffNotificationViewModel>)
+
+            .AddTransient<StorageOptimizationUnavailableNotificationViewModel>()
+            .AddSingleton<Func<StorageOptimizationUnavailableNotificationViewModel>>(provider => provider.GetRequiredService<StorageOptimizationUnavailableNotificationViewModel>)
 
             .AddSingleton<SharedWithMeViewModel>()
             .AddSingleton<ISharedWithMeOnboardingStateAware>(provider => provider.GetRequiredService<SharedWithMeViewModel>())
@@ -186,7 +206,7 @@ internal static class AppServices
             .AddSingleton<SettingsViewModel>()
             .AddSingleton<AboutViewModel>()
             .AddTransient<BugReportViewModel>()
-            .AddTransient<Func<BugReportViewModel>>(provider => provider.GetRequiredService<BugReportViewModel>)
+            .AddSingleton<Func<BugReportViewModel>>(provider => provider.GetRequiredService<BugReportViewModel>)
             .AddSingleton<AccountViewModel>()
             .AddSingleton<IUserStateAware>(provider => provider.GetRequiredService<AccountViewModel>())
             .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<AccountViewModel>())
@@ -204,7 +224,7 @@ internal static class AppServices
             .AddSingleton<SystemTrayViewModel>()
 
             .AddTransient<OfferViewModel>()
-            .AddTransient<Func<OfferViewModel>>(provider => provider.GetRequiredService<OfferViewModel>)
+            .AddSingleton<Func<OfferViewModel>>(provider => provider.GetRequiredService<OfferViewModel>)
 
             .AddSingleton(
                 provider => new NamedPipeBasedIpcServer(

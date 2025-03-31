@@ -1,4 +1,4 @@
-﻿namespace ProtonDrive.App.Windows.Views.Main.Computers;
+﻿namespace ProtonDrive.App.Windows.Views.Main.MyComputer;
 
 internal partial class AddFoldersView
 {

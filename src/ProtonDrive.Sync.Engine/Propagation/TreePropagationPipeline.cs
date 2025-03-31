@@ -40,6 +40,7 @@ internal class TreePropagationPipeline<TId>
     private bool _skipNode;
 
     public TreePropagationPipeline(
+        int maxNumberOfConcurrentFileTransfers,
         IScheduler syncScheduler,
         ISyncAdapter<TId> remoteAdapter,
         ISyncAdapter<TId> localAdapter,
@@ -90,6 +91,7 @@ internal class TreePropagationPipeline<TId>
         var leafsDeletionPipeline = new UnchangedLeafsDeletionPipeline<TId>(propagationTree, syncScheduler);
 
         _fileTransfer = new FileTransferPipeline<TId>(
+            maxNumberOfConcurrentFileTransfers,
             _localNodePropagation,
             _remoteNodePropagation,
             leafsDeletionPipeline,

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using ProtonDrive.App.Mapping.Setup;
 using ProtonDrive.App.Sync;
+using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Windows.Toolkit;
 using ProtonDrive.App.Windows.Toolkit.Converters;
 using ProtonDrive.Shared.Extensions;
@@ -23,6 +23,7 @@ internal sealed class RenameRemoteNodeViewModel : ObservableValidator, IDialogVi
     private readonly ISyncService _syncService;
     private readonly IRemoteIdsFromNodeIdProvider _remoteIdsProvider;
     private readonly Func<FileSystemClientParameters, IFileSystemClient<string>> _remoteFileSystemClientFactory;
+    private readonly INumberSuffixedNameGenerator _numberSuffixedNameGenerator;
     private readonly ILogger<RenameRemoteNodeViewModel> _logger;
 
     private SyncActivityItemViewModel? _syncActivityItem;
@@ -35,11 +36,13 @@ internal sealed class RenameRemoteNodeViewModel : ObservableValidator, IDialogVi
         ISyncService syncService,
         IRemoteIdsFromNodeIdProvider remoteIdsProvider,
         Func<FileSystemClientParameters, IFileSystemClient<string>> remoteFileSystemClientFactory,
+        INumberSuffixedNameGenerator numberSuffixedNameGenerator,
         ILogger<RenameRemoteNodeViewModel> logger)
     {
         _syncService = syncService;
         _remoteIdsProvider = remoteIdsProvider;
         _remoteFileSystemClientFactory = remoteFileSystemClientFactory;
+        _numberSuffixedNameGenerator = numberSuffixedNameGenerator;
         _logger = logger;
 
         RenameCommand = new AsyncRelayCommand(RenameAsync, CanRename);
@@ -103,8 +106,9 @@ internal sealed class RenameRemoteNodeViewModel : ObservableValidator, IDialogVi
         _syncActivityItem = item;
         OnPropertyChanged(nameof(OriginalName));
 
-        var nameGenerator = new NumberSuffixedNameGenerator(_syncActivityItem.Name, _syncActivityItem.NodeType is NodeType.Directory ? NameType.Folder : NameType.File);
-        NewName = nameGenerator.GenerateNames().First();
+        NewName = _numberSuffixedNameGenerator
+            .GenerateNames(_syncActivityItem.Name, _syncActivityItem.NodeType is NodeType.Directory ? NameType.Folder : NameType.File)
+            .First();
     }
 
     public bool CanRename()
@@ -177,11 +181,12 @@ internal sealed class RenameRemoteNodeViewModel : ObservableValidator, IDialogVi
             return new ValidationResult(Resources.Strings.Main_Activity_Rename_NewName_Error_Required);
         }
 
-        var validationResult = FileSystemObject.GetNameValidationResult(name);
+        var validationResult = FileSystemObject.ValidateName(name);
 
-        return validationResult is FileSystemNameValidationResult.Success
+        var errorMessage = EnumToDisplayTextConverter.Convert(validationResult) ?? Resources.Strings.Main_Activity_Rename_NewName_Error_ContainsInvalidCharacter;
+
+        return validationResult is FileSystemNameValidationResult.Valid
             ? ValidationResult.Success
-            : new ValidationResult(
-                EnumToDisplayTextConverter.Instance.Convert(validationResult, null) ?? Resources.Strings.Main_Activity_Rename_NewName_Error_InvalidCharacters);
+            : new ValidationResult(errorMessage);
     }
 }

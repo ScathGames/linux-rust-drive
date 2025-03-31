@@ -24,6 +24,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
     private readonly LocalFolderIdentityValidator _localFolderIdentityValidator;
     private readonly RemoteFolderNameValidator _remoteFolderNameValidator;
     private readonly VolumeIdentityProvider _volumeIdentityProvider;
+    private readonly INumberSuffixedNameGenerator _numberSuffixedNameGenerator;
     private readonly ILogger<HostDeviceFolderMappingFoldersSetupStep> _logger;
 
     public HostDeviceFolderMappingFoldersSetupStep(
@@ -33,6 +34,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
         LocalFolderIdentityValidator localFolderIdentityValidator,
         RemoteFolderNameValidator remoteFolderNameValidator,
         VolumeIdentityProvider volumeIdentityProvider,
+        INumberSuffixedNameGenerator numberSuffixedNameGenerator,
         ILogger<HostDeviceFolderMappingFoldersSetupStep> logger)
     {
         _deviceService = deviceService;
@@ -41,6 +43,7 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
         _localFolderIdentityValidator = localFolderIdentityValidator;
         _remoteFolderNameValidator = remoteFolderNameValidator;
         _volumeIdentityProvider = volumeIdentityProvider;
+        _numberSuffixedNameGenerator = numberSuffixedNameGenerator;
         _logger = logger;
     }
 
@@ -221,9 +224,8 @@ internal sealed class HostDeviceFolderMappingFoldersSetupStep
     {
         var parameters = new FileSystemClientParameters(device.DataItem.VolumeId, device.DataItem.ShareId);
         var fileSystemClient = _remoteFileSystemClientFactory.Invoke(parameters);
-        var nameGenerator = new NumberSuffixedNameGenerator(baseName, NameType.Folder);
 
-        foreach (var name in nameGenerator.GenerateNames())
+        foreach (var name in _numberSuffixedNameGenerator.GenerateNames(baseName, NameType.Folder))
         {
             if (_remoteFolderNameValidator.IsFolderNameInUse(device.DataItem.ShareId, name))
             {

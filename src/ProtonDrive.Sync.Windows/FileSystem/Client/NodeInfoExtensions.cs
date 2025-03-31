@@ -5,6 +5,7 @@ using ProtonDrive.Shared;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.IO;
 using ProtonDrive.Sync.Shared.FileSystem;
+using ProtonDrive.Sync.Windows.Shell;
 using Vanara.InteropServices;
 using Vanara.PInvoke;
 using static Vanara.PInvoke.CldApi;
@@ -297,12 +298,9 @@ internal static class NodeInfoExtensions
         placeholderState = fsObject.GetPlaceholderState().ThrowIfInvalid();
     }
 
-    public static unsafe void NotifyChanges(this NodeInfo<long> info)
+    public static void NotifyChanges(this NodeInfo<long> info)
     {
-        fixed (char* pathPointer = info.Path)
-        {
-            Shell32.SHChangeNotify(Shell32.SHCNE.SHCNE_UPDATEITEM, Shell32.SHCNF.SHCNF_PATHW, new nuint(pathPointer));
-        }
+        ShellExtensions.NotifyItemUpdate(info.Path);
     }
 
     public static void Dehydrate(this NodeInfo<long> info)
@@ -382,9 +380,9 @@ internal static class NodeInfoExtensions
     {
         var name = !string.IsNullOrEmpty(info.Name) ? info.Name : Path.GetFileName(info.Path);
 
-        var validationResult = FileSystemObject.GetNameValidationResult(name);
+        var validationResult = FileSystemObject.ValidateName(name);
 
-        if (validationResult is not FileSystemNameValidationResult.Success)
+        if (validationResult is not FileSystemNameValidationResult.Valid)
         {
             throw new FileSystemClientException<long>(validationResult.ToString(), FileSystemErrorCode.InvalidName, objectId: 0);
         }

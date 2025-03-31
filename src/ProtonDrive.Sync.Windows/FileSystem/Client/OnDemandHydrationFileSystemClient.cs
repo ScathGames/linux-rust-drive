@@ -146,7 +146,7 @@ public sealed class OnDemandHydrationFileSystemClient : BaseFileSystemClient, IF
         {
             FileSystemDirectory.Create(info.Path);
         }
-        catch (Exception ex) when (ExceptionMapping.TryMapException(ex, id: default, out var mappedException))
+        catch (Exception ex) when (ExceptionMapping.TryMapException(ex, id: null, out var mappedException))
         {
             throw mappedException;
         }
@@ -358,15 +358,17 @@ public sealed class OnDemandHydrationFileSystemClient : BaseFileSystemClient, IF
     {
         info.SetInSync(out var placeholderState, out var attributes);
 
-        if (attributes.HasFlag(FileAttributes.Directory))
+        if (attributes.IsExcluded())
         {
-            // Folders do not require hydration or dehydration
+            // The file or folder is excluded from sync
             return;
         }
 
-        if (attributes.IsExcluded())
+        if (attributes.HasFlag(FileAttributes.Directory))
         {
-            // The file is excluded from sync
+            info.NotifyChanges();
+
+            // Folders do not require hydration or dehydration
             return;
         }
 

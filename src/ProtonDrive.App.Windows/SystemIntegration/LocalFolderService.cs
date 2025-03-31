@@ -8,7 +8,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using ProtonDrive.App.Mapping.Setup;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.Shared.Extensions;
 using ProtonDrive.Shared.IO;
@@ -23,10 +22,14 @@ internal sealed class LocalFolderService : ILocalFolderService
 {
     private const string SearchAll = "*";
 
+    private readonly INumberSuffixedNameGenerator _numberSuffixedNameGenerator;
     private readonly ILogger<LocalFolderService> _logger;
 
-    public LocalFolderService(ILogger<LocalFolderService> logger)
+    public LocalFolderService(
+        INumberSuffixedNameGenerator numberSuffixedNameGenerator,
+        ILogger<LocalFolderService> logger)
     {
+        _numberSuffixedNameGenerator = numberSuffixedNameGenerator;
         _logger = logger;
     }
 
@@ -77,7 +80,7 @@ internal sealed class LocalFolderService : ILocalFolderService
 
     public bool TryGetFolderInfo(string path, FileShare shareMode, out LocalFolderInfo? folderInfo)
     {
-        folderInfo = default;
+        folderInfo = null;
 
         if (string.IsNullOrEmpty(path))
         {
@@ -176,12 +179,10 @@ internal sealed class LocalFolderService : ILocalFolderService
     {
         if (string.IsNullOrEmpty(username))
         {
-            return default;
+            return null;
         }
 
-        var folderNameGenerator = new NumberSuffixedNameGenerator(username, NameType.Folder);
-
-        foreach (var folderNameCandidate in folderNameGenerator.GenerateNames())
+        foreach (var folderNameCandidate in _numberSuffixedNameGenerator.GenerateNames(username, NameType.Folder))
         {
             var path = Path.Combine(userDataPath, folderNameCandidate);
 
@@ -192,7 +193,7 @@ internal sealed class LocalFolderService : ILocalFolderService
         }
 
         _logger.LogWarning("Failed to generate a unique account root folder path");
-        return default;
+        return null;
     }
 
     public bool TryConvertToPlaceholder(string path)
@@ -220,6 +221,99 @@ internal sealed class LocalFolderService : ILocalFolderService
 
             return false;
         }
+    }
+
+    public bool TrySetPinState(string path, FilePinState pinState)
+    {
+        try
+        {
+            using var fileSystemObject = FileSystemObject.Open(
+                path,
+                FileMode.Open,
+                FileSystemFileAccess.WriteAttributes,
+                FileShare.ReadWrite | FileShare.Delete,
+                FileOptions.None);
+
+            fileSystemObject.SetPinState(ToCfPinState(pinState), CF_SET_PIN_FLAGS.CF_SET_PIN_FLAG_RECURSE);
+
+            return true;
+        }
+        catch (Exception ex) when (ex.IsFileAccessException() || ex is COMException)
+        {
+            var pathToLog = _logger.GetSensitiveValueForLogging(path);
+
+            _logger.LogWarning(
+                "Failed to set pin state {PinState} for local folder \"{Path}\": {ExceptionType} {ErrorCode}",
+                pinState,
+                pathToLog,
+                ex.GetType().Name,
+                ex.GetRelevantFormattedErrorCode());
+
+            return false;
+        }
+    }
+
+    public bool TryGetPinState(string path, out FilePinState pinState)
+    {
+        try
+        {
+            using var fileSystemObject = FileSystemObject.Open(
+                path,
+                FileMode.Open,
+                FileSystemFileAccess.ReadAttributes,
+                FileShare.ReadWrite | FileShare.Delete,
+                FileOptions.Asynchronous);
+
+            pinState = ToFilePinState(fileSystemObject.Attributes);
+
+            return true;
+        }
+        catch (Exception ex) when (ex.IsFileAccessException())
+        {
+            var pathToLog = _logger.GetSensitiveValueForLogging(path);
+
+            _logger.LogWarning(
+                "Failed to obtain pin state for local folder \"{Path}\": {ExceptionType} {ErrorCode}",
+                pathToLog,
+                ex.GetType().Name,
+                ex.GetRelevantFormattedErrorCode());
+
+            pinState = default;
+
+            return false;
+        }
+    }
+
+    private static CF_PIN_STATE ToCfPinState(FilePinState pinState)
+    {
+        return pinState switch
+        {
+            FilePinState.Unspecified => CF_PIN_STATE.CF_PIN_STATE_UNSPECIFIED,
+            FilePinState.Pinned => CF_PIN_STATE.CF_PIN_STATE_PINNED,
+            FilePinState.DehydrationRequested => CF_PIN_STATE.CF_PIN_STATE_UNPINNED,
+            FilePinState.Excluded => CF_PIN_STATE.CF_PIN_STATE_EXCLUDED,
+            _ => throw new ArgumentOutOfRangeException(nameof(pinState), pinState, null),
+        };
+    }
+
+    private static FilePinState ToFilePinState(FileAttributes attributes)
+    {
+        if (attributes.IsPinned())
+        {
+            return FilePinState.Pinned;
+        }
+
+        if (attributes.IsDehydrationRequested())
+        {
+            return FilePinState.DehydrationRequested;
+        }
+
+        if (attributes.IsExcluded())
+        {
+            return FilePinState.Excluded;
+        }
+
+        return FilePinState.DehydrationRequested;
     }
 
     private bool TryGetVolumeInfo(FileSystemObject fileSystemObject, [NotNullWhen(true)] out LocalVolumeInfo? volumeInfo)
@@ -279,7 +373,7 @@ internal sealed class LocalFolderService : ILocalFolderService
                     Verb = "explore",
                 });
         }
-        catch (Exception ex) when (ex is IOException or Win32Exception or UnauthorizedAccessException)
+        catch (Exception ex) when (ex.IsFileAccessException() || ex is Win32Exception)
         {
             return false;
         }

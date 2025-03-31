@@ -52,6 +52,7 @@ public class SyncEngine<TId> : IInitializable, IExecutionStatisticsProvider
     private bool _hasChangesToSync;
 
     public SyncEngine(
+        int maxNumberOfConcurrentFileTransfers,
         ILoggerFactory loggerFactory,
         ISyncAdapter<TId> remoteAdapter,
         ISyncAdapter<TId> localAdapter,
@@ -145,6 +146,7 @@ public class SyncEngine<TId> : IInitializable, IExecutionStatisticsProvider
 
         // Propagation
         _propagation = new TreePropagationPipeline<TId>(
+            maxNumberOfConcurrentFileTransfers,
             _syncScheduler,
             remoteAdapter,
             localAdapter,

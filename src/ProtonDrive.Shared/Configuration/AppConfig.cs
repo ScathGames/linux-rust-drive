@@ -34,6 +34,7 @@ public sealed class AppConfig
     public TimeSpan DelayBeforeDisplayingSyncInitializationProgress { get; internal set; }
     public TimeSpan PeriodicObservabilityReportInterval { get; internal set; }
     public TimeSpan ActivityQueryInterval { get; internal set; }
+    public int NumberOfMonthsBeforeRemovingInstallationLogFiles { get; internal set; }
 
     public bool TlsPinningEnabled { get; internal set; } = DefaultTlsPinningEnabled;
 
@@ -45,5 +46,6 @@ public sealed class AppConfig
 
     public FolderNameConfig FolderNames { get; } = new();
 
+    public int MaxNumberOfConcurrentFileTransfers { get; internal set; }
     public int MaxNumberOfSyncedSharedWithMeItems { get; internal set; }
 }

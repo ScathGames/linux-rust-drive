@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -16,13 +17,17 @@ namespace ProtonDrive.App.Reporting;
 
 internal class BugReportService : IBugReportService
 {
-    private const int NumberOfLogFilesToSend = 3;
+    private const int MaxNumberOfAppLogFilesToSend = 3;
+    private const int MaxNumberOfInstallationLogFilesToSend = 10;
     private const int BufferSize = 4_096;
 
-    private readonly AppConfig _appConfig;
+    private static readonly string TempFolderPath = Path.GetTempPath();
+
     private readonly IBugReportClient _bugReportClient;
     private readonly IOfflineService _offlineService;
     private readonly ILogger<BugReportService> _logger;
+    private readonly string _logsFolderPath;
+    private readonly string _installationLogsFolderPath;
 
     public BugReportService(
         AppConfig appConfig,
@@ -30,27 +35,28 @@ internal class BugReportService : IBugReportService
         IOfflineService offlineService,
         ILogger<BugReportService> logger)
     {
-        _appConfig = appConfig;
         _bugReportClient = bugReportClient;
         _offlineService = offlineService;
         _logger = logger;
+
+        _logsFolderPath = Path.Combine(appConfig.AppDataPath, "Logs");
+        _installationLogsFolderPath = Path.Combine(_logsFolderPath, "Installation");
     }
 
     public async Task<Result> SendAsync(BugReportBody body, bool includeLogs, CancellationToken cancellationToken)
     {
         _offlineService.ForceOnline();
 
-        Stream? attachment = null;
+        IReadOnlyCollection<BugReportAttachment> attachments = Array.Empty<BugReportAttachment>();
 
         try
         {
             if (includeLogs)
             {
-                attachment = await GetLogsFileAsync(cancellationToken).ConfigureAwait(false);
-                attachment.Seek(0, SeekOrigin.Begin);
+                attachments = await GetAttachmentsAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            await _bugReportClient.SendAsync(body, attachment, cancellationToken).ConfigureAwait(false);
+            await _bugReportClient.SendAsync(body, attachments, cancellationToken).ConfigureAwait(false);
 
             return Result.Success();
         }
@@ -68,38 +74,81 @@ internal class BugReportService : IBugReportService
         }
         finally
         {
-            if (attachment is not null)
+            foreach (var attachment in attachments)
             {
-                await attachment.DisposeAsync().ConfigureAwait(false);
+                await attachment.Stream.DisposeAsync().ConfigureAwait(false);
             }
         }
     }
 
-    private async Task<FileStream> GetLogsFileAsync(CancellationToken cancellationToken)
+    private static async Task<FileStream> GetZippedFileStreamAsync(IEnumerable<string> filePaths, CancellationToken cancellationToken)
     {
-        var tempFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        var tempFilePath = Path.Combine(TempFolderPath, Path.GetRandomFileName());
 
-        var fileStream = File.Create(tempFile, BufferSize, FileOptions.DeleteOnClose);
+        var fileStream = File.Create(tempFilePath, BufferSize, FileOptions.DeleteOnClose);
 
-        var logFolderPath = Path.Combine(_appConfig.AppDataPath, "Logs");
-
-        var logFiles = Directory.EnumerateFiles(logFolderPath, "*.log", SearchOption.TopDirectoryOnly)
-            .OrderByDescending(File.GetCreationTimeUtc)
-            .Take(NumberOfLogFilesToSend);
-
-        using var archive = new ZipArchive(fileStream, ZipArchiveMode.Update, leaveOpen: true);
-
-        foreach (var file in logFiles)
+        using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            ZipArchiveEntry entry = archive.CreateEntry(Path.GetFileName(file));
+            foreach (var filePath in filePaths)
+            {
+                ZipArchiveEntry entry = archive.CreateEntry(Path.GetFileName(filePath), CompressionLevel.SmallestSize);
 
-            await using var stream = entry.Open();
-
-            await using var logFile = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-
-            await logFile.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
+                var stream = entry.Open();
+                await using (stream.ConfigureAwait(false))
+                {
+                    var logFile = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    await using (logFile.ConfigureAwait(false))
+                    {
+                        await logFile.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+            }
         }
 
+        fileStream.Seek(0, SeekOrigin.Begin);
+
         return fileStream;
+    }
+
+    private async Task<IReadOnlyCollection<BugReportAttachment>> GetAttachmentsAsync(CancellationToken cancellationToken)
+    {
+        var attachments = new List<BugReportAttachment>(2);
+
+        var appLogAttachmentStream = await GetAppLogFileStreamAsync(cancellationToken).ConfigureAwait(false);
+
+        attachments.Add(new BugReportAttachment("App-Logs", "Drive-AppLogs.zip", appLogAttachmentStream));
+
+        var installationLogAttachmentStream = await GetInstallationLogFileStreamAsync(cancellationToken).ConfigureAwait(false);
+
+        if (installationLogAttachmentStream is not null)
+        {
+            attachments.Add(new BugReportAttachment("Installation-Logs", "Drive-InstallationLogs.zip", installationLogAttachmentStream));
+        }
+
+        return attachments;
+    }
+
+    private async Task<FileStream> GetAppLogFileStreamAsync(CancellationToken cancellationToken)
+    {
+        var logFiles = Directory.EnumerateFiles(_logsFolderPath, "*.log", SearchOption.TopDirectoryOnly)
+            .OrderByDescending(File.GetCreationTimeUtc)
+            .Take(MaxNumberOfAppLogFilesToSend);
+
+        return await GetZippedFileStreamAsync(logFiles, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<FileStream?> GetInstallationLogFileStreamAsync(CancellationToken cancellationToken)
+    {
+        var logFiles = Directory.EnumerateFiles(_installationLogsFolderPath)
+            .OrderByDescending(File.GetCreationTimeUtc)
+            .Take(MaxNumberOfInstallationLogFilesToSend)
+            .ToList();
+
+        if (logFiles.Count == 0)
+        {
+            return null;
+        }
+
+        return await GetZippedFileStreamAsync(logFiles, cancellationToken).ConfigureAwait(false);
     }
 }

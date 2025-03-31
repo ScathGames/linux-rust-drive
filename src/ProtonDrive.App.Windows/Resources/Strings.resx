@@ -162,6 +162,27 @@
   <data name="Main_Sidebar_NavigationMenu_Item_Help_HelpText" xml:space="preserve">
     <value>Menu item: Help</value>
   </data>
+  <data name="Main_Sidebar_Notification_UpdateRequired_Description" xml:space="preserve">
+    <value>To keep using Proton Drive, you'll need to update to the latest version</value>
+  </data>
+  <data name="Main_Sidebar_Notification_NewVersion_Description" xml:space="preserve">
+    <value>A new version of Proton Drive is available!</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SyncFoldersFailure_Description" xml:space="preserve">
+    <value>A folder failed to sync</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SharingUnavailable_Description" xml:space="preserve">
+    <value>Sharing is temporarily unavailable</value>
+  </data>
+  <data name="Main_Sidebar_Notification_ExceededQuota_Description" xml:space="preserve">
+    <value>Sync stopped: your account has exceeded the storage capacity</value>
+  </data>
+  <data name="Main_Sidebar_Notification_ExceedingQuota_Description" xml:space="preserve">
+    <value>You are about to reach your storage limit</value>
+  </data>
+  <data name="Main_Sidebar_Notification_GetStarted_Description" xml:space="preserve">
+    <value>Get started</value>
+  </data>
   <data name="Main_Activity_Title" xml:space="preserve">
     <value>Activity</value>
   </data>
@@ -318,6 +339,40 @@
   <data name="Main_MyComputer_Folders_AddFolders_Info_Saving" xml:space="preserve">
     <value>Saving folders...</value>
   </data>
+  <data name="Main_MyComputer_OnboardingPage_Button_Close_HelpText" xml:space="preserve">
+    <value>Dismiss my computer onboarding</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Title" xml:space="preserve">
+    <value>Optimize Storage</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Description" xml:space="preserve">
+    <value>Enable on‐demand sync to save hard drive space. Files only occupy local storage when you open them or mark them as "Always keep on this device".</value>
+    <comment>"Always keep on this device" is the exact text displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Button_Next" xml:space="preserve">
+    <value>_Next</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Title" xml:space="preserve">
+    <value>Managing Storage</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1_Label" xml:space="preserve">
+    <value>1.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2_Label" xml:space="preserve">
+    <value>2.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1" xml:space="preserve">
+    <value>Right-click on any file or folder synced using Proton Drive</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2" xml:space="preserve">
+    <value>Choose "Always keep on this device" to store it offline, or "Free up space" to keep it cloud‑only.</value>
+    <comment>"Always keep on this device" and "Free up space" are the exact texts displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Button_GetStarted" xml:space="preserve">
+    <value>Get _started</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
   <data name="Dialog_Button_Save" xml:space="preserve">
     <value>_Save</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
@@ -358,11 +413,43 @@
   <data name="Main_MyComputer_Folders_RemoveConfirmation_Title" xml:space="preserve">
     <value>Remove folder?</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_1" xml:space="preserve">
-    <value>Any files added to '{0}' folder will no longer be synced and this folder will be moved to Trash in Proton Drive.</value>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_1" xml:space="preserve">
+    <value>Any files added to "{0}" folder will no longer be synced and this folder will be moved to Trash in Proton Drive.</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_2" xml:space="preserve">
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_2" xml:space="preserve">
     <value>Existing files will remain on your computer.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_1" xml:space="preserve">
+    <value>Some files in "{0}" folder might be stored only in the cloud. Removing this folder will stop syncing and move it to Trash in Proton Drive.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_2" xml:space="preserve">
+    <value>To keep a local copy of all files on your computer, first turn off Optimize storage for this folder. If storage optimization is already turned off, toggle it on and off. Wait for the download to complete (you can check the status in File Explorer), then remove the folder from syncing under the My Computer section.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_1" xml:space="preserve">
+    <value>Files that have already been downloaded will remain on your device.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_2" xml:space="preserve">
+    <value>Files stored only in the cloud will be removed from your device.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Title" xml:space="preserve">
+    <value>All files are always available on this device</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_1" xml:space="preserve">
+    <value>Files within "{0}" folder will now always be available on device. It may take a few minutes before all files finish downloading (you can check the status in File Explorer).</value>
+    <comment>Placeholder {0}: folder name</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_2" xml:space="preserve">
+    <value>You still can manually free up space for individual files in their settings.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Title" xml:space="preserve">
+    <value>Storage optimization unavailable</value>
+  </data>
+	<data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_1" xml:space="preserve">
+    <value>The "{0}" folder can't use on-demand sync to optimize storage, because {1}.</value>
+    <comment>Placeholder {0}: folder name. Placeholder {1}: the reason text, one of resources with "StorageOptimizationErrorCode_Value_..." key.</comment>
+  </data>
+	<data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_2" xml:space="preserve">
+    <value>Your files will still sync with Proton Drive and remain available on both your computer and in the cloud.</value>
   </data>
   <data name="Main_MyComputer_Device_Button_Rename" xml:space="preserve">
     <value>_Rename</value>
@@ -371,16 +458,21 @@
   <data name="Main_MyComputer_Folders_Column_Name" xml:space="preserve">
     <value>Name</value>
   </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization" xml:space="preserve">
+    <value>Optimize storage</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization_Info_Tooltip" xml:space="preserve">
+    <value>Optimize storage by enabling on-demand sync.
+Files only occupy local space when you open them or
+choose to always keep them on this device. You can
+disable storage optimization at any time.</value>
+  </data>
   <data name="Main_MyComputer_Folders_Menu_Item_OpenFolder" xml:space="preserve">
     <value>_Open folder</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_MyComputer_Folders_Menu_Item_RemoveFolder" xml:space="preserve">
     <value>_Remove folder</value>
-    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
-  </data>
-  <data name="Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync" xml:space="preserve">
-    <value>_Enable on-demand sync</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_MyComputer_Folders_Button_Add" xml:space="preserve">
@@ -528,7 +620,7 @@
   <data name="Main_Activity_Rename_NewName_Error_Required" xml:space="preserve">
     <value>Name is required</value>
   </data>
-  <data name="Main_Activity_Rename_NewName_Error_InvalidCharacters" xml:space="preserve">
+  <data name="Main_Activity_Rename_NewName_Error_ContainsInvalidCharacter" xml:space="preserve">
     <value>Name contains invalid characters</value>
   </data>
   <data name="Main_Activity_Rename_NewName_Error_Failed" xml:space="preserve">
@@ -578,6 +670,12 @@
   </data>
   <data name="Main_Settings_OpenOnStartup_HelpText" xml:space="preserve">
     <value>Open Proton Drive on Windows startup</value>
+  </data>
+  <data name="ToggleSwitch_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ToggleSwitch_On" xml:space="preserve">
+    <value>On</value>
   </data>
   <data name="Main_Settings_Label_AccountRootFolder" xml:space="preserve">
     <value>Your Proton Drive folder:</value>
@@ -675,7 +773,7 @@
     <value>Cancel your report</value>
   </data>
   <data name="BugReport_CheckBox_IncludeLogs_Tooltip" xml:space="preserve">
-    <value>The report will include the latest 3 log files generated by the app.</value>
+    <value>The report will include the latest app log files and installation log files</value>
   </data>
   <data name="Main_Sidebar_Offer_Button_GetDeal" xml:space="preserve">
     <value>Get the _deal</value>
@@ -786,10 +884,16 @@
     <value>The local folder must be empty before setting up sync</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludedByAnAlreadySyncedFolder" xml:space="preserve">
-    <value>The selected folder is included by an already synced folder</value>
+    <value>The selected folder is already included within another synced folder</value>
   </data>
-  <data name="MappingErrorCode_Value_LocalOnDemandSyncRootNotRegistered" xml:space="preserve">
+  <data name="MappingErrorCode_Value_OnDemandSyncRootNotRegistered" xml:space="preserve">
     <value>Sync folder was unexpectedly unregistered. Set up a new sync folder.</value>
+  </data>
+  <data name="MappingErrorCode_Value_ConflictingOnDemandSyncRootExists" xml:space="preserve">
+    <value>This folder is already synced on-demand. Set up a new sync folder.</value>
+  </data>
+  <data name="MappingErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists" xml:space="preserve">
+    <value>This folder contains a subfolder synced on-demand. Set up a new sync folder.</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludesAnAlreadySyncedFolder" xml:space="preserve">
     <value>The selected folder contains an already synced folder</value>
@@ -960,9 +1064,6 @@ Toggle its sync off and on again to restore it and clear this error.</value>
   <data name="MappingErrorCode_Value_LocalFolderNonSyncable" xml:space="preserve">
     <value>The local folder is not eligible for synchronization. Set up a new sync folder.</value>
   </data>
-  <data name="MappingErrorCode_Value_LocalFolderNonSyncableOnDemand" xml:space="preserve">
-    <value>The local folder is not eligible for on-demand sync</value>
-  </data>
   <data name="SyncStatus_Value_Failed" xml:space="preserve">
     <value>Error</value>
   </data>
@@ -1061,6 +1162,29 @@ Toggle its sync off and on again to restore it and clear this error.</value>
   </data>
   <data name="SignIn_Message_SigningIn" xml:space="preserve">
     <value>Signing in to your account</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_None" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_Unknown" xml:space="preserve">
+    <value>enabling on-demand sync failed</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_VolumeNotSupported" xml:space="preserve">
+    <value>local drive type is not supported</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_RemovableVolumeNotSupported" xml:space="preserve">
+    <value>removable drives are not supported</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_NetworkVolumeNotSupported" xml:space="preserve">
+    <value>network drives are not supported</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingOnDemandSyncRootExists" xml:space="preserve">
+    <value>it is already synced on-demand by {0}</value>
+    <comment>Placeholder {0}: An application name</comment>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists" xml:space="preserve">
+    <value>it contains a subfolder synced on-demand by {0}</value>
+    <comment>Placeholder {0}: An application name</comment>
   </data>
   <data name="Onboarding_SyncFolderSelection_Label_Description" xml:space="preserve">
     <value>Selected folders will sync to Proton Drive. The files will be backed up, and available on your other devices.</value>
@@ -1204,7 +1328,7 @@ Toggle its sync off and on again to restore it and clear this error.</value>
   <data name="Main_SharedWithMe_Column_Sync_Info_Tooltip" xml:space="preserve">
     <value>Enable to make the shared file or folder accessible from your computer.
 Contents of files will be downloaded on demand only.</value>  </data>
-  <data name="FileSystemNameValidationResult_Value_Success" xml:space="preserve">
+  <data name="FileSystemNameValidationResult_Value_Valid" xml:space="preserve">
     <value />
   </data>
   <data name="FileSystemNameValidationResult_Value_Empty" xml:space="preserve">
@@ -1213,7 +1337,7 @@ Contents of files will be downloaded on demand only.</value>  </data>
   <data name="FileSystemNameValidationResult_Value_TooLong" xml:space="preserve">
     <value>Name too long</value>
   </data>
-  <data name="FileSystemNameValidationResult_Value_InvalidCharacters" xml:space="preserve">
+  <data name="FileSystemNameValidationResult_Value_ContainsInvalidCharacter" xml:space="preserve">
     <value>Name contains an invalid character</value>
   </data>
   <data name="FileSystemNameValidationResult_Value_EndsWithSpace" xml:space="preserve">
@@ -1241,7 +1365,7 @@ Contents of files will be downloaded on demand only.</value>  </data>
     <value>{0} folder(s) cannot be synced because have a subfolder already synced to Proton Drive</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_LocalVolumeNotSupportedFormat" xml:space="preserve">
-    <value>{0} folder(s) cannot be synced because located on a non-supported Drive</value>
+    <value>{0} folder(s) cannot be synced because located on a non-supported drive</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_NetworkFolderNotSupportedFormat" xml:space="preserve">
     <value>{0} folder(s) cannot be synced because network folders are not supported</value>
@@ -1375,8 +1499,5 @@ Contents of files will be downloaded on demand only.</value>  </data>
   <data name="Activity_Local_Succeeded_SyncActivityType_Value_FetchUpdates" xml:space="preserve">
     <value>Updates fetched</value>
     <comment>Indicates local file system changes have been fetched. Displayed on the Activity page in the tooltip of the activity type.</comment>
-  </data>
-  <data name="Main_MyComputer_Folders_SyncMethod_Value_OnDemand" xml:space="preserve">
-    <value>(on-demand)</value>
   </data>
 </root>

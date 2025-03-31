@@ -14,5 +14,7 @@ public interface ILocalFolderService
     bool TryDeleteEmptyFolder(string path);
     Task<bool> OpenFolderAsync(string? path);
     string? GetDefaultAccountRootFolderPath(string userDataPath, string? username);
-    public bool TryConvertToPlaceholder(string path);
+    bool TryConvertToPlaceholder(string path);
+    bool TrySetPinState(string path, FilePinState pinState);
+    bool TryGetPinState(string path, out FilePinState pinState);
 }

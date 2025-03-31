@@ -12,7 +12,7 @@
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.Onboarding"
     xmlns:mapping="clr-namespace:ProtonDrive.App.Mapping;assembly=ProtonDrive.App"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:syncedDevices="clr-namespace:ProtonDrive.App.Windows.Views.Main.Computers"
+    xmlns:myComputer="clr-namespace:ProtonDrive.App.Windows.Views.Main.MyComputer"
     Background="{StaticResource Window.SignIn.Background}"
     TextElement.Foreground="{StaticResource Text.DarkTheme.Brush}"
     Width="620"
@@ -59,7 +59,7 @@
                 ItemsSource="{Binding AddFoldersViewModel.SyncFolders}"
                 KeyboardNavigation.TabNavigation="Once">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type syncedDevices:SelectableFolderViewModel}">
+                    <DataTemplate DataType="{x:Type myComputer:SelectableFolderViewModel}">
                         <Grid Height="32">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />

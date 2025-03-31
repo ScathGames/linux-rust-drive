@@ -34,11 +34,11 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-    <PackageReference Include="morelinq" Version="4.4.0" />
-    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
+    <PackageReference Include="morelinq" />
+    <PackageReference Include="System.Drawing.Common" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,7 +60,9 @@
     <Resource Include="Views\Main\Activity\PausedSyncPlaceholder.png" />
     <Resource Include="Views\Main\Activity\ActivityListPlaceholder.png" />
     <Resource Include="Views\Main\Activity\InitializingSyncPlaceholder.png" />
-    <Resource Include="Views\Main\Computers\SyncedFoldersPlaceholder.png" />
+    <Resource Include="Views\Main\MyComputer\FolderListPlaceholder.png" />
+    <Resource Include="Views\Main\MyComputer\StorageOptimizationOnboardingPart1.png" />
+    <Resource Include="Views\Main\MyComputer\StorageOptimizationOnboardingPart2.png" />
     <Resource Include="Views\Main\SharedWithMe\SharedWithMeListPlaceholder.png" />
     <Resource Include="Views\Main\SharedWithMe\SharedWithMeOnboarding.png" />
     <Resource Include="Views\Onboarding\FileExplorer.png" />

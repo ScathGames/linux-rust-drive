@@ -4,9 +4,14 @@ namespace ProtonDrive.App.Mapping;
 
 internal static class RemoteToLocalMappingExtensions
 {
-    public static bool IsEnablingOnDemandSyncRequested(this RemoteToLocalMapping mapping)
+    public static bool IsStorageOptimizationPending(this RemoteToLocalMapping mapping)
     {
-        return mapping.SyncMethodUpdateStatus is SyncMethodUpdateStatus.EnablingOnDemandSyncRequested;
+        return mapping.Local.StorageOptimization?.Status is StorageOptimizationStatus.Pending;
+    }
+
+    public static bool IsOrCouldBeConvertedToOnDemand(this RemoteToLocalMapping mapping)
+    {
+        return mapping.SyncMethod is SyncMethod.OnDemand || mapping.Local.StorageOptimization is not null;
     }
 
     public static void SetEnablingOnDemandSyncSucceeded(this RemoteToLocalMapping mapping)
@@ -17,18 +22,48 @@ internal static class RemoteToLocalMappingExtensions
         }
 
         mapping.SyncMethod = SyncMethod.OnDemand;
-        mapping.SyncMethodUpdateStatus = SyncMethodUpdateStatus.None;
         mapping.IsDirty = true;
     }
 
-    public static void SetEnablingOnDemandSyncFailed(this RemoteToLocalMapping mapping)
+    public static void SetEnablingOnDemandSyncFailed(this RemoteToLocalMapping mapping, StorageOptimizationErrorCode errorCode, string? conflictingProviderName = null)
     {
-        if (!mapping.IsEnablingOnDemandSyncRequested())
+        if (!mapping.IsStorageOptimizationPending())
         {
             return;
         }
 
-        mapping.SyncMethodUpdateStatus = SyncMethodUpdateStatus.EnablingOnDemandSyncFailed;
+        mapping.Local.StorageOptimization ??= new StorageOptimizationState();
+        mapping.Local.StorageOptimization.IsEnabled = false;
+        mapping.Local.StorageOptimization.Status = StorageOptimizationStatus.Failed;
+        mapping.Local.StorageOptimization.ErrorCode = errorCode;
+        mapping.Local.StorageOptimization.ConflictingProviderName = conflictingProviderName;
+        mapping.IsDirty = true;
+    }
+
+    public static void SetStorageOptimizationSucceeded(this RemoteToLocalMapping mapping)
+    {
+        if (!mapping.IsStorageOptimizationPending())
+        {
+            return;
+        }
+
+        mapping.Local.StorageOptimization ??= new StorageOptimizationState();
+        mapping.Local.StorageOptimization.Status = StorageOptimizationStatus.Succeeded;
+        mapping.Local.StorageOptimization.ErrorCode = StorageOptimizationErrorCode.None;
+        mapping.IsDirty = true;
+    }
+
+    public static void SetStorageOptimizationFailed(this RemoteToLocalMapping mapping)
+    {
+        if (!mapping.IsStorageOptimizationPending())
+        {
+            return;
+        }
+
+        mapping.Local.StorageOptimization ??= new StorageOptimizationState();
+        mapping.Local.StorageOptimization.IsEnabled = !mapping.Local.StorageOptimization.IsEnabled;
+        mapping.Local.StorageOptimization.Status = StorageOptimizationStatus.Failed;
+        mapping.Local.StorageOptimization.ErrorCode = StorageOptimizationErrorCode.Unknown;
         mapping.IsDirty = true;
     }
 }

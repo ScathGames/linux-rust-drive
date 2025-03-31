@@ -5,7 +5,7 @@ using ProtonDrive.Shared.Extensions;
 
 namespace ProtonDrive.App.Mapping;
 
-public class MappingSetupException : Exception, IFormattedErrorCodeProvider
+public sealed class MappingSetupException : Exception, IFormattedErrorCodeProvider
 {
     public MappingSetupException()
     {
@@ -21,14 +21,18 @@ public class MappingSetupException : Exception, IFormattedErrorCodeProvider
     {
     }
 
-    public MappingSetupException(MappingType mappingType, MappingErrorCode errorCode)
+    public MappingSetupException(RemoteToLocalMapping mapping, MappingErrorCode errorCode)
     {
-        MappingType = mappingType;
+        MappingType = mapping.Type;
+        MappingStatus = mapping.Status;
+        SyncMethod = mapping.SyncMethod;
         ErrorCode = errorCode;
     }
 
-    public MappingType? MappingType { get; }
-    public MappingErrorCode? ErrorCode { get; }
+    private MappingType? MappingType { get; }
+    private MappingStatus? MappingStatus { get; }
+    private SyncMethod? SyncMethod { get; }
+    private MappingErrorCode? ErrorCode { get; }
 
     public bool TryGetRelevantFormattedErrorCode([MaybeNullWhen(false)] out string formattedErrorCode)
     {
@@ -39,7 +43,7 @@ public class MappingSetupException : Exception, IFormattedErrorCodeProvider
             return false;
         }
 
-        formattedErrorCode = $"{MappingType}/{ErrorCode}";
+        formattedErrorCode = $"{MappingType}:{SyncMethod}:{MappingStatus}/{ErrorCode}";
 
         return true;
     }

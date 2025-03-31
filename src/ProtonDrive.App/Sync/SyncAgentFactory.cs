@@ -188,6 +188,7 @@ internal sealed class SyncAgentFactory
 
         var serialScheduler = new SerialScheduler();
         var syncEngine = new SyncEngine<long>(
+            _appConfig.MaxNumberOfConcurrentFileTransfers,
             _loggerFactory,
             remoteAdapter,
             localAdapter,

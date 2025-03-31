@@ -13,8 +13,6 @@ public sealed class RemoteToLocalMapping
 
     public SyncMethod SyncMethod { get; set; } = SyncMethod.Classic;
 
-    public SyncMethodUpdateStatus SyncMethodUpdateStatus { get; set; }
-
     public MappingStatus Status { get; set; } = MappingStatus.New;
 
     [JsonIgnore]

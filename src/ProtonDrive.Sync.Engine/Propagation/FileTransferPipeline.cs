@@ -19,8 +19,7 @@ namespace ProtonDrive.Sync.Engine.Propagation;
 internal sealed class FileTransferPipeline<TId>
     where TId : IEquatable<TId>
 {
-    private const int MaxNumberOfConcurrentFileTransfers = 4;
-
+    private readonly int _maxNumberOfConcurrentFileTransfers;
     private readonly INodePropagationPipeline<TId> _localNodePropagation;
     private readonly INodePropagationPipeline<TId> _remoteNodePropagation;
     private readonly UnchangedLeafsDeletionPipeline<TId> _leafsDeletion;
@@ -28,8 +27,8 @@ internal sealed class FileTransferPipeline<TId>
 
     private readonly ConcurrentQueue<FileTransfer<TId>> _scheduledTransfers = new();
     private readonly ConcurrentQueue<FileTransfer<TId>> _skippedTransfers = new();
-    private readonly List<ExecutingTransfer> _executingTransfers = new(MaxNumberOfConcurrentFileTransfers);
-    private readonly HashSet<TId> _dirtyFolders = new();
+    private readonly List<ExecutingTransfer> _executingTransfers;
+    private readonly HashSet<TId> _dirtyFolders = [];
     private readonly IScheduler _scheduler = new SerialScheduler();
 
     private CancellationToken _cancellationToken = new(canceled: true);
@@ -37,15 +36,19 @@ internal sealed class FileTransferPipeline<TId>
     private Status _status;
 
     public FileTransferPipeline(
+        int maxNumberOfConcurrentFileTransfers,
         INodePropagationPipeline<TId> localNodePropagation,
         INodePropagationPipeline<TId> remoteNodePropagation,
         UnchangedLeafsDeletionPipeline<TId> leafsDeletion,
         ILogger<FileTransferPipeline<TId>> logger)
     {
+        _maxNumberOfConcurrentFileTransfers = maxNumberOfConcurrentFileTransfers;
         _localNodePropagation = localNodePropagation;
         _remoteNodePropagation = remoteNodePropagation;
         _leafsDeletion = leafsDeletion;
         _logger = logger;
+
+        _executingTransfers = new List<ExecutingTransfer>(maxNumberOfConcurrentFileTransfers);
     }
 
     private enum Status
@@ -155,7 +158,7 @@ internal sealed class FileTransferPipeline<TId>
 
     private void StartScheduledTransfers()
     {
-        while (_executingTransfers.Count < MaxNumberOfConcurrentFileTransfers && TryGetNextScheduledTransfer(out var transfer))
+        while (_executingTransfers.Count < _maxNumberOfConcurrentFileTransfers && TryGetNextScheduledTransfer(out var transfer))
         {
             if (_dirtyFolders.Contains(transfer.NodeModel.ParentId))
             {
@@ -170,7 +173,7 @@ internal sealed class FileTransferPipeline<TId>
 
     private bool TryGetNextScheduledTransfer([NotNullWhen(true)] out FileTransfer<TId>? item)
     {
-        item = default;
+        item = null;
 
         if (_cancellationToken.IsCancellationRequested)
         {

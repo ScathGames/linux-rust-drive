@@ -72,8 +72,11 @@ public sealed class LocalMappedFoldersTeardownService
                 switch (mapping.Type)
                 {
                     case MappingType.HostDeviceFolder:
-                        // No protection was added
-                        if (mapping.SyncMethod is SyncMethod.OnDemand || mapping.SyncMethodUpdateStatus is not SyncMethodUpdateStatus.None)
+                        // No protection is added to host device folders.
+                        // The folder might belong to on-demand sync root registered by a third-party application.
+                        // To avoid interference with third-party applications, attempt conversion to regular
+                        // folder only if the application has successfully synced it on-demand.
+                        if (mapping.SyncMethod is SyncMethod.OnDemand)
                         {
                             succeeded &= _placeholderConverter.TryConvertToRegularFolder(localPath, skipRoot: true);
                         }

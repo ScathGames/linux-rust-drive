@@ -3,6 +3,8 @@
     x:ClassModifier="internal"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:ProtonDrive.App.Windows.Toolkit.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:loc="clr-namespace:ProtonDrive.App.Windows.Resources"
     xmlns:local="clr-namespace:ProtonDrive.App.Windows.Views.Main.SharedWithMe"
@@ -82,7 +84,14 @@
                         Grid.Row="0"
                         Text="{loc:Resource Main_SharedWithMe_Title}"
                         Style="{StaticResource Title.DarkTheme.Style}"
-                        Margin="0,30,0,0" />
+                        TextTrimming="CharacterEllipsis"
+                        TextWrapping="Wrap"
+                        MaxHeight="80"
+                        Margin="0,20,0,0">
+                        <b:Interaction.Behaviors>
+                            <behaviors:TextBlockAutoToolTipBehavior />
+                        </b:Interaction.Behaviors>
+                    </TextBlock>
 
                     <TextBlock
                         Grid.Row="1"
@@ -94,7 +103,7 @@
                     <Grid
                         Grid.Row="2"
                         TextElement.Foreground="{StaticResource GrayBrush}"
-                        Margin="10,30,0,0">
+                        Margin="10,20,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="18" />
                             <ColumnDefinition Width="*" />

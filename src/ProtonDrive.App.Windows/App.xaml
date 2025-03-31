@@ -7,7 +7,7 @@
     xmlns:bugReport="clr-namespace:ProtonDrive.App.Windows.Views.BugReport"
     xmlns:offer="clr-namespace:ProtonDrive.App.Windows.Views.Offer"
     xmlns:signIn="clr-namespace:ProtonDrive.App.Windows.Views.SignIn"
-    xmlns:syncedDevices="clr-namespace:ProtonDrive.App.Windows.Views.Main.Computers"
+    xmlns:syncedDevices="clr-namespace:ProtonDrive.App.Windows.Views.Main.MyComputer"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     ShutdownMode="OnExplicitShutdown">
     <Application.Resources>

@@ -10,8 +10,6 @@ using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Authentication;
 using ProtonDrive.App.Onboarding;
 using ProtonDrive.App.Reporting;
-using ProtonDrive.App.Windows.Dialogs;
-using ProtonDrive.App.Windows.Services;
 using ProtonDrive.App.Windows.Views;
 using ProtonDrive.App.Windows.Views.Onboarding;
 using ProtonDrive.App.Windows.Views.SignIn;
@@ -20,7 +18,7 @@ using ProtonDrive.Shared.Threading;
 
 namespace ProtonDrive.App.Windows;
 
-internal partial class App : IApp, IDialogService, ISessionStateAware, IOnboardingStateAware
+internal partial class App : IApp, ISessionStateAware, IOnboardingStateAware
 {
     private readonly AppArguments _appArguments;
     private readonly IHost _host;
@@ -70,46 +68,6 @@ internal partial class App : IApp, IDialogService, ISessionStateAware, IOnboardi
     public Task<IntPtr> ActivateAsync()
     {
         return Schedule(Activate);
-    }
-
-    public ConfirmationResult ShowConfirmationDialog(ConfirmationDialogViewModelBase dataContext)
-    {
-        var confirmationDialog = new ConfirmationDialogWindow
-        {
-            DataContext = dataContext,
-            Owner = MainWindow,
-        };
-
-        var result = confirmationDialog.ShowDialog();
-
-        if (result is null)
-        {
-            return ConfirmationResult.Cancelled;
-        }
-
-        return result.GetValueOrDefault() ? ConfirmationResult.Confirmed : ConfirmationResult.Cancelled;
-    }
-
-    public void Show(IDialogViewModel dataContext)
-    {
-        var dialog = new DialogWindow
-        {
-            DataContext = dataContext,
-            Owner = MainWindow,
-        };
-
-        dialog.Show();
-    }
-
-    public void ShowDialog(IDialogViewModel dataContext)
-    {
-        var dialog = new DialogWindow
-        {
-            DataContext = dataContext,
-            Owner = MainWindow,
-        };
-
-        dialog.ShowDialog();
     }
 
     public Task RestartAsync()

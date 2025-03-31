@@ -194,7 +194,9 @@ internal sealed class SharedWithMeListViewModel : SortableListViewModel, ISyncFo
 
     void IFeatureFlagsAware.OnFeatureFlagsChanged(IReadOnlyCollection<(Feature Feature, bool IsEnabled)> features)
     {
-        Schedule(() => IsFeatureDisabled = features.Any(x => x.Feature is Feature.DriveSharingDisabled or Feature.DriveSharingEditingDisabled && x.IsEnabled));
+        Schedule(
+            () =>
+                IsFeatureDisabled = features.IsEnabled(Feature.DriveSharingDisabled) || features.IsEnabled(Feature.DriveSharingEditingDisabled));
     }
 
     void ISyncStateAware.OnSyncStateChanged(SyncState value)

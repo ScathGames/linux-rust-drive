@@ -1,4 +1,6 @@
-﻿namespace ProtonDrive.App.Settings;
+﻿using ProtonDrive.App.Onboarding;
+
+namespace ProtonDrive.App.Settings;
 
 public sealed record OnboardingSettings
 {
@@ -7,4 +9,5 @@ public sealed record OnboardingSettings
     public bool IsUpgradeStorageStepCompleted { get; init; }
     public bool IsOnboardingCompleted { get; init; }
     public bool IsSharedWithMeOnboardingCompleted { get; init; }
+    public StorageOptimizationOnboardingStep StorageOptimizationOnboardingStep { get; init; }
 }

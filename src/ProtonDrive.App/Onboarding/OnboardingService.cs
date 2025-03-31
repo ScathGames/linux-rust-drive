@@ -17,6 +17,7 @@ internal sealed class OnboardingService : IOnboardingService, IStartableService,
     private readonly FeatureFlags _featureFlags;
     private readonly Lazy<IEnumerable<IOnboardingStateAware>> _onboardingStateAware;
     private readonly Lazy<IEnumerable<ISharedWithMeOnboardingStateAware>> _sharedWithMeOnboardingStateAware;
+    private readonly Lazy<IEnumerable<IStorageOptimizationOnboardingStateAware>> _storageOptimizationOnboardingStateAware;
     private readonly IRepository<OnboardingSettings> _settings;
     private readonly ILogger<OnboardingService> _logger;
 
@@ -26,12 +27,14 @@ internal sealed class OnboardingService : IOnboardingService, IStartableService,
         FeatureFlags featureFlags,
         Lazy<IEnumerable<IOnboardingStateAware>> onboardingStateAware,
         Lazy<IEnumerable<ISharedWithMeOnboardingStateAware>> sharedWithMeOnboardingStateAware,
+        Lazy<IEnumerable<IStorageOptimizationOnboardingStateAware>> storageOptimizationOnboardingStateAware,
         IRepository<OnboardingSettings> settings,
         ILogger<OnboardingService> logger)
     {
         _featureFlags = featureFlags;
         _onboardingStateAware = onboardingStateAware;
         _sharedWithMeOnboardingStateAware = sharedWithMeOnboardingStateAware;
+        _storageOptimizationOnboardingStateAware = storageOptimizationOnboardingStateAware;
         _settings = settings;
         _logger = logger;
     }
@@ -86,6 +89,22 @@ internal sealed class OnboardingService : IOnboardingService, IStartableService,
         OnSharedWithMeOnboardingStateChanged(OnboardingStatus.Completed);
     }
 
+    public void CompleteStorageOptimizationOnboardingStep(StorageOptimizationOnboardingStep step)
+    {
+        if (step is StorageOptimizationOnboardingStep.None)
+        {
+            return;
+        }
+
+        var settings = GetSettings() with
+        {
+            StorageOptimizationOnboardingStep = step,
+        };
+
+        SaveSettings(settings);
+        OnStorageOptimizationOnboardingStateChanged(GetNextStep(step));
+    }
+
     internal Task WaitForCompletionAsync()
     {
         return Task.CompletedTask;
@@ -117,6 +136,7 @@ internal sealed class OnboardingService : IOnboardingService, IStartableService,
         var status = settings.IsSharedWithMeOnboardingCompleted ? OnboardingStatus.Completed : OnboardingStatus.NotStarted;
 
         OnSharedWithMeOnboardingStateChanged(status);
+        OnStorageOptimizationOnboardingStateChanged(GetNextStep(settings.StorageOptimizationOnboardingStep));
 
         return;
 
@@ -183,6 +203,17 @@ internal sealed class OnboardingService : IOnboardingService, IStartableService,
         return OnboardingStep.None;
     }
 
+    private StorageOptimizationOnboardingStep GetNextStep(StorageOptimizationOnboardingStep completedStep)
+    {
+        return completedStep switch
+        {
+            StorageOptimizationOnboardingStep.None => StorageOptimizationOnboardingStep.First,
+            StorageOptimizationOnboardingStep.First => StorageOptimizationOnboardingStep.Second,
+            StorageOptimizationOnboardingStep.Second => StorageOptimizationOnboardingStep.None,
+            _ => throw new ArgumentOutOfRangeException(nameof(completedStep), completedStep, message: null),
+        };
+    }
+
     private void SetState(OnboardingState state)
     {
         if (_state == state)
@@ -210,6 +241,14 @@ internal sealed class OnboardingService : IOnboardingService, IStartableService,
         foreach (var listener in _sharedWithMeOnboardingStateAware.Value)
         {
             listener.SharedWithMeOnboardingStateChanged(value);
+        }
+    }
+
+    private void OnStorageOptimizationOnboardingStateChanged(StorageOptimizationOnboardingStep value)
+    {
+        foreach (var listener in _storageOptimizationOnboardingStateAware.Value)
+        {
+            listener.StorageOptimizationOnboardingStateChanged(value);
         }
     }
 

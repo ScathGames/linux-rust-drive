@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
+using Microsoft.Extensions.Logging;
 using ProtonDrive.App.Settings;
 using ProtonDrive.Shared.Localization;
 using ProtonDrive.Shared.Repository;
@@ -11,9 +11,7 @@ namespace ProtonDrive.App.Localization;
 
 public sealed class LanguageService : ILanguageService, ILanguageProvider
 {
-    private readonly IRepository<LanguageSettings> _repository;
-
-    private readonly HashSet<string> _supportedLanguages =
+    internal static readonly HashSet<string> SupportedLanguages =
     [
         "en",
         "de",
@@ -28,7 +26,7 @@ public sealed class LanguageService : ILanguageService, ILanguageProvider
         "ru",
     ];
 
-    private readonly Dictionary<string, string> _regionalLanguages = new()
+    internal static readonly Dictionary<string, string> RegionalLanguageMapping = new()
     {
         { "es-AR", "es-419" },
         { "es-BO", "es-419" },
@@ -51,45 +49,64 @@ public sealed class LanguageService : ILanguageService, ILanguageProvider
         { "es-VE", "es-419" },
     };
 
-    private readonly CultureInfo _systemUICulture;
+    private readonly IRepository<LanguageSettings> _repository;
+    private readonly ILogger<LanguageService> _logger;
+    private readonly Lazy<Language> _autoLanguage;
+    private readonly Lazy<Language> _initialLanguage;
 
-    private string? _currentLanguage;
+    private Language? _currentLanguage;
 
-    public LanguageService(IRepository<LanguageSettings> repository)
+    public LanguageService(IRepository<LanguageSettings> repository, ILogger<LanguageService> logger)
     {
         _repository = repository;
-        _systemUICulture = Thread.CurrentThread.CurrentUICulture;
-        _currentLanguage = repository.Get()?.CultureName;
+        _logger = logger;
+
+        _autoLanguage = new Lazy<Language>(GetAutoLanguage);
+        _initialLanguage = new Lazy<Language>(GetInitialLanguage);
     }
 
-    public string? CurrentLanguage
+    public Language CurrentLanguage
     {
-        get => _currentLanguage;
+        get => _currentLanguage ??= _initialLanguage.Value;
         set
         {
             _currentLanguage = value;
-            _repository.Set(value is null ? null : new LanguageSettings(cultureName: value));
+            _repository.Set(value.IsAuto ? null : new LanguageSettings(cultureName: value.CultureName));
+            _logger.LogInformation("App language changed to {Language}", GetLanguageNameForLogging(value));
         }
     }
 
+    public bool HasLanguageChanged => CurrentLanguage.CultureName != _initialLanguage.Value.CultureName;
+
     public IEnumerable<Language> GetSupportedLanguages()
     {
-        var autoCulture = GetSupportedLanguageCulture(_systemUICulture);
-
-        // TODO: Translate "Auto" if necessary
-        var autoLanguage = new Language($"Auto ({GetCapitalizedCultureNativeName(autoCulture)})", null);
-
-        var supportedLanguages = _supportedLanguages
+        var supportedLanguages = SupportedLanguages
             .Select(name => new Language(GetCapitalizedCultureNativeName(new CultureInfo(name)), name))
             .OrderBy(x => x.DisplayName)
-            .Prepend(autoLanguage);
+            .Prepend(_autoLanguage.Value);
 
         return supportedLanguages;
     }
 
     public string GetCulture()
     {
-        return CurrentLanguage ?? GetRegionalCulture() ?? _systemUICulture.Name;
+        // Auto language must be initialized before returning, because the caller might update the
+        // CultureInfo.CurrentUICulture used for obtaining the auto language.
+        _ = _autoLanguage.Value;
+
+        return CurrentLanguage.CultureName;
+    }
+
+    private static CultureInfo? GetCultureInfo(string cultureName)
+    {
+        try
+        {
+            return new CultureInfo(cultureName);
+        }
+        catch (CultureNotFoundException)
+        {
+            return null;
+        }
     }
 
     private static string GetCapitalizedCultureNativeName(CultureInfo culture)
@@ -104,25 +121,63 @@ public sealed class LanguageService : ILanguageService, ILanguageProvider
             : string.Empty;
     }
 
-    private string? GetRegionalCulture()
+    private static string GetLanguageNameForLogging(Language language)
     {
-        return _regionalLanguages.TryGetValue(_systemUICulture.Name, out var cultureName) ? cultureName : null;
+        return language.IsAuto ? $"Auto (\"{language.CultureName}\")" : $"\"{language.CultureName}\"";
     }
 
-    private CultureInfo GetSupportedLanguageCulture(CultureInfo requestedLanguageCulture)
+    private static Language? GetLanguage(string? cultureName)
     {
-        if (_supportedLanguages.Contains(requestedLanguageCulture.Name))
+        if (cultureName is null)
         {
-            return requestedLanguageCulture;
+            return null;
         }
 
-        if (_regionalLanguages.TryGetValue(requestedLanguageCulture.Name, out var regionalCultureName) && _supportedLanguages.Contains(regionalCultureName))
+        var culture = GetCultureInfo(cultureName);
+
+        if (culture is null)
+        {
+            return null;
+        }
+
+        var supportedLanguageCulture = GetSupportedLanguageCulture(culture);
+
+        return new Language(GetCapitalizedCultureNativeName(supportedLanguageCulture), supportedLanguageCulture.Name);
+    }
+
+    private static CultureInfo GetSupportedLanguageCulture(CultureInfo culture)
+    {
+        if (SupportedLanguages.Contains(culture.Name))
+        {
+            return culture;
+        }
+
+        if (RegionalLanguageMapping.TryGetValue(culture.Name, out var regionalCultureName) && SupportedLanguages.Contains(regionalCultureName))
         {
             return new CultureInfo(regionalCultureName);
         }
 
-        return !requestedLanguageCulture.IsNeutralCulture
-            ? GetSupportedLanguageCulture(requestedLanguageCulture.Parent)
+        return !culture.IsNeutralCulture
+            ? GetSupportedLanguageCulture(culture.Parent)
             : new CultureInfo("en");
+    }
+
+    private Language GetAutoLanguage()
+    {
+        var systemUICulture = CultureInfo.CurrentUICulture;
+        var autoCulture = GetSupportedLanguageCulture(systemUICulture);
+
+        _logger.LogInformation("System UI language is \"{SystemUILanguage}\", app auto language is \"{AutoLanguage}\"", systemUICulture.Name, autoCulture.Name);
+
+        return new Language($"Auto ({GetCapitalizedCultureNativeName(autoCulture)})", autoCulture.Name, IsAuto: true);
+    }
+
+    private Language GetInitialLanguage()
+    {
+        var result = GetLanguage(_repository.Get()?.CultureName) ?? _autoLanguage.Value;
+
+        _logger.LogInformation("App language is {Language}", GetLanguageNameForLogging(result));
+
+        return result;
     }
 }

@@ -164,9 +164,7 @@ internal sealed class SyncActivityItemViewModel : ObservableObject
     {
         var displayText = EnumToDisplayTextConverter.Convert(
             value: DataItem.ActivityType,
-            targetType: null,
-            parameter: GetResourceKeyPattern(Status, Replica),
-            culture: null);
+            parameter: GetResourceKeyPattern(Status, Replica));
 
         return displayText as string;
     }

@@ -46,8 +46,9 @@ internal sealed class SharedWithMeRootFolderMappingSetupFinalizationStep
         return _syncFolderProtector.ProtectFolder(sharedWithMeRootFolderPath, FolderProtectionType.AncestorWithFiles);
     }
 
-    private Task<MappingErrorCode?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
+    private async Task<MappingErrorCode?> TryAddOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        return _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping);
+        var errorInfo = await _onDemandSyncRootRegistry.TryAddOnDemandSyncRootAsync(mapping).ConfigureAwait(false);
+        return errorInfo?.ErrorCode;
     }
 }

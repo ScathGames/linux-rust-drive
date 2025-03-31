@@ -8,8 +8,8 @@ public interface IOnDemandSyncRootRegistry
     /// Verifies whether the provided path belongs to on-demand sync root with expected characteristics
     /// </summary>
     /// <param name="root">Sync root and shell folder information</param>
-    /// <returns>A <see cref="OnDemandSyncRootVerificationVerdict"/>.</returns>
-    Task<OnDemandSyncRootVerificationVerdict> VerifyAsync(OnDemandSyncRootInfo root);
+    /// <returns>A <see cref="OnDemandSyncRootVerificationResult"/>.</returns>
+    Task<OnDemandSyncRootVerificationResult> VerifyAsync(OnDemandSyncRootInfo root);
 
     /// <summary>
     /// Registers on-demand sync root and adds shell folder

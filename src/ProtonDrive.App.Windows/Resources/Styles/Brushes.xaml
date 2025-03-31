@@ -94,6 +94,31 @@
         Color="{StaticResource PrimaryColor.ExtraDark}" />
 
     <SolidColorBrush
+        x:Key="PrimaryButton.Default.Foreground"
+        po:Freeze="True"
+        Color="{StaticResource WhiteColor}" />
+
+    <SolidColorBrush
+        x:Key="DangerousButton.Default.Background"
+        po:Freeze="True"
+        Color="{StaticResource RedColor}" />
+
+    <SolidColorBrush
+        x:Key="DangerousButton.MouseOver.Background"
+        po:Freeze="True"
+        Color="{StaticResource RedColor.Dark}" />
+
+    <SolidColorBrush
+        x:Key="DangerousButton.Pressed.Background"
+        po:Freeze="True"
+        Color="{StaticResource RedColor.ExtraDark}" />
+
+    <SolidColorBrush
+        x:Key="DangerousButton.Default.Foreground"
+        po:Freeze="True"
+        Color="{StaticResource WhiteColor}" />
+
+    <SolidColorBrush
         x:Key="NavigationMenu.Default.Background"
         po:Freeze="True"
         Color="{StaticResource DarkTheme.Black.Light}" />
@@ -127,11 +152,6 @@
         x:Key="StatelessToggleButton.DarkTheme.MouseOver.Background"
         po:Freeze="True"
         Color="{StaticResource DarkTheme.Black.Light}" />
-
-    <SolidColorBrush
-        x:Key="PrimaryButton.Default.Foreground"
-        po:Freeze="True"
-        Color="{StaticResource WhiteColor}" />
 
     <SolidColorBrush
         x:Key="Window.Default.BorderBrush"

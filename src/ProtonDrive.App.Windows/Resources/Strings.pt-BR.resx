@@ -142,13 +142,13 @@
     <value>Falha ao trocar de conta. Reinicie o aplicativo.</value>
   </data>
   <data name="AccountErrorCode_Value_Delinquent">
-    <value>A conta tem faturas pendentes. Acesse seu painel de controle para pagar ou avise seu administrador.</value>
+    <value>A conta possui faturas em aberto. Acesse seu painel de controle para pagar ou informe seu administrador.</value>
   </data>
   <data name="AccountErrorCode_Value_DriveAccessFailed">
     <value>Não foi possível conectar ao Proton Drive. Tente verificar a conexão com a internet.</value>
   </data>
   <data name="AccountErrorCode_Value_NoDriveAccess">
-    <value>Para acessar o Proton Drive, faça upgrade do seu plano</value>
+    <value>Para acessar o Proton Drive, faça upgrade no seu plano</value>
   </data>
   <data name="AccountErrorCode_Value_None">
     <value></value>
@@ -330,7 +330,7 @@
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="BugReport_CheckBox_IncludeLogs_Tooltip">
-    <value></value>
+    <value>O relatório incluirá os registros mais recentes do aplicativo e de instalação.</value>
   </data>
   <data name="BugReport_Text_Description_HelpText">
     <value>Descrição. O que deu errado? Quais foram os passos exatos que você realizou? (mínimo de 10 caracteres)</value>
@@ -394,23 +394,23 @@
     <value>Não há espaço livre suficiente</value>
   </data>
   <data name="FileSystemErrorCode_Value_IdentityMismatch">
-    <value>Arquivo ou pasta divergiu</value>
+    <value>O arquivo ou pasta divergiu</value>
   </data>
   <data name="FileSystemErrorCode_Value_IntegrityFailure">
     <value>Falha na verificação de dados</value>
   </data>
   <data name="FileSystemErrorCode_Value_InvalidName">
-    <value>O nome contém caracteres não suportados pelo Windows. Por favor, remova os seguintes caracteres para permitir a sincronização: \ / : * ? " &lt; &gt; |</value>
+    <value>O nome contém caracteres que não são suportados pelo Windows. Por favor, remova os seguintes caracteres para permitir a sincronização: \ / : * ? " &lt; &gt; |</value>
   </data>
   <data name="FileSystemErrorCode_Value_LastWriteTimeTooRecent">
     <value>Arquivo ignorado porque foi alterado muito recentemente. O aplicativo tentará novamente automaticamente</value>
   </data>
   <data name="FileSystemErrorCode_Value_MetadataMismatch">
-    <value>Arquivo ou pasta divergiu</value>
+    <value>O arquivo ou pasta divergiu</value>
   </data>
   <data name="FileSystemErrorCode_Value_MissingIndividuallySharedFile">
     <value>O arquivo original compartilhado com você foi excluído, movido ou renomeado.
-Desative e ative novamente a sincronização para restaurá-lo e eliminar este erro.</value>
+Desative e ative novamente a sincronização para restaurá-lo e eliminar esse erro.</value>
   </data>
   <data name="FileSystemErrorCode_Value_NetworkError">
     <value>Não foi possível conectar ao Proton Drive. Tente verificar a conexão com a internet.</value>
@@ -434,13 +434,13 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
     <value>O arquivo é só de leitura.</value>
   </data>
   <data name="FileSystemErrorCode_Value_ReadOnlyRoot">
-    <value>Arquivos e pastas somente para visualização não podem ser modificados. Desative e ative novamente a sincronização em "Compartilhado comigo" para resolver.</value>
+    <value>Arquivos e pastas apenas para visualização não podem ser modificados. Desative e ative novamente a sincronização em "Compartilhado comigo" para resolver.</value>
   </data>
   <data name="FileSystemErrorCode_Value_ServerError">
     <value>Algo deu errado.</value>
   </data>
   <data name="FileSystemErrorCode_Value_SharingViolation">
-    <value>Arquivo ou pasta está sendo utilizado por outro aplicativo</value>
+    <value>Arquivo ou pasta está sendo usado por outro aplicativo</value>
   </data>
   <data name="FileSystemErrorCode_Value_TimedOut">
     <value>Tempo esgotado</value>
@@ -453,6 +453,27 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   </data>
   <data name="FileSystemErrorCode_Value_Unknown">
     <value>Algo deu errado.</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_Empty">
+    <value>O nome está vazio.</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_EndsWithPeriod">
+    <value>O nome termina com um punto.</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_EndsWithSpace">
+    <value>O nome termina com um espaço.</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_InvalidCharacters">
+    <value>O nome contém um carácter não válido.</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_Reserved">
+    <value>O nome não é suportado pelo Windows.</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_Success">
+    <value></value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_TooLong">
+    <value>O nome é muito longo.</value>
   </data>
   <data name="Main_About_AppUpdateStatus_Value_CheckingForUpdate">
     <value>Verificando atualizações...</value>
@@ -563,7 +584,7 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
     <value>Fazer upgrade de plano</value>
   </data>
   <data name="Main_Account_Storage_Info_EnsureMoreStorage">
-    <value>Para garantir sincronização ininterrupta, por favor, obtenha mais armazenamento agora.</value>
+    <value>Para garantir a sincronização ininterrupta, por favor, obtenha mais armazenamento agora.</value>
   </data>
   <data name="Main_Account_Storage_Info_UsedSpaceFormat">
     <value>Espaço total usado: {0} de {1}</value>
@@ -583,6 +604,12 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   <data name="Main_Activity_Button_PauseSync">
     <value>_Pausar sincronização</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_Activity_Button_Rename">
+    <value>Renomear</value>
+  </data>
+  <data name="Main_Activity_Button_Rename_Tooltip">
+    <value>Altere o nome deste item para corrigir o problema de sincronização.</value>
   </data>
   <data name="Main_Activity_Button_ResumeSync">
     <value>_Retomar sincronização</value>
@@ -634,7 +661,7 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
     <value>Voltar à atividade</value>
   </data>
   <data name="Main_Activity_Intro_Idle_Description">
-    <value>Informações de sincronização sobre arquivos e pastas aparecerão aqui</value>
+    <value>Informações de sincronização sobre arquivos e pastas serão exibidas aqui</value>
   </data>
   <data name="Main_Activity_Intro_Idle_HelpText">
     <value>Seus arquivos estão atualizados</value>
@@ -663,11 +690,62 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   <data name="Main_Activity_Intro_Paused_Title">
     <value>Sincronização pausada</value>
   </data>
+  <data name="Main_Activity_Rename_CurrentName_Label">
+    <value>Nome atual:</value>
+  </data>
+  <data name="Main_Activity_Rename_Description">
+    <value>O nome deste item inclui caracteres não suportados no Windows.</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_AlreadyExists">
+    <value>O nome já está em uso.</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_Failed">
+    <value>Algo deu errado.</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_InvalidCharacters">
+    <value>O nome contém caracteres não válidos.</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_Required">
+    <value>O nome é obrigatório.</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Label">
+    <value>Novo nome:</value>
+  </data>
+  <data name="Main_Activity_Rename_Status_Value_Renaming">
+    <value>Renomeando...</value>
+  </data>
+  <data name="Main_Activity_Rename_Suggestion">
+    <value>Remova o seguinte para continuar a sincronização:</value>
+  </data>
+  <data name="Main_Activity_Rename_Suggestion_CharacterList">
+    <value>/ : * ? &gt; &lt; " |</value>
+  </data>
+  <data name="Main_Activity_Rename_Title">
+    <value>Alterando o nome do item</value>
+  </data>
   <data name="Main_Activity_Status_Value_SettingUp">
     <value>Configurando...</value>
   </data>
   <data name="Main_Activity_Status_Value_SettingUpFormat">
     <value>Configurando... ({0} itens preparando para sincronizar)</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_DaysAgoFormat">
+    <value>{0} dias atrás</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_HoursAgoFormat">
+    <value>{0} horas atrás</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_MinutesAgoFormat">
+    <value>{0} minutos atrás</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneDayAgo">
+    <value>um dia atrás</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneHourAgo">
+    <value>uma hora atrás</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneMinuteAgo">
+    <value>1 minuto atrás</value>
   </data>
   <data name="Main_Activity_Title">
     <value>Atividade</value>
@@ -720,7 +798,7 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
     <value>{0} pastas não podem ser encontradas ou não podem ser abertas</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_LocalVolumeNotSupportedFormat">
-    <value>{0} pastas não podem ser sincronizadas porque estão localizadas em uma unidade não suportada</value>
+    <value>{0} pasta(s) não podem ser sincronizadas porque estão localizadas em uma unidade não suportada</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_NetworkFolderNotSupportedFormat">
     <value>{0} pastas não podem ser sincronizadas porque são pastas de rede</value>
@@ -747,6 +825,15 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   <data name="Main_MyComputer_Folders_Column_Name">
     <value>Nome</value>
   </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization">
+    <value>Otimizar o armazenamento</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization_Info_Tooltip">
+    <value>Otimize o armazenamento ativando a sincronização sob demanda.
+Os arquivos só ocupam espaço local quando você os abre ou
+opte por mantê-los sempre neste dispositivo. Você pode
+desative a otimização de armazenamento a qualquer momento.</value>
+  </data>
   <data name="Main_MyComputer_Folders_Intro_Description">
     <value>Adicione pasta para sincronizar arquivos com segurança na nuvem</value>
   </data>
@@ -755,10 +842,6 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   </data>
   <data name="Main_MyComputer_Folders_Label">
     <value>Pastas sincronizadas a partir desse dispositivo</value>
-  </data>
-  <data name="Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync">
-    <value>_Ativar a sincronização sob demanda</value>
-    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_MyComputer_Folders_Menu_Item_OpenFolder">
     <value>_Abrir pasta</value>
@@ -771,17 +854,80 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   <data name="Main_MyComputer_Folders_RemoveConfirmation_Button_Confirm">
     <value>Remover pasta</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_1">
-    <value>Quaisquer arquivos adicionados à pasta '{0}' não serão mais sincronizados e esta pasta será movida para a Lixeira do Proton Drive.</value>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_1">
+    <value>Quaisquer arquivos adicionados à pasta "{0}" não serão mais sincronizados e esta pasta será movida para a Lixeira no Proton Drive.</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_2">
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_2">
     <value>Os arquivos existentes permanecerão no seu computador.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_1">
+    <value>Alguns arquivos na pasta «{0}» podem ser armazenados somente na nuvem. Remover esta pasta interromperá a sincronização e a moverá para a lixeira no Proton Drive.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_2">
+    <value>Para manter uma cópia local de todos os arquivos no seu computador, primeiro desative Otimizar armazenamento para esta pasta. Se a otimização de armazenamento já estiver desativada, ative-a e desative-a. Aguarde a conclusão do download (você pode verificar o status no explorador de arquivos) e remova a pasta da sincronização na seção Meu Computador.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_1">
+    <value>Os arquivos que já foram transferidos permanecerão no seu dispositivo.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_2">
+    <value>Os arquivos armazenados somente na nuvem serão removidos do seu dispositivo.</value>
   </data>
   <data name="Main_MyComputer_Folders_RemoveConfirmation_Title">
     <value>Remover pasta?</value>
   </data>
-  <data name="Main_MyComputer_Folders_SyncMethod_Value_OnDemand">
-    <value>(sob demanda)</value>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_1">
+    <value>Os arquivos da pasta "{0}" agora estarão sempre disponíveis no dispositivo. Pode levar alguns minutos até que o download de todos os arquivos seja concluído. (você pode verificar o status no Wxplorador de Arquivos)</value>
+    <comment>Placeholder {0}: folder name</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_2">
+    <value>Você ainda pode liberar espaço manualmente para arquivos individuais em suas configurações.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Title">
+    <value>Todos os arquivos estão sempre disponíveis neste dispositivo</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_1">
+    <value>A pasta "{0}" não pode usar sincronização sob demanda para otimizar o armazenamento porque {1}.</value>
+    <comment>Placeholder {0}: folder name. Placeholder {1}: the reason text, one of resources with "StorageOptimizationErrorCode_Value_..." key.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_2">
+    <value>Seus arquivos ainda serão sincronizados com o Proton Drive e permanecerão disponíveis no seu computador e na nuvem.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Title">
+    <value>Otimização de armazenamento indisponível</value>
+  </data>
+  <data name="Main_MyComputer_OnboardingPage_Button_Close_HelpText">
+    <value>Ignorar a integração do meu computador</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Button_Next">
+    <value>_Próximo</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Description">
+    <value>Ative a sincronização sob demanda para economizar espaço no disco rígido. Os arquivos só ocupam o armazenamento local quando você os abre ou os marca como “Sempre manter neste dispositivo”.</value>
+    <comment>"Always keep on this device" is the exact text displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Title">
+    <value>Otimize o armazenamento</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Button_GetStarted">
+    <value>Comece</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1">
+    <value>Clique com o botão direito em qualquer arquivo ou pasta sincronizada com o Proton Drive</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1_Label">
+    <value>1.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2">
+    <value>Escolha "Sempre manter este dispositivo" para armazená-lo off-line ou "Liberar espaço" para mantê-lo somente na nuvem.</value>
+    <comment>"Always keep on this device" and "Free up space" are the exact texts displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2_Label">
+    <value>2.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Title">
+    <value>Gerenciar armazenamento</value>
   </data>
   <data name="Main_MyComputer_Title">
     <value>Meu computador</value>
@@ -802,6 +948,12 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   <data name="Main_Settings_Label_General">
     <value>Geral</value>
   </data>
+  <data name="Main_Settings_Language_Button_Restart">
+    <value>Reiniciar agora</value>
+  </data>
+  <data name="Main_Settings_Language_Message_PleaseRestart">
+    <value>Reinicie o aplicativo para aplicar a alteração de idioma.</value>
+  </data>
   <data name="Main_Settings_Language_Title">
     <value>Idioma</value>
   </data>
@@ -810,12 +962,6 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   </data>
   <data name="Main_Settings_OpenOnStartup_Title">
     <value>Abrir ao Iniciar</value>
-  </data>
-  <data name="Main_Settings_Language_Button_Restart">
-    <value>Reinicie agora</value>
-  </data>
-  <data name="Main_Settings_Language_Message_PleaseRestart">
-    <value>Por favor, reinicie o aplicativo para aplicar a mudança de idioma</value>
   </data>
   <data name="Main_Settings_Title">
     <value>Configurações</value>
@@ -846,7 +992,7 @@ Desative e ative novamente a sincronização para restaurá-lo e eliminar este e
   </data>
   <data name="Main_SharedWithMe_Column_Sync_Info_Tooltip">
     <value>Ative para tornar o arquivo ou pasta compartilhado acessível a partir do seu computador.
-O conteúdo dos arquivos será baixado apenas sob demanda.</value>
+O conteúdo dos arquivos será baixado sob demanda.</value>
   </data>
   <data name="Main_SharedWithMe_Error_FailedToLoad">
     <value>Falha ao carregar os dados</value>
@@ -868,14 +1014,14 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_SharedWithMe_Menu_Item_RemoveMe">
-    <value>_Remover-me</value>
+    <value>_Remover</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_SharedWithMe_Onboarding_Button_Close_HelpText">
-    <value>Dispensar a orientação de Compartilhado comigo</value>
+    <value>Dispensar a integração de "Compartilhado comigo"</value>
   </data>
   <data name="Main_SharedWithMe_Onboarding_Button_GetStarted">
-    <value>_Começar</value>
+    <value>Comece</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_SharedWithMe_Onboarding_Description">
@@ -959,6 +1105,27 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
   <data name="Main_Sidebar_NavigationMenu_Item_SharedWithMe_HelpText">
     <value>Item do menu: Compartilhado comigo</value>
   </data>
+  <data name="Main_Sidebar_Notification_ExceededQuota_Description">
+    <value>Sincronização interrompida: sua conta excedeu a capacidade de armazenamento</value>
+  </data>
+  <data name="Main_Sidebar_Notification_ExceedingQuota_Description">
+    <value>Você está prestes a atingir seu limite de armazenamento</value>
+  </data>
+  <data name="Main_Sidebar_Notification_GetStarted_Description">
+    <value>Começar</value>
+  </data>
+  <data name="Main_Sidebar_Notification_NewVersion_Description">
+    <value>Uma nova versão do Proton Drive está disponível</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SharingUnavailable_Description">
+    <value>O compartilhamento está temporariamente indisponível</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SyncFoldersFailure_Description">
+    <value>Uma pasta não foi sincronizada</value>
+  </data>
+  <data name="Main_Sidebar_Notification_UpdateRequired_Description">
+    <value>Para continuar usando o Proton Drive, você precisará atualizar para a versão mais recente</value>
+  </data>
   <data name="Main_Sidebar_Offer_Button_GetDeal">
     <value>Obtenha a _oferta</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
@@ -981,6 +1148,12 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
   <data name="Main_Window_Title">
     <value>Proton Drive</value>
   </data>
+  <data name="MappingErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists">
+    <value>Esta pasta contém uma subpasta sincronizada sob demanda. Configure uma nova pasta de sincronização.</value>
+  </data>
+  <data name="MappingErrorCode_Value_ConflictingOnDemandSyncRootExists">
+    <value>Esta pasta já está sincronizada sob demanda. Configure uma nova pasta de sincronização.</value>
+  </data>
   <data name="MappingErrorCode_Value_DriveAccessFailed">
     <value>Não foi possível conectar ao Proton Drive. Tente verificar a conexão com a internet.</value>
   </data>
@@ -988,25 +1161,25 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
     <value>A pasta do Proton Drive foi movida. Configure uma nova pasta para sincronizar.</value>
   </data>
   <data name="MappingErrorCode_Value_DriveFolderDoesNotExist">
-    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido à exclusão de uma pasta do dispositivo. Configure uma nova pasta de sincronização.</value>
+    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido a uma exclusão de pasta do dispositivo. Configure uma nova pasta de sincronização.</value>
   </data>
   <data name="MappingErrorCode_Value_DriveHostDeviceDiverged">
-    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido à exclusão do dispositivo. Configure uma nova pasta de sincronização.</value>
+    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido à exclusão de um dispositivo. Configure uma nova pasta de sincronização.</value>
   </data>
   <data name="MappingErrorCode_Value_DriveShareDiverged">
-    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido à redefinição de senha. Configure uma nova pasta de sincronização.</value>
+    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido a uma redefinição de senha. Configure uma nova pasta de sincronização.</value>
   </data>
   <data name="MappingErrorCode_Value_DriveVolumeDiverged">
-    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido à redefinição de senha. Configure uma nova pasta de sincronização.</value>
+    <value>Não é possível acessar seus arquivos do Proton Drive, possivelmente devido a uma redefinição de senha. Configure uma nova pasta de sincronização.</value>
   </data>
   <data name="MappingErrorCode_Value_InsufficientDeviceQuota">
-    <value>O número máximo de computadores sincronizados foi atingido. Exclua os computadores desnecessários do Proton Drive na web.</value>
+    <value>O número máximo de computadores sincronizados foi alcançado. Exclua os computadores desnecessários do Proton Drive na web.</value>
   </data>
   <data name="MappingErrorCode_Value_InsufficientLocalFreeSpace">
-    <value>Libere espaço ou desmarque a caixa de seleção</value>
+    <value>Liberte espaço ou desmarque a caixa de seleção</value>
   </data>
   <data name="MappingErrorCode_Value_LocalAndRemoteFoldersNotEmpty">
-    <value>Configurar uma pasta de sincronização requer uma pasta vazia no Windows ou na web do Proton Drive. Por favor, limpe-a e tente novamente.</value>
+    <value>Configurar uma pasta de sincronização exige uma pasta vazia no Windows ou no Proton Drive web. Por favor, limpe uma e tente novamente.</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFileSystemAccessFailed">
     <value>Não é possível acessar ou criar a pasta de sincronização local. Continuaremos tentando.</value>
@@ -1018,10 +1191,10 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
     <value>Pasta de sincronização não encontrada. Ela pode ter sido excluída, renomeada ou movida. Restaure-a ou configure uma nova pasta de sincronização.</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludedByAnAlreadySyncedFolder">
-    <value>A pasta selecionada está inclusa em uma pasta que já está sincronizada</value>
+    <value>A pasta selecionada já está incluída em outra pasta sincronizada.</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludesAnAlreadySyncedFolder">
-    <value>A pasta selecionada contém uma pasta que já está sincronizada</value>
+    <value>A pasta selecionada contém uma pasta já sincronizada</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderNonSyncable">
     <value>A pasta local não é elegível para sincronização. Configure uma nova pasta de sincronização.</value>
@@ -1029,20 +1202,20 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
   <data name="MappingErrorCode_Value_LocalFolderNotEmpty">
     <value>A pasta local deve estar vazia antes de configurar a sincronização</value>
   </data>
-  <data name="MappingErrorCode_Value_LocalOnDemandSyncRootNotRegistered">
-    <value>A pasta de sincronização foi inesperadamente desregistrada. Configure uma nova pasta de sincronização.</value>
-  </data>
   <data name="MappingErrorCode_Value_LocalVolumeNotSupported">
     <value>Tipo de drive local não suportado. Tente configurar a pasta de sincronização em um drive local diferente.</value>
   </data>
   <data name="MappingErrorCode_Value_None">
     <value></value>
   </data>
+  <data name="MappingErrorCode_Value_OnDemandSyncRootNotRegistered">
+    <value>O registro da pasta de sincronização foi cancelado inesperadamente. Configure uma nova pasta de sincronização.</value>
+  </data>
   <data name="MappingErrorCode_Value_RemoteShareWithMeItemDoesNotExist">
-    <value>Não é possível acessar o arquivo ou pasta compartilhado do Proton Drive. Verifique se ainda está compartilhado com você.</value>
+    <value>Não é possível acessar o arquivo ou a pasta compartilhada do Proton Drive. Verifique se ela ainda está compartilhada com você.</value>
   </data>
   <data name="MappingErrorCode_Value_RemoteShareWithMeItemPermissionsDiverged">
-    <value>As permissões do arquivo ou pasta compartilhado do Proton Drive foram alteradas. Desative e ative novamente a sincronização para resolver.</value>
+    <value>As permissões do arquivo ou pasta compartilhada do Proton Drive foram alteradas. Desative e ative novamente a sincronização para resolver.</value>
   </data>
   <data name="MappingErrorCode_Value_SharingDisabled">
     <value>Compartilhamento está temporariamente indisponível</value>
@@ -1097,7 +1270,7 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
     <value>Adicione outra pasta para sincronizar</value>
   </data>
   <data name="Onboarding_SyncFolderSelection_Label_Description">
-    <value>As pastas selecionadas serão sincronizadas com o Proton Drive. Os arquivos serão feitos backup e estarão disponíveis em seus outros dispositivos.</value>
+    <value>As pastas selecionadas serão sincronizadas com o Proton Drive. Os arquivos serão salvos em backup e estarão disponíveis em seus outros dispositivos.</value>
   </data>
   <data name="Onboarding_SyncFolderSelection_Title">
     <value>Faça backup de suas pastas</value>
@@ -1217,17 +1390,40 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
   <data name="SignIn_Title_2FA">
     <value>Autenticação de dois fatores</value>
   </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists">
+    <value>contém uma subpasta sincronizada sob demanda por {0}.</value>
+    <comment>Placeholder {0}: An application name</comment>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingOnDemandSyncRootExists">
+    <value>já está sincronizado sob demanda por {0}.</value>
+    <comment>Placeholder {0}: An application name</comment>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_NetworkVolumeNotSupported">
+    <value>unidades de rede não são suportadas</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_None">
+    <value></value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_RemovableVolumeNotSupported">
+    <value>unidades removíveis não são suportadas</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_Unknown">
+    <value>falha ao ativar a sincronização sob demanda</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_VolumeNotSupported">
+    <value>tipo de unidade local não é compatível</value>
+  </data>
   <data name="SyncFolderValidationResult_Title_InsufficientLocalFreeSpace">
-    <value>Espaço livre insuficiente neste dispositivo</value>
+    <value>Não há espaço livre suficiente neste dispositivo</value>
   </data>
   <data name="SyncFolderValidationResult_Value_FolderIncludedByAnAlreadySyncedFolder">
-    <value>A pasta está inclusa em uma pasta que já está sincronizada</value>
+    <value>A pasta está incluída em uma pasta já sincronizada</value>
   </data>
   <data name="SyncFolderValidationResult_Value_FolderIncludesAnAlreadySyncedFolder">
-    <value>A pasta contém uma pasta que já está sincronizada</value>
+    <value>A pasta contém uma pasta já sincronizada</value>
   </data>
   <data name="SyncFolderValidationResult_Value_InsufficientLocalFreeSpace">
-    <value>Libere espaço ou desmarque a caixa de seleção.</value>
+    <value>Liberte espaço ou desmarque a caixa de seleção.</value>
   </data>
   <data name="SyncFolderValidationResult_Value_LocalFileSystemAccessFailed">
     <value>Não é possível acessar a pasta</value>
@@ -1263,7 +1459,7 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
     <value>Configurando...</value>
   </data>
   <data name="SyncStatus_Value_Offline">
-    <value>Off-line</value>
+    <value>Desconectado</value>
   </data>
   <data name="SyncStatus_Value_Paused">
     <value>Pausado</value>
@@ -1275,7 +1471,7 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
     <value></value>
   </data>
   <data name="SyncStatus_Value_Terminating">
-    <value>Terminando...</value>
+    <value>Finalizando...</value>
   </data>
   <data name="SystemTray_Menu_Item_Exit">
     <value>_Sair</value>
@@ -1299,22 +1495,10 @@ O conteúdo dos arquivos será baixado apenas sob demanda.</value>
     <value>_Iniciar sessão</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
-  <data name="Main_Activity_TimeElapsed_OneMinuteAgo" xml:space="preserve">
-    <value>há um minuto</value>
+  <data name="ToggleSwitch_Off">
+    <value>Desativado</value>
   </data>
-  <data name="Main_Activity_TimeElapsed_OneHourAgo" xml:space="preserve">
-    <value>há uma hora</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_OneDayAgo" xml:space="preserve">
-    <value>há um dia</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_MinutesAgoFormat" xml:space="preserve">
-    <value>há {0} minutos</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_HoursAgoFormat" xml:space="preserve">
-    <value>há {0} horas</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_DaysAgoFormat" xml:space="preserve">
-    <value>há {0} dias</value>
+  <data name="ToggleSwitch_On">
+    <value>Ativado</value>
   </data>
 </root>

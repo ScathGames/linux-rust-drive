@@ -45,6 +45,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <Image
@@ -70,7 +71,15 @@
                     ContentTemplate="{StaticResource NotificationBadgeTemplate}"
                     Visibility="{Binding MyComputerNotificationBadge, Converter={x:Static conv:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={x:Null}}"
                     VerticalAlignment="Center"
-                    Margin="8,2,0,0" />
+                    Margin="8,0,0,0" />
+
+                <ContentControl
+                    Grid.Column="3"
+                    Content="{Binding StorageOptimizationOnboardingBadge}"
+                    ContentTemplate="{StaticResource StorageOptimizationOnboardingBadgeTemplate}"
+                    Visibility="{Binding StorageOptimizationOnboardingBadge, Converter={x:Static conv:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={x:Null}}"
+                    VerticalAlignment="Center"
+                    Margin="8,0,0,0" />
             </Grid>
         </RadioButton>
 
@@ -78,12 +87,12 @@
             AutomationProperties.AutomationId="SharedWithMeMenuItem"
             AutomationProperties.HelpText="{loc:Resource Main_Sidebar_NavigationMenu_Item_SharedWithMe_HelpText}"
             IsChecked="{Binding CurrentMenuItem, ConverterParameter={x:Static main:ApplicationPage.SharedWithMe}, Converter={x:Static conv:ObjectEqualityToBooleanConverter.EqualIsTrue}}"
-            Style="{StaticResource MenuToggleButtonWithIndicatorStyle}">
+            Style="{StaticResource MenuToggleButtonWithIndicatorStyle}"
+            Margin="0,2,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
@@ -110,14 +119,6 @@
                     Content="{Binding SharedWithMeNotificationBadge}"
                     ContentTemplate="{StaticResource NotificationBadgeTemplate}"
                     Visibility="{Binding SharedWithMeNotificationBadge, Converter={x:Static conv:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={x:Null}}"
-                    VerticalAlignment="Center"
-                    Margin="8,2,0,0" />
-
-                <ContentControl
-                    Grid.Column="3"
-                    Content="{Binding SharedWithMeOnboardingBadge}"
-                    ContentTemplate="{StaticResource SharedWithMeOnboardingBadgeTemplate}"
-                    Visibility="{Binding SharedWithMeOnboardingBadge, Converter={x:Static conv:ObjectEqualityToVisibilityConverter.EqualIsCollapsed}, ConverterParameter={x:Null}}"
                     VerticalAlignment="Center"
                     Margin="8,0,0,0" />
             </Grid>

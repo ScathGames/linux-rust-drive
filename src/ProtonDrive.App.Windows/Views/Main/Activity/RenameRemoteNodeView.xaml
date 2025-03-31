@@ -210,7 +210,7 @@
                 Command="{Binding RenameCommand}"
                 IsDefault="True"
                 Style="{StaticResource PrimaryButtonStyle}"
-                Width="80"
+                MinWidth="80"
                 VerticalAlignment="Center"
                 Margin="20,0,0,0" />
 
@@ -220,7 +220,7 @@
                 Content="{loc:Resource Dialog_Button_Cancel}"
                 Command="SystemCommands.CloseWindowCommand"
                 IsCancel="True"
-                Width="80"
+                MinWidth="80"
                 VerticalAlignment="Center"
                 Margin="15,0,0,0" />
         </Grid>

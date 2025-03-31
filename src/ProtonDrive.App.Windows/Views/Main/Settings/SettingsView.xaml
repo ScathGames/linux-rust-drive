@@ -70,8 +70,11 @@
                     AutomationProperties.HelpText="{loc:Resource Main_Settings_OpenOnStartup_HelpText}"
                     AutomationProperties.Name="OpenOnWindowsStartupToggleSwitch"
                     Grid.Column="2"
+                    ContentPlacement="{x:Static controls:ToggleSwitchContentPlacement.Left}"
                     Foreground="{StaticResource GrayBrush}"
-                    IsChecked="{Binding AppIsOpeningOnStartup}" />
+                    IsChecked="{Binding AppIsOpeningOnStartup}"
+                    OffContent="{loc:Resource ToggleSwitch_Off}"
+                    OnContent="{loc:Resource ToggleSwitch_On}" />
             </Grid>
         </Border>
 
@@ -110,7 +113,7 @@
                     Foreground="{StaticResource PendingBrush}"
                     Visibility="{Binding LanguageHasChanged, Converter={x:Static converters:BooleanToVisibilityConverter.FalseIsCollapsed}}"
                     VerticalAlignment="Center"
-                    Margin="10,0,0,0">
+                    Margin="10,1,0,0">
                     <b:Interaction.Behaviors>
                         <behaviors:TextBlockAutoToolTipBehavior />
                     </b:Interaction.Behaviors>

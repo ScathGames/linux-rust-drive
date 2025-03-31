@@ -193,7 +193,13 @@ internal sealed class MappingSetupService
                 });
 
         mappings.Active
-            .Where(mapping => mapping is { HasSetupSucceeded: true, SyncMethod: SyncMethod.Classic, SyncMethodUpdateStatus: SyncMethodUpdateStatus.EnablingOnDemandSyncRequested })
+            .Where(
+                mapping => mapping is
+                {
+                    HasSetupSucceeded: true,
+                    SyncMethod: SyncMethod.Classic,
+                    Local.StorageOptimization.IsEnabled: true,
+                })
             .ForEach(mapping =>
             {
                 hasAffectedMappings = true;
@@ -406,7 +412,7 @@ internal sealed class MappingSetupService
 
         foreach (var mapping in activeMappings)
         {
-            if (mapping is { HasSetupSucceeded: true, SyncMethodUpdateStatus: not SyncMethodUpdateStatus.EnablingOnDemandSyncRequested })
+            if (mapping is { HasSetupSucceeded: true } && !mapping.IsStorageOptimizationPending())
             {
                 // We track already set up mappings for the overlapping local folder detection
                 _alreadySetUpMappings.Add(mapping);
@@ -585,7 +591,7 @@ internal sealed class MappingSetupService
 
         OnMappingStateChanged(mapping, state);
 
-        _errorCounter.Add(ErrorScope.MappingSetup, new MappingSetupException(mapping.Type, errorCode));
+        _errorCounter.Add(ErrorScope.MappingSetup, new MappingSetupException(mapping, errorCode));
     }
 
     private void OnMappingStateChanged(RemoteToLocalMapping mapping, MappingState value)

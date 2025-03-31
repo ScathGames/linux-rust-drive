@@ -15,14 +15,7 @@ public sealed class EnumToDisplayTextConverter : IValueConverter
 
     public static EnumToDisplayTextConverter Instance => _instance ??= new EnumToDisplayTextConverter();
 
-    public object? Convert(object? value, Type? targetType, object? parameter, CultureInfo? culture)
-    {
-        return value == null
-            ? DependencyProperty.UnsetValue
-            : Convert(value, parameter);
-    }
-
-    public string? Convert(object value, object? parameter)
+    public static string? Convert(object value, object? parameter = null, CultureInfo? culture = null)
     {
         var sourceType = value.GetType();
         var valueName = Enum.GetName(sourceType, value) ?? string.Empty;
@@ -30,10 +23,22 @@ public sealed class EnumToDisplayTextConverter : IValueConverter
             ? GetResourceKey(pattern, sourceType.Name, valueName)
             : $"{sourceType.Name}_Value_{valueName}";
 
-        return Strings.ResourceManager.GetString(key, Strings.Culture);
+        if (culture?.Equals(CultureInfo.CurrentCulture) == true)
+        {
+            culture = Strings.Culture;
+        }
+
+        return Strings.ResourceManager.GetString(key, culture ?? Strings.Culture);
     }
 
-    public object ConvertBack(object? value, Type? targetType, object? parameter, CultureInfo? culture)
+    object? IValueConverter.Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value == null
+            ? DependencyProperty.UnsetValue
+            : Convert(value, parameter, culture);
+    }
+
+    object IValueConverter.ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotSupportedException();
     }

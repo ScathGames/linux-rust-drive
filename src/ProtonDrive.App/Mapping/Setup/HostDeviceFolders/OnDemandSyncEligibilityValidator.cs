@@ -1,31 +1,23 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using ProtonDrive.App.SystemIntegration;
-using ProtonDrive.Shared.IO;
 
 namespace ProtonDrive.App.Mapping.Setup.HostDeviceFolders;
 
 internal sealed class OnDemandSyncEligibilityValidator
 {
     private readonly ILocalVolumeInfoProvider _volumeInfoProvider;
-    private readonly IKnownFolders _knownFolders;
 
-    public OnDemandSyncEligibilityValidator(
-        ILocalVolumeInfoProvider volumeInfoProvider,
-        IKnownFolders knownFolders)
+    public OnDemandSyncEligibilityValidator(ILocalVolumeInfoProvider volumeInfoProvider)
     {
         _volumeInfoProvider = volumeInfoProvider;
-        _knownFolders = knownFolders;
     }
 
-    public MappingErrorCode? Validate(string folderPath)
+    public StorageOptimizationErrorCode? Validate(string folderPath)
     {
-        return
-            ValidateDriveType(folderPath) ??
-            ValidateFolderPath(folderPath);
+        return ValidateDriveType(folderPath);
     }
 
-    private MappingErrorCode? ValidateDriveType(string path)
+    private StorageOptimizationErrorCode? ValidateDriveType(string path)
     {
         var driveType = _volumeInfoProvider.GetDriveType(path);
 
@@ -35,25 +27,9 @@ internal sealed class OnDemandSyncEligibilityValidator
         return driveType switch
         {
             DriveType.Fixed => null,
-            DriveType.Unknown => MappingErrorCode.LocalFileSystemAccessFailed,
-            _ => MappingErrorCode.LocalVolumeNotSupported,
+            DriveType.Removable => StorageOptimizationErrorCode.RemovableVolumeNotSupported,
+            DriveType.Network => StorageOptimizationErrorCode.NetworkVolumeNotSupported,
+            _ => StorageOptimizationErrorCode.VolumeNotSupported,
         };
-    }
-
-    private MappingErrorCode? ValidateFolderPath(string path)
-    {
-        var desktopFolderPath = _knownFolders.GetPath(_knownFolders.Desktop);
-        if (string.IsNullOrEmpty(desktopFolderPath))
-        {
-            return null;
-        }
-
-        path = PathComparison.EnsureTrailingSeparator(path);
-        desktopFolderPath = PathComparison.EnsureTrailingSeparator(desktopFolderPath);
-
-        // Desktop folder is prevented from being synced on-demand, but subfolders are allowed
-        return path.Equals(desktopFolderPath, StringComparison.OrdinalIgnoreCase)
-            ? MappingErrorCode.LocalFolderNonSyncableOnDemand
-            : null;
     }
 }

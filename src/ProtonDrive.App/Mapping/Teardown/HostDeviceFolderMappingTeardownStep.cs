@@ -101,7 +101,10 @@ internal sealed class HostDeviceFolderMappingTeardownStep
 
     private bool TryConvertToRegularFolder(RemoteToLocalMapping mapping)
     {
-        if (mapping.SyncMethod is not SyncMethod.OnDemand && mapping.SyncMethodUpdateStatus is SyncMethodUpdateStatus.None)
+        // The folder might belong to on-demand sync root registered by a third-party application.
+        // To avoid interference with third-party applications, attempt conversion to regular
+        // folder only if the application has successfully synced it on-demand.
+        if (mapping.SyncMethod is not SyncMethod.OnDemand)
         {
             return true;
         }
@@ -118,7 +121,7 @@ internal sealed class HostDeviceFolderMappingTeardownStep
 
     private async Task<bool> TryRemoveOnDemandSyncRootAsync(RemoteToLocalMapping mapping)
     {
-        if (mapping.SyncMethod is not SyncMethod.OnDemand && mapping.SyncMethodUpdateStatus is SyncMethodUpdateStatus.None)
+        if (!mapping.IsOrCouldBeConvertedToOnDemand())
         {
             return true;
         }

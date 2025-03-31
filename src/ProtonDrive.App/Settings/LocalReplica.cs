@@ -15,4 +15,7 @@ public sealed class LocalReplica
     /// Automatically generated volume identity for internal use
     /// </summary>
     public int InternalVolumeId { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public StorageOptimizationState? StorageOptimization { get; set; }
 }

@@ -3,9 +3,9 @@ using System.Linq;
 using System.Text;
 using ProtonDrive.App.Mapping;
 
-namespace ProtonDrive.App.Windows.Views.Main.Computers;
+namespace ProtonDrive.App.Windows.Views.Main.MyComputer;
 
-internal sealed class AddedFolderValidationResultMessageBuilder
+internal sealed class AddFoldersValidationResultMessageBuilder
 {
     public string? BuildErrorMessage(IReadOnlyCollection<SelectableFolderViewModel> syncFolders)
     {

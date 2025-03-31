@@ -24,7 +24,7 @@
             DataType="local:ReleaseNoteSectionViewModel">
             <StackPanel>
                 <TextBlock
-                    Text="{Binding Type, Converter={x:Static converters:EnumToDisplayTextConverter.Instance}}"
+                    Text="{Binding Type, Converter={x:Static converters:EnumToDisplayTextConverter.Instance}, ConverterCulture='en-US'}"
                     FontWeight="SemiBold"
                     Foreground="{StaticResource Text.DarkTheme.Brush}"
                     Margin="0,5,0,0" />

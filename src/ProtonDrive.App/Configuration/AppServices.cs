@@ -41,6 +41,7 @@ using ProtonDrive.App.Services;
 using ProtonDrive.App.Settings;
 using ProtonDrive.App.Settings.Remote;
 using ProtonDrive.App.Sync;
+using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Update;
 using ProtonDrive.App.Volumes;
 using ProtonDrive.Client.Configuration;
@@ -56,9 +57,7 @@ using ProtonDrive.Shared.Net.Http.TlsPinning;
 using ProtonDrive.Shared.Offline;
 using ProtonDrive.Shared.Reporting;
 using ProtonDrive.Shared.Repository;
-using ProtonDrive.Shared.Security.Cryptography;
 using ProtonDrive.Shared.Telemetry;
-using ProtonDrive.Sync.Windows.Security.Cryptography;
 using ProtonDrive.Update.Config;
 
 namespace ProtonDrive.App.Configuration;
@@ -113,12 +112,22 @@ public static class AppServices
                 .AddSingleton<IMemoryCache>(provider => provider.GetRequiredService<IClearableMemoryCache>())
 
                 .AddSingleton<IRemoteFolderService, RemoteFolderService>()
+                .AddSingleton<INumberSuffixedNameGenerator, NumberSuffixedNameGenerator>()
 
-                .AddSingleton<IDataProtectionProvider, DataProtectionProvider>()
                 .AddSingleton<IRepositoryFactory, RepositoryFactory>()
                 .AddSingleton(
                     provider => provider.GetRequiredService<IRepositoryFactory>()
                         .GetRepository<MappingSettings>(AppRuntimeConfigurationSource.SyncFoldersMappingFilename))
+
+                .AddSingleton(
+                    provider =>
+                        new ClearingOnAccountSwitchingRepositoryDecorator<IReadOnlyDictionary<Feature, bool>>(
+                            provider.GetRequiredService<IRepositoryFactory>()
+                                .GetCachingRepository<IReadOnlyDictionary<Feature, bool>>("FeatureFlagSettings.json")))
+                .AddSingleton<IRepository<IReadOnlyDictionary<Feature, bool>>>(
+                    provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<IReadOnlyDictionary<Feature, bool>>>())
+                .AddSingleton<IAccountSwitchingHandler>(
+                    provider => provider.GetRequiredService<ClearingOnAccountSwitchingRepositoryDecorator<IReadOnlyDictionary<Feature, bool>>>())
 
                 .AddSingleton(
                     provider =>
@@ -173,6 +182,9 @@ public static class AppServices
                 .AddSingleton<IVolumeStateAware>(provider => provider.GetRequiredService<StatefulSessionService>())
                 .AddSingleton<IAccountStateAware>(provider => provider.GetRequiredService<StatefulSessionService>())
 
+                .AddSingleton<InstallationLogFilesCollector>()
+                .AddSingleton<IStartableService>(provider => provider.GetRequiredService<InstallationLogFilesCollector>())
+
                 .AddSingleton<EarlyAccessService>()
                 .AddSingleton<IStartableService>(provider => provider.GetRequiredService<EarlyAccessService>())
 
@@ -181,7 +193,9 @@ public static class AppServices
                 .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<RemoteSettingsService>())
 
                 .AddSingleton<FeatureService>()
-                .AddSingleton<ISessionStateAware>(provider => provider.GetRequiredService<FeatureService>())
+                .AddSingleton<IStartableService>(provider => provider.GetRequiredService<FeatureService>())
+                .AddSingleton<IAccountSwitchingAware>(provider => provider.GetRequiredService<FeatureService>())
+                .AddSingleton<IAccountStateAware>(provider => provider.GetRequiredService<FeatureService>())
                 .AddSingleton<IFeatureFlagProvider>(provider => provider.GetRequiredService<FeatureService>())
 
                 .AddSingleton<FileSanitizationProvider>()
@@ -249,6 +263,7 @@ public static class AppServices
 
                 .AddSingleton<ILocalFolderValidationStep, LocalFolderValidationStep>()
                 .AddSingleton<ILocalSyncFolderValidator, LocalSyncFolderValidator>()
+                .AddSingleton<ILocalStorageOptimizationStep, LocalStorageOptimizationStep>()
                 .AddSingleton<OnDemandSyncEligibilityValidator>()
                 .AddSingleton<IRemoteFolderValidationStep, RemoteFolderValidationStep>()
                 .AddSingleton<IRemoteSharedWithMeItemValidationStep, RemoteSharedWithMeItemValidationStep>()
@@ -412,6 +427,7 @@ public static class AppServices
                 .AddSingleton(provider => new Lazy<IEnumerable<IMappingStateAware>>(provider.GetRequiredService<IEnumerable<IMappingStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IOnboardingStateAware>>(provider.GetRequiredService<IEnumerable<IOnboardingStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<ISharedWithMeOnboardingStateAware>>(provider.GetRequiredService<IEnumerable<ISharedWithMeOnboardingStateAware>>))
+                .AddSingleton(provider => new Lazy<IEnumerable<IStorageOptimizationOnboardingStateAware>>(provider.GetRequiredService<IEnumerable<IStorageOptimizationOnboardingStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IMappingsSetupStateAware>>(provider.GetRequiredService<IEnumerable<IMappingsSetupStateAware>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<IAccountSwitchingHandler>>(provider.GetRequiredService<IEnumerable<IAccountSwitchingHandler>>))
                 .AddSingleton(provider => new Lazy<IEnumerable<ISyncFoldersAware>>(provider.GetRequiredService<IEnumerable<ISyncFoldersAware>>))

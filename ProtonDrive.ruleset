@@ -4,5 +4,6 @@
     <Rule Id="SA0001" Action="None" />
     <Rule Id="SA1111" Action="Info" />
     <Rule Id="SA1633" Action="None" />
+    <Rule Id="SA1652" Action="None" />
   </Rules>
 </RuleSet>

@@ -16,14 +16,14 @@ using ProtonDrive.App.Mapping.SyncFolders;
 using ProtonDrive.App.SystemIntegration;
 using ProtonDrive.App.Windows.SystemIntegration;
 
-namespace ProtonDrive.App.Windows.Views.Main.Computers;
+namespace ProtonDrive.App.Windows.Views.Main.MyComputer;
 
 internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
 {
     private readonly IFileSystemDisplayNameAndIconProvider _fileSystemDisplayNameAndIconProvider;
     private readonly ISyncFolderService _syncFolderService;
     private readonly IKnownFolders _knownFolders;
-    private readonly AddedFolderValidationResultMessageBuilder _messageBuilder;
+    private readonly AddFoldersValidationResultMessageBuilder _messageBuilder;
     private readonly ILogger<AddFoldersViewModel> _logger;
     private readonly AsyncRelayCommand _saveCommand;
     private readonly RelayCommand _selectArbitraryFolderCommand;
@@ -38,7 +38,7 @@ internal sealed class AddFoldersViewModel : ObservableObject, IDialogViewModel
         IFileSystemDisplayNameAndIconProvider fileSystemDisplayNameAndIconProvider,
         ISyncFolderService syncFolderService,
         IKnownFolders knownFolders,
-        AddedFolderValidationResultMessageBuilder messageBuilder,
+        AddFoldersValidationResultMessageBuilder messageBuilder,
         ILogger<AddFoldersViewModel> logger)
     {
         _fileSystemDisplayNameAndIconProvider = fileSystemDisplayNameAndIconProvider;

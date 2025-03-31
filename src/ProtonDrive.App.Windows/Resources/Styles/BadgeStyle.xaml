@@ -83,10 +83,10 @@
     </DataTemplate>
 
     <DataTemplate
-        x:Key="SharedWithMeOnboardingBadgeTemplate"
+        x:Key="StorageOptimizationOnboardingBadgeTemplate"
         DataType="notification:NotificationBadge">
         <Border
-            Background="{StaticResource NotificationBadge.Background}"
+            Background="{StaticResource PositiveBrush}"
             CornerRadius="4"
             RenderTransformOrigin="0.5,0.5"
             Padding="6,2">
@@ -121,6 +121,7 @@
 
             <TextBlock
                 Text="{Binding Symbol}"
+                FontSize="{StaticResource TextBlock.Small.FontSize}"
                 ToolTip="{Binding Description}" />
         </Border>
     </DataTemplate>

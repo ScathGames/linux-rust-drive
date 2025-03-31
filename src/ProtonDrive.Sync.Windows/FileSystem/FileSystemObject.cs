@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Microsoft.Win32.SafeHandles;
 using ProtonDrive.Shared;
+using ProtonDrive.Shared.IO;
 using ProtonDrive.Sync.Windows.Interop;
 using Kernel32 = ProtonDrive.Sync.Windows.Interop.Kernel32;
 
@@ -12,13 +14,9 @@ namespace ProtonDrive.Sync.Windows.FileSystem;
 public abstract class FileSystemObject : IDisposable
 {
     private static readonly char[] InvalidCharacters = Path.GetInvalidFileNameChars();
-
-    private static readonly HashSet<string> DosDeviceNames = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "CON", "PRN", "AUX", "NUL",
-        "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-        "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
-    };
+    private static readonly HashSet<string> DosDeviceNames = PathExtensions.DosDeviceNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+    private static readonly int MinDosDeviceNameLength = DosDeviceNames.Select(x => x.Length).Min();
+    private static readonly int MaxDosDeviceNameLength = DosDeviceNames.Select(x => x.Length).Max();
 
     private SafeFileHandle? _fileHandle;
     private string? _name;
@@ -32,11 +30,6 @@ public abstract class FileSystemObject : IDisposable
         FullPath = fullPath;
         Access = access;
         IsAsync = isAsync;
-    }
-
-    public static void ExposePlaceholders()
-    {
-        NtDll.RtlSetProcessPlaceholderCompatibilityMode(NtDll.PHCM.PHCM_EXPOSE_PLACEHOLDERS);
     }
 
     public string FullPath { get; private set; }
@@ -90,6 +83,11 @@ public abstract class FileSystemObject : IDisposable
         }
     }
 
+    public static void ExposePlaceholders()
+    {
+        NtDll.RtlSetProcessPlaceholderCompatibilityMode(NtDll.PHCM.PHCM_EXPOSE_PLACEHOLDERS);
+    }
+
     public static FileSystemObject Open(string path, FileMode mode, FileSystemFileAccess access, FileShare share, FileOptions options)
     {
         Ensure.NotNullOrEmpty(path, nameof(path));
@@ -130,8 +128,8 @@ public abstract class FileSystemObject : IDisposable
     /// on Windows file naming conventions.
     /// </remarks>
     /// <param name="name">The file or folder name to validate</param>
-    /// <returns>FileSystemNameValidationResult.None if the name is valid, otherwise the corresponding issue.</returns>
-    public static FileSystemNameValidationResult GetNameValidationResult(string name)
+    /// <returns><see cref="FileSystemNameValidationResult.Valid"/> if the name is valid, otherwise the corresponding issue.</returns>
+    public static FileSystemNameValidationResult ValidateName(string name)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -145,7 +143,7 @@ public abstract class FileSystemObject : IDisposable
 
         if (name.IndexOfAny(InvalidCharacters) >= 0)
         {
-            return FileSystemNameValidationResult.InvalidCharacters;
+            return FileSystemNameValidationResult.ContainsInvalidCharacter;
         }
 
         if (name.EndsWith(' '))
@@ -158,19 +156,24 @@ public abstract class FileSystemObject : IDisposable
             return FileSystemNameValidationResult.EndsWithPeriod;
         }
 
-        if (name.Length is >= 3 and <= 4 && DosDeviceNames.Contains(name))
+        if (name.Length >= MinDosDeviceNameLength && name.Length <= MaxDosDeviceNameLength && DosDeviceNames.Contains(name))
         {
             return FileSystemNameValidationResult.Reserved;
         }
 
-        return FileSystemNameValidationResult.Success;
+        if (name.Length >= MinDosDeviceNameLength && name.IndexOf('.') is var dotIndex && dotIndex >= MinDosDeviceNameLength && DosDeviceNames.Contains(name[..dotIndex]))
+        {
+            return FileSystemNameValidationResult.Reserved;
+        }
+
+        return FileSystemNameValidationResult.Valid;
     }
 
     public void Rename(string newName, bool replaceIfExists = false)
     {
-        var result = GetNameValidationResult(newName);
+        var result = ValidateName(newName);
 
-        if (result is not FileSystemNameValidationResult.Success)
+        if (result is not FileSystemNameValidationResult.Valid)
         {
             throw new ArgumentException(result.ToString(), nameof(newName));
         }
@@ -183,9 +186,9 @@ public abstract class FileSystemObject : IDisposable
 
     public void Move(FileSystemDirectory newParent, string newName, bool replaceIfExists = false)
     {
-        var result = GetNameValidationResult(newName);
+        var result = ValidateName(newName);
 
-        if (result is not FileSystemNameValidationResult.Success)
+        if (result is not FileSystemNameValidationResult.Valid)
         {
             throw new ArgumentException(result.ToString(), nameof(newName));
         }

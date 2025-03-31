@@ -97,7 +97,7 @@
                     Grid.Column="3"
                     Text="{loc:Resource Main_Settings_AccountRootFolder_Button_Change}"
                     VerticalAlignment="Center"
-                    Margin="15,0,0,0" />
+                    Margin="10,0,0,0" />
             </Grid>
         </Button>
     </StackPanel>

@@ -2,10 +2,10 @@
 
 public enum FileSystemNameValidationResult
 {
-    Success,
+    Valid,
     Empty,
     TooLong,
-    InvalidCharacters,
+    ContainsInvalidCharacter,
     EndsWithSpace,
     EndsWithPeriod,
     Reserved,

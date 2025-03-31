@@ -8,23 +8,20 @@ namespace ProtonDrive.App.Windows.Toolkit.Converters;
 [ValueConversion(typeof(long), typeof(string))]
 internal class FileSizeToStringConverter : IValueConverter
 {
-    private static readonly string[] Suffixes = { " B", " KB", " MB", " GB", " TB", " PB" };
+    private static readonly string[] Suffixes = [" B", " KB", " MB", " GB", " TB", " PB"];
 
     private static FileSizeToStringConverter? _instance;
 
     public static FileSizeToStringConverter Instance => _instance ??= new FileSizeToStringConverter();
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not long bytes)
-        {
-            return DependencyProperty.UnsetValue;
-        }
-
-        return Convert(bytes);
+        return value is not long bytes
+            ? DependencyProperty.UnsetValue
+            : Convert(bytes);
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotSupportedException();
     }

@@ -154,7 +154,7 @@ internal sealed class SyncFolderService : ISyncFolderService, IMappingsAware, IM
         mappings.Delete(mapping);
     }
 
-    public async Task EnableOnDemandSyncAsync(SyncFolder syncFolder, CancellationToken cancellationToken)
+    public async Task SetStorageOptimizationAsync(SyncFolder syncFolder, bool isEnabled, CancellationToken cancellationToken)
     {
         Ensure.IsTrue(
             syncFolder.Type is SyncFolderType.HostDeviceFolder,
@@ -164,38 +164,76 @@ internal sealed class SyncFolderService : ISyncFolderService, IMappingsAware, IM
         using var mappings = await _mappingRegistry.GetMappingsAsync(cancellationToken).ConfigureAwait(false);
 
         var pathToLog = _logger.GetSensitiveValueForLogging(syncFolder.LocalPath);
-        _logger.LogInformation(
-            "Requested to enable on-demand sync for host device sync folder \"{Path}\", mapping {MappingId}",
-            pathToLog,
-            syncFolder.Mapping.Id);
+
+        LogRequest();
+
+        if (syncFolder.Status is not MappingSetupStatus.Succeeded)
+        {
+            LogMappingSetupStatus();
+            return;
+        }
 
         var mapping = mappings.GetActive().FirstOrDefault(m => m == syncFolder.Mapping);
 
         if (mapping is null)
         {
-            _logger.LogWarning("Unable to find mapping for host device sync folder \"{Path}\"", pathToLog);
-
-            return;
-        }
-
-        if (mapping.SyncMethod is not SyncMethod.Classic)
-        {
-            _logger.LogWarning("Unable to enable on-demand sync for host device sync folder \"{Path}\", mapping sync method is {SyncMethod}", pathToLog, mapping.SyncMethod);
-
+            LogMappingIsMissing();
             return;
         }
 
         if (mapping.Status is not MappingStatus.Complete)
         {
-            _logger.LogWarning("Unable to enable on-demand sync for host device sync folder \"{Path}\", mapping status is {MappingStatus}", pathToLog, mapping.Status);
-
+            LogMappingStatus();
             return;
         }
 
-        mapping.SyncMethodUpdateStatus = SyncMethodUpdateStatus.EnablingOnDemandSyncRequested;
+        mapping.Local.StorageOptimization ??= new StorageOptimizationState();
+        mapping.Local.StorageOptimization.IsEnabled = isEnabled;
+        mapping.Local.StorageOptimization.Status = StorageOptimizationStatus.Pending;
         mapping.IsDirty = true;
 
         mappings.Update(mapping);
+
+        return;
+
+        void LogRequest()
+        {
+            _logger.LogInformation(
+                "Requested to {Action} storage optimization for host device sync folder \"{Path}\", mapping {MappingId}",
+                GetStorageOptimizationActionName(),
+                pathToLog,
+                syncFolder.Mapping.Id);
+        }
+
+        string GetStorageOptimizationActionName()
+        {
+            return isEnabled switch
+            {
+                false => "disable",
+                true => "enable",
+            };
+        }
+
+        void LogMappingSetupStatus()
+        {
+            _logger.LogWarning(
+                "Unable to set storage optimization for host device sync folder \"{Path}\", mapping setup status is {SetupStatus}",
+                pathToLog,
+                syncFolder.Status);
+        }
+
+        void LogMappingIsMissing()
+        {
+            _logger.LogWarning("Unable to locate mapping for host device sync folder \"{Path}\"", pathToLog);
+        }
+
+        void LogMappingStatus()
+        {
+            _logger.LogWarning(
+                "Unable to enable on-demand sync for host device sync folder \"{Path}\", mapping status is {MappingStatus}",
+                pathToLog,
+                mapping.Status);
+        }
     }
 
     void IMappingsAware.OnMappingsChanged(

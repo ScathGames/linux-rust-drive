@@ -127,13 +127,13 @@
     <value>Instellen...</value>
   </data>
   <data name="AccountDisplayStatus_Value_SignedOut">
-    <value>Afgemeld</value>
+    <value>Uitgelogd</value>
   </data>
   <data name="AccountDisplayStatus_Value_SigningIn">
     <value>Aanmelden...</value>
   </data>
   <data name="AccountDisplayStatus_Value_SigningOut">
-    <value>Afmelden...</value>
+    <value>Uitloggen...</value>
   </data>
   <data name="AccountDisplayStatus_Value_Succeeded">
     <value>Aangemeld</value>
@@ -281,13 +281,13 @@
     <value>Aanmelden mislukt</value>
   </data>
   <data name="AppDisplayStatus_Value_SignedOut">
-    <value>Afgemeld</value>
+    <value>Uitgelogd</value>
   </data>
   <data name="AppDisplayStatus_Value_SigningIn">
     <value>Aanmelden...</value>
   </data>
   <data name="AppDisplayStatus_Value_SigningOut">
-    <value>Afmelden...</value>
+    <value>Uitloggen...</value>
   </data>
   <data name="AppDisplayStatus_Value_SyncFolderError">
     <value>Het instellen van sync mappen is mislukt</value>
@@ -330,7 +330,7 @@
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="BugReport_CheckBox_IncludeLogs_Tooltip">
-    <value>Het rapport bevat de laatste 3 logbestanden gegenereerd door de app.</value>
+    <value>Het rapport bevat de nieuwste applicatie logbestanden en installatie logbestanden</value>
   </data>
   <data name="BugReport_Text_Description_HelpText">
     <value>Beschrijving. Wat ging er fout? Wat zijn de exacte stappen die u uitvoerde? (minimaal 10 tekens)</value>
@@ -369,7 +369,7 @@
     <value>Annuleren</value>
   </data>
   <data name="Dialog_Button_Ok">
-    <value>OK</value>
+    <value>Oké</value>
   </data>
   <data name="Dialog_Button_Save">
     <value>_Bewaar</value>
@@ -454,6 +454,27 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
   <data name="FileSystemErrorCode_Value_Unknown">
     <value>Er is iets fout gegaan.</value>
   </data>
+  <data name="FileSystemNameValidationResult_Value_Empty">
+    <value>Naam niet ingevuld</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_EndsWithPeriod">
+    <value>Naam eindigt op een punt</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_EndsWithSpace">
+    <value>Naam eindigt op een spatie</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_InvalidCharacters">
+    <value>Naam bevat een ongeldig teken</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_Reserved">
+    <value>Naam niet ondersteund door Windows</value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_Success">
+    <value></value>
+  </data>
+  <data name="FileSystemNameValidationResult_Value_TooLong">
+    <value>Naam te lang</value>
+  </data>
   <data name="Main_About_AppUpdateStatus_Value_CheckingForUpdate">
     <value>Zoeken naar updates...</value>
   </data>
@@ -531,7 +552,7 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
     <value>Zie _abonnementen</value>
   </data>
   <data name="Main_Account_Plan_Description">
-    <value>Krijg meer opslagruimte</value>
+    <value>Krijg meer opslag</value>
   </data>
   <data name="Main_Account_Plan_HelpText">
     <value>Zie andere Proton Drive abonnementen</value>
@@ -556,7 +577,7 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
     <value>Afmelden bij Proton Drive</value>
   </data>
   <data name="Main_Account_SignOut_Title">
-    <value>_Afmelden</value>
+    <value>_Uitloggen</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_Account_Storage_Button_UpgradePlan">
@@ -584,6 +605,12 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
     <value>_Synchronisatie pauzeren</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
+  <data name="Main_Activity_Button_Rename">
+    <value>Hernoemen</value>
+  </data>
+  <data name="Main_Activity_Button_Rename_Tooltip">
+    <value>Wijzig de naam van dit item om het synchronisatieprobleem op te lossen</value>
+  </data>
   <data name="Main_Activity_Button_ResumeSync">
     <value>_Synchronisatie hervatten</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
@@ -610,7 +637,7 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
     <value>Gesynchroniseerd</value>
   </data>
   <data name="Main_Activity_Column_Type">
-    <value>Type</value>
+    <value>Soort</value>
   </data>
   <data name="Main_Activity_ErrorHeader_Button_ShowMore">
     <value>Toon meer details</value>
@@ -663,11 +690,62 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
   <data name="Main_Activity_Intro_Paused_Title">
     <value>Synchronisatie is gepauzeerd</value>
   </data>
+  <data name="Main_Activity_Rename_CurrentName_Label">
+    <value>Huidige naam:</value>
+  </data>
+  <data name="Main_Activity_Rename_Description">
+    <value>De naam van dit item bevat tekens die niet worden ondersteund door Windows.</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_AlreadyExists">
+    <value>Naam al in gebruik</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_Failed">
+    <value>Er is iets misgegaan</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_InvalidCharacters">
+    <value>Naam bevat ongeldige tekens</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Error_Required">
+    <value>Naam is verplicht</value>
+  </data>
+  <data name="Main_Activity_Rename_NewName_Label">
+    <value>Nieuwe naam:</value>
+  </data>
+  <data name="Main_Activity_Rename_Status_Value_Renaming">
+    <value>Hernoemen...</value>
+  </data>
+  <data name="Main_Activity_Rename_Suggestion">
+    <value>Verwijder het volgende om door te gaan met synchroniseren:</value>
+  </data>
+  <data name="Main_Activity_Rename_Suggestion_CharacterList">
+    <value>/ : * ? &gt; &lt; " |</value>
+  </data>
+  <data name="Main_Activity_Rename_Title">
+    <value>Item hernoemen</value>
+  </data>
   <data name="Main_Activity_Status_Value_SettingUp">
     <value>Instellen...</value>
   </data>
   <data name="Main_Activity_Status_Value_SettingUpFormat">
     <value>Instellen... ({0} items voorbereid voor synchronisatie)</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_DaysAgoFormat">
+    <value>{0} dagen geleden</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_HoursAgoFormat">
+    <value>{0} uur geleden</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_MinutesAgoFormat">
+    <value>{0} minuten geleden</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneDayAgo">
+    <value>één dag geleden</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneHourAgo">
+    <value>één uur geleden</value>
+  </data>
+  <data name="Main_Activity_TimeElapsed_OneMinuteAgo">
+    <value>één minuut geleden</value>
   </data>
   <data name="Main_Activity_Title">
     <value>Activiteit</value>
@@ -720,7 +798,7 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
     <value>{0} mappen kunnen niet gevonden of geopend worden</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_LocalVolumeNotSupportedFormat">
-    <value>{0} map(pen) kan/kunnen niet worden gesynchroniseerd omdat deze zich op een niet-ondersteunde Drive bevindt.</value>
+    <value>{0} map(pen) kan/kunnen niet gesynchroniseerd worden omdat deze zich op een niet-ondersteunde Drive bevindt.</value>
   </data>
   <data name="Main_MyComputer_Folders_AddFolders_ValidationError_NetworkFolderNotSupportedFormat">
     <value>{0} map(pen) kan/kunnen niet worden gesynchroniseerd omdat netwerkmappen niet worden ondersteund.</value>
@@ -747,6 +825,14 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
   <data name="Main_MyComputer_Folders_Column_Name">
     <value>Naam</value>
   </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization">
+    <value>Opslagruimte optimaliseren</value>
+  </data>
+  <data name="Main_MyComputer_Folders_Column_StorageOptimization_Info_Tooltip">
+    <value>Optimaliseer opslag door synchronisatie op aanvraag toe te staan.
+Bestanden nemen de lokale ruimte alleen in beslag wanneer u ze opent of kiest om ze altijd op dit apparaat te houden. U kunt
+opslag optimalisatie op elk gewenst moment uitschakelen.</value>
+  </data>
   <data name="Main_MyComputer_Folders_Intro_Description">
     <value>Map toevoegen om veilig te beginnen met het synchroniseren van bestanden naar de cloud</value>
   </data>
@@ -755,10 +841,6 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
   </data>
   <data name="Main_MyComputer_Folders_Label">
     <value>Mappen synchroniseren vanaf dit apparaat</value>
-  </data>
-  <data name="Main_MyComputer_Folders_Menu_Item_EnableOnDemandSync">
-    <value>_Schakel synchronisatie op aanvraag in</value>
-    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_MyComputer_Folders_Menu_Item_OpenFolder">
     <value>_Map openen</value>
@@ -771,17 +853,80 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
   <data name="Main_MyComputer_Folders_RemoveConfirmation_Button_Confirm">
     <value>Map verwijderen</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_1">
-    <value>Alle bestanden die aan de map '{0}' worden toegevoegd, worden niet langer gesynchroniseerd en deze map wordt naar de Prullenbak in Proton Drive verplaatst.</value>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_1">
+    <value>Alle bestanden die zijn toegevoegd aan "{0}" map zullen niet langer worden gesynchroniseerd en deze map zal worden verplaatst naar de prullenbak in Proton Drive.</value>
   </data>
-  <data name="Main_MyComputer_Folders_RemoveConfirmation_Message_2">
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_Classic_Message_2">
     <value>Bestaande bestanden blijven op uw computer.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_1">
+    <value>Sommige bestanden in de map{0}worden misschien alleen in de cloud opgeslagen. Verwijderen van deze map zal stoppen met synchroniseren en verplaatsen naar prullenbak in de Proton Drive.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_2">
+    <value>Om een lokale kopie van alle bestanden op uw computer te houden, schakelt u eerst Optimaliseer opslag uit voor deze map. Als opslagoptimalisatie al is uitgeschakeld, schakel deze aan en uit. Wacht tot de download voltooid is (u kunt de status controleren in de Verkenner), verwijder daarna de map van het synchroniseren onder de Mijn Computer sectie.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_1">
+    <value>Bestanden die al gedownload zijn blijven op uw toestel.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_RemoveConfirmation_OnDemand_Message_Item_2">
+    <value>Bestanden die alleen in de cloud zijn opgeslagen, worden van uw toestel verwijderd.</value>
   </data>
   <data name="Main_MyComputer_Folders_RemoveConfirmation_Title">
     <value>Map verwijderen?</value>
   </data>
-  <data name="Main_MyComputer_Folders_SyncMethod_Value_OnDemand">
-    <value>(op aanvraag)</value>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_1">
+    <value>Bestanden in "{0}" folder zullen nu altijd beschikbaar zijn op dit apparaat. Het kan een paar minuten duren voordat alle bestanden klaar zijn met downloaden (u kunt de status controleren in de Verkenner).</value>
+    <comment>Placeholder {0}: folder name</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Message_2">
+    <value>U kunt nog steeds handmatig ruimte vrijmaken voor individuele bestanden in hun instellingen.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationTurnedOffNotification_Title">
+    <value>Alle bestanden zijn altijd beschikbaar op dit apparaat</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_1">
+    <value>De "{0}" map kan geen op demand sync gebruiken om de opslag te optimaliseren, omdat {1}.</value>
+    <comment>Placeholder {0}: folder name. Placeholder {1}: the reason text, one of resources with "StorageOptimizationErrorCode_Value_..." key.</comment>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Message_2">
+    <value>Uw bestanden worden nog steeds gesynchroniseerd met Proton Drive en blijven beschikbaar op uw computer en in de cloud.</value>
+  </data>
+  <data name="Main_MyComputer_Folders_StorageOptimizationUnavailableNotification_Title">
+    <value>Optimalisatie van opslagruimte niet beschikbaar</value>
+  </data>
+  <data name="Main_MyComputer_OnboardingPage_Button_Close_HelpText">
+    <value>Onboarding van mijn computer negeren</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Button_Next">
+    <value>_Volgende</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Description">
+    <value>Schakel synchronisatie op aanvraag in om schijfruimte te besparen. Bestanden nemen alleen lokale opslag in als u ze opent of markeert als "Altijd op dit apparaat houden".</value>
+    <comment>"Always keep on this device" is the exact text displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page1_Title">
+    <value>Opslagruimte optimaliseren</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Button_GetStarted">
+    <value>Aan de _slag</value>
+    <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1">
+    <value>Klik met de rechtermuisknop op een bestand of map die is gesynchroniseerd met Proton Drive</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_1_Label">
+    <value>1.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2">
+    <value>Kies "Altijd op dit apparaat houden" om het offline op te slaan, of "Ruimte vrij maken" om het enkel in de cloud te bewaren.</value>
+    <comment>"Always keep on this device" and "Free up space" are the exact texts displayed in Windows' context menu when right-clicking a file within an online storage provider like OneDrive.</comment>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Point_2_Label">
+    <value>2.</value>
+  </data>
+  <data name="Main_MyComputer_Onboarding_Page2_Title">
+    <value>Opslagruimte beheren</value>
   </data>
   <data name="Main_MyComputer_Title">
     <value>Mijn computer</value>
@@ -802,6 +947,12 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
   <data name="Main_Settings_Label_General">
     <value>Algemeen</value>
   </data>
+  <data name="Main_Settings_Language_Button_Restart">
+    <value>Nu herstarten</value>
+  </data>
+  <data name="Main_Settings_Language_Message_PleaseRestart">
+    <value>Herstart het programma om taalwijziging door te voeren</value>
+  </data>
   <data name="Main_Settings_Language_Title">
     <value>Taal</value>
   </data>
@@ -810,12 +961,6 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
   </data>
   <data name="Main_Settings_OpenOnStartup_Title">
     <value>Open bij opstarten</value>
-  </data>
-  <data name="Main_Settings_Language_Button_Restart">
-    <value>Nu herstarten</value>
-  </data>
-  <data name="Main_Settings_Language_Message_PleaseRestart">
-    <value>Herstart de applicatie om uw taalwijziging toe te passen</value>
   </data>
   <data name="Main_Settings_Title">
     <value>Instellingen</value>
@@ -830,10 +975,10 @@ Zet de synchronisatie uit en weer aan om deze te herstellen en deze fout te verw
     <value>Machtigingen verleend door de eigenaar</value>
   </data>
   <data name="Main_SharedWithMe_Column_Permissions_Value_Editor">
-    <value>Editor</value>
+    <value>Bewerker</value>
   </data>
   <data name="Main_SharedWithMe_Column_Permissions_Value_Viewer">
-    <value>Lezer</value>
+    <value>Kijker</value>
   </data>
   <data name="Main_SharedWithMe_Column_SharedBy">
     <value>Gedeeld door</value>
@@ -858,7 +1003,7 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>{0} item kon niet opgeladen worden</value>
   </data>
   <data name="Main_SharedWithMe_Intro_Description">
-    <value>Bestanden en mappen die gedeeld werden zullen hier worden weergegeven</value>
+    <value>Bestanden en mappen die gedeeld werden zullen hier verschijnen</value>
   </data>
   <data name="Main_SharedWithMe_Intro_Title">
     <value>Nog niets gedeeld</value>
@@ -959,12 +1104,33 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
   <data name="Main_Sidebar_NavigationMenu_Item_SharedWithMe_HelpText">
     <value>Menu-item: Gedeeld met mij</value>
   </data>
+  <data name="Main_Sidebar_Notification_ExceededQuota_Description">
+    <value>Synchronisatie gestopt: uw account heeft de opslagcapaciteit overschreden</value>
+  </data>
+  <data name="Main_Sidebar_Notification_ExceedingQuota_Description">
+    <value>U staat op het punt uw opslaglimiet te bereiken</value>
+  </data>
+  <data name="Main_Sidebar_Notification_GetStarted_Description">
+    <value>Aan de slag</value>
+  </data>
+  <data name="Main_Sidebar_Notification_NewVersion_Description">
+    <value>Er is een nieuwe versie van Proton Drive beschikbaar!</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SharingUnavailable_Description">
+    <value>Delen is tijdelijk niet beschikbaar</value>
+  </data>
+  <data name="Main_Sidebar_Notification_SyncFoldersFailure_Description">
+    <value>Een map kon niet gesynchroniseerd worden</value>
+  </data>
+  <data name="Main_Sidebar_Notification_UpdateRequired_Description">
+    <value>Om Proton Drive te blijven gebruiken moet u upgraden naar de nieuwste versie</value>
+  </data>
   <data name="Main_Sidebar_Offer_Button_GetDeal">
     <value>Kies deze _deal</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
   <data name="Main_Sidebar_Storage_Button_GetMoreStorage">
-    <value>Krijg meer opslagruimte</value>
+    <value>Krijg meer opslag</value>
   </data>
   <data name="Main_Sidebar_Storage_Info_StorageNotAvailable">
     <value>Ruimte-informatie niet beschikbaar</value>
@@ -973,13 +1139,19 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>{0} van {1} gebruikt</value>
   </data>
   <data name="Main_Sidebar_Storage_Title">
-    <value>Opslagruimte</value>
+    <value>Opslag</value>
   </data>
   <data name="Main_Sidebar_Storage_Tooltip">
     <value>Opslagruimte beheren</value>
   </data>
   <data name="Main_Window_Title">
     <value>Proton Drive</value>
+  </data>
+  <data name="MappingErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists">
+    <value>Deze map bevat een submap met synchronisatie op aanvraag. Stel een nieuwe gesynchroniseerde map in.</value>
+  </data>
+  <data name="MappingErrorCode_Value_ConflictingOnDemandSyncRootExists">
+    <value>Deze map is al gesynchroniseerd op aanvraag. Stel een nieuwe gesynchroniseerde map in.</value>
   </data>
   <data name="MappingErrorCode_Value_DriveAccessFailed">
     <value>Kan geen verbinding maken met Proton Drive. Controleer uw internetverbinding.</value>
@@ -1018,7 +1190,7 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>Synchronisatiemap niet gevonden. Deze mogelijk verwijderd, hernoemd of verplaatst. Herstel deze of stel een nieuwe synchronisatiemap in.</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludedByAnAlreadySyncedFolder">
-    <value>De geselecteerde map is reeds opgenomen door een gesynchroniseerde map</value>
+    <value>De geselecteerde map is opgenomen in een andere gesynchroniseerde map</value>
   </data>
   <data name="MappingErrorCode_Value_LocalFolderIncludesAnAlreadySyncedFolder">
     <value>De geselecteerde map bevat een reeds gesynchroniseerde map</value>
@@ -1029,14 +1201,14 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
   <data name="MappingErrorCode_Value_LocalFolderNotEmpty">
     <value>De map moet leeg zijn voordat u synchronisatie kunt instellen</value>
   </data>
-  <data name="MappingErrorCode_Value_LocalOnDemandSyncRootNotRegistered">
-    <value>De synchronisatiemap is onverwacht niet geregistreerd. Stel een nieuwe synchronisatiemap in.</value>
-  </data>
   <data name="MappingErrorCode_Value_LocalVolumeNotSupported">
     <value>Niet-ondersteund lokale schijftype. Probeer de synchronisatiemap op een andere lokale schijf in te stellen.</value>
   </data>
   <data name="MappingErrorCode_Value_None">
     <value></value>
+  </data>
+  <data name="MappingErrorCode_Value_OnDemandSyncRootNotRegistered">
+    <value>De gesynchroniseerde map is onverwachts niet geregistreerd. Stel een nieuwe gesynchroniseerde map in.</value>
   </data>
   <data name="MappingErrorCode_Value_RemoteShareWithMeItemDoesNotExist">
     <value>Kan geen toegang krijgen tot het gedeelde Proton Drive-bestand of de map. Controleer of die nog steeds met u gedeeld wordt.</value>
@@ -1060,7 +1232,7 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>Synchronisatiemappen instellen...</value>
   </data>
   <data name="MappingSetupStatus_Value_Succeeded">
-    <value>OK</value>
+    <value>Oké</value>
   </data>
   <data name="Onboarding_AccountRootFolderSelection_Button_ChangeFolder">
     <value>_Wijzigen</value>
@@ -1126,7 +1298,7 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>VPN</value>
   </data>
   <data name="Onboarding_UpgradeStorage_Title">
-    <value>Krijg meer opslagruimte</value>
+    <value>Krijg meer opslag</value>
   </data>
   <data name="ReleaseNoteType_Value_Feature">
     <value>Nieuwe Features</value>
@@ -1138,13 +1310,13 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>Verbeteringen</value>
   </data>
   <data name="SessionStatus_Value_Ending">
-    <value>Afmelden...</value>
+    <value>Uitloggen...</value>
   </data>
   <data name="SessionStatus_Value_Failed">
     <value>Aanmelden mislukt. Controleer uw internetverbinding.</value>
   </data>
   <data name="SessionStatus_Value_NotStarted">
-    <value>Afgemeld</value>
+    <value>Uitgelogd</value>
   </data>
   <data name="SessionStatus_Value_SigningIn">
     <value>Aanmelden...</value>
@@ -1217,6 +1389,29 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
   <data name="SignIn_Title_2FA">
     <value>Tweestapsverificatie</value>
   </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingDescendantOnDemandSyncRootExists">
+    <value>het bevat een submap op aanvraag gesynchroniseerd door {0}</value>
+    <comment>Placeholder {0}: An application name</comment>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_ConflictingOnDemandSyncRootExists">
+    <value>het is al op aanvraag gesynchroniseerd door {0}</value>
+    <comment>Placeholder {0}: An application name</comment>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_NetworkVolumeNotSupported">
+    <value>netwerk schijven worden niet ondersteund</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_None">
+    <value></value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_RemovableVolumeNotSupported">
+    <value>verwijderbare schijven worden niet ondersteund</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_Unknown">
+    <value>het inschakelen van synchronisatie op aanvraag is mislukt</value>
+  </data>
+  <data name="StorageOptimizationErrorCode_Value_VolumeNotSupported">
+    <value>lokaal schijftype wordt niet ondersteund</value>
+  </data>
   <data name="SyncFolderValidationResult_Title_InsufficientLocalFreeSpace">
     <value>Onvoldoende vrije ruimte op dit apparaat</value>
   </data>
@@ -1266,7 +1461,7 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>Offline</value>
   </data>
   <data name="SyncStatus_Value_Paused">
-    <value>Gepauzeerd</value>
+    <value>Onderbroken</value>
   </data>
   <data name="SyncStatus_Value_Synchronizing">
     <value>Synchroniseren...</value>
@@ -1299,22 +1494,10 @@ De inhoud van bestanden wordt alleen op aanvraag gedownload.</value>
     <value>_Aanmelden</value>
     <comment>The underscore (_) denotes an access key, which enhances the app's accessibility by allowing users to press the letter following the underscore instead of using a mouse to click the button.</comment>
   </data>
-  <data name="Main_Activity_TimeElapsed_OneMinuteAgo" xml:space="preserve">
-    <value>een minuut geleden</value>
+  <data name="ToggleSwitch_Off">
+    <value>Uit</value>
   </data>
-  <data name="Main_Activity_TimeElapsed_OneHourAgo" xml:space="preserve">
-    <value>een uur geleden</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_OneDayAgo" xml:space="preserve">
-    <value>een dag geleden</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_MinutesAgoFormat" xml:space="preserve">
-    <value>{0} minuten geleden</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_HoursAgoFormat" xml:space="preserve">
-    <value>{0} uur geleden</value>
-  </data>
-  <data name="Main_Activity_TimeElapsed_DaysAgoFormat" xml:space="preserve">
-    <value>{0} dagen geleden</value>
+  <data name="ToggleSwitch_On">
+    <value>Aan</value>
   </data>
 </root>

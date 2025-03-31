@@ -1,4 +1,4 @@
-﻿namespace ProtonDrive.App.Mapping.Setup;
+﻿namespace ProtonDrive.App.SystemIntegration;
 
 public enum NameType
 {

@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,21 +18,26 @@ internal class BugReportClient : IBugReportClient
         _randomStringGenerator = new RandomStringGenerator(RandomStringCharacterGroup.NumberAndLatin);
     }
 
-    public async Task SendAsync(BugReportBody body, Stream? attachment, CancellationToken cancellationToken)
+    public async Task SendAsync(BugReportBody body, IReadOnlyCollection<BugReportAttachment> attachments, CancellationToken cancellationToken)
     {
         var reportClient = _httpClientFactory.CreateClient(ApiClientConfigurator.CoreHttpClientName);
 
         using var report = GetReport(body);
 
-        if (attachment is not null)
+        if (attachments.Count > 0)
         {
-            var logs = new StreamContent(attachment);
+            foreach (var attachment in attachments)
+            {
+                var content = new StreamContent(attachment.Stream);
 
-            report.Add(logs, "App-Logs", "Drive-Logs.zip");
+                report.Add(content, attachment.Name, attachment.FileName);
+            }
         }
 
         await reportClient.PostAsync("v4/reports/bug", report, cancellationToken)
-            .ReadFromJsonAsync<ApiResponse>(cancellationToken).ThrowOnFailure().ConfigureAwait(false);
+            .ReadFromJsonAsync<ApiResponse>(cancellationToken)
+            .ThrowOnFailure()
+            .ConfigureAwait(false);
     }
 
     private MultipartFormDataContent GetReport(BugReportBody parameters)

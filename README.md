@@ -1,4 +1,13 @@
-# Proton Drive app for Windows
+# Proton Drive app for Linux 
+
+
+fork of https://github.com/ProtonDriveApps/windows-drive
+
+Planning to rewrite and port to linux.
+Side project for learning rust don't expect anything anytime soon.
+
+
+
 
 Copyright (c) 2025 Proton AG
 
